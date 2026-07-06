@@ -1,0 +1,97 @@
+cases
+---------
+case_id             PK
+created_at          TIMESTAMP
+phase               ENUM                -- PROVISIONAL, DISCOVERY, ARGUMENT, JURY, VERDICT, ARCHIVED
+
+case_submissions
+---------
+case_id             FK -> cases
+user_id             FK -> users
+content             CHAR(100)
+image_url           CHAR(500)
+created_at          TIMESTAMP
+
+evidence
+---------
+ev_id               PK
+case_id             FK -> cases
+user_id             FK -> users
+evidence_num                            -- relative to case, so they can be cited easier in arguments 
+content             CHAR(200)
+image_url           CHAR(500)
+created_at          TIMESTAMP
+UNIQUE(case_id, evidence_num)
+
+arguments
+---------
+arg_id              PK
+case_id             FK -> cases
+user_id             FK -> users
+arg_num             INT                 -- relative to case, so they can be cited easier by jurors 
+text                CHAR(600)
+created_at          TIMESTAMP
+UNIQUE(case_id, arg_num)
+
+arg_reference
+---------
+id                  PK
+arg_id              FK -> arguments
+reference_type      ENUM                -- EVIDENCE, CASE
+reference_id        INT
+UNIQUE(arg_id, reference_type, reference_id)
+
+case_submission_votes
+---------
+case_id             FK -> cases
+user_id             FK -> users
+vote                BOOL
+
+evidence_votes
+---------
+evidence_id         FK -> evidence
+user_id             FK -> users
+vote                BOOL
+
+argument_votes
+---------
+argument_id         FK -> arguments
+user_id             FK -> users
+vote                BOOL
+
+jury_votes
+---------
+user_id             FK -> users
+evidence_id         FK -> evidence      -- can select multiple pieces of evidence as most convincing
+vote                BOOL
+created_at          TIMESTAMP
+
+users
+---------
+user_id             INT
+name                CHAR(40)
+image_url           CHAR(500)
+bio                 CHAR(500)
+total_xp            INT
+created_at          TIMESTAMP
+
+xp_events
+---------
+xp_event_id         PK
+user_id             FK -> users
+amount              INT
+reason              ENUM          -- EVIDENCE_SUBMITTED, JURY_VOTE, CASE_ADVANCED_TO_TRIAL...
+reference_type      ENUM          -- CASE, EVIDENCE, ARGUMENT, VOTE, ACHIEVEMENT
+reference_id        BIGINT        -- ID of the object that caused the XP
+created_at          TIMESTAMP
+
+achievements
+---------
+achievement_id      PK
+name                TEXT
+
+user_achievements
+---------
+user_id             FK -> users
+achievement_id      FK -> achievements
+highlighted         BOOL
