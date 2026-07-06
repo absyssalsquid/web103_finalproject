@@ -20,10 +20,10 @@ This unit, be sure to complete all tasks listed below. To complete a task, place
 ## Reflection
 
 ### 1. What went well during this unit?
-
+Team members very organized and able to delegate/select tasks and responsibilities for the project.
 
 ### 2. What were some challenges your group faced in this unit?
-
+Could not find time to schedule a group call, had to coordinate entirely over text through Slack, which made progress a bit slow.
 
 ### 3. What additional support will you need in upcoming units as you continue to work on your final project?
-
+Information about industry conventions when structuring backend data

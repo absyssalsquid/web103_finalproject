@@ -1,26 +1,33 @@
+enums
+submission_vote         UP, DOWN
+juror_vote              GUILTY, NOT_GUILTY, INSUFFICIENT_EVIDENCE
+verdict                 GUILTY, NOT_GUILTY, TB_PECKED_AT
+xp_event_reason         SUBMISSION, JURY_VOTE, CASE_ADVANCED_TO_TRIAL, SUBMISSION_VOTE, SUBMISSION_CITED
+xp_event_ref_type       CASE, EVIDENCE, ARGUMENT, VOTE
+
 cases
 ---------
 case_id             PK
-created_at          TIMESTAMP
-phase               ENUM                -- PROVISIONAL, DISCOVERY, ARGUMENT, JURY, VERDICT, ARCHIVED
+user_id             FK -> users         -- submitted by
+created_at          TIMESTAMP           -- submission time
+phase               ENUM                -- PROVISIONAL, DISCOVERY, ARGUMENT, JURY, VERDICT, CLOSED
+phase_started_at    TIMESTAMP
+phase_ends_at       TIMESTAMP
+accusation          VARCHAR(100)
+image_url           VARCHAR(500)
+verdict             ENUM                -- GUILTY, NOT_GUILTY, TB_PECKED_AT (if votes don't meet threshold)
+judge_ruling        VARCHAR(300)
 
-case_submissions
----------
-case_id             FK -> cases
-user_id             FK -> users
-content             CHAR(100)
-image_url           CHAR(500)
-created_at          TIMESTAMP
 
 evidence
 ---------
 ev_id               PK
 case_id             FK -> cases
 user_id             FK -> users
-evidence_num                            -- relative to case, so they can be cited easier in arguments 
-content             CHAR(200)
-image_url           CHAR(500)
-created_at          TIMESTAMP
+evidence_num        INT                 -- relative to case, so they can be cited easier in arguments, generated on backend
+content             VARCHAR(200)
+image_url           VARCHAR(500)
+created_at          TIMESTAMP           -- submission time
 UNIQUE(case_id, evidence_num)
 
 arguments
@@ -29,69 +36,87 @@ arg_id              PK
 case_id             FK -> cases
 user_id             FK -> users
 arg_num             INT                 -- relative to case, so they can be cited easier by jurors 
-text                CHAR(600)
-created_at          TIMESTAMP
+text                VARCHAR(600)
+created_at          TIMESTAMP           -- submission time
 UNIQUE(case_id, arg_num)
 
-arg_reference
----------
-id                  PK
+argument_case_refs
+------------------
 arg_id              FK -> arguments
-reference_type      ENUM                -- EVIDENCE, CASE
-reference_id        INT
-UNIQUE(arg_id, reference_type, reference_id)
+case_id             FK -> cases         -- precendent referenced in argument
+
+argument_evidence_refs
+----------------------
+arg_id              FK -> arguments
+evidence_id         FK -> evidence      -- supporting evidence from the case referenced in argument
 
 case_submission_votes
 ---------
 case_id             FK -> cases
 user_id             FK -> users
-vote                BOOL
+vote                ENUM                -- UP, DOWN                
+UNIQUE(case_id, user_id)
 
 evidence_votes
 ---------
 evidence_id         FK -> evidence
 user_id             FK -> users
-vote                BOOL
+vote                ENUM                -- UP, DOWN
+UNIQUE(evidence_id, user_id)
 
 argument_votes
 ---------
 argument_id         FK -> arguments
 user_id             FK -> users
-vote                BOOL
+vote                ENUM                -- UP, DOWN
+UNIQUE(argument_id, user_id)
 
 jury_votes
 ---------
+jury_vote_id        PK
 user_id             FK -> users
+vote                ENUM                -- GUILTY, NOT_GUILTY
+created_at          TIMESTAMP           -- submission time
+UNIQUE(jury_vote_id, user_id)
+
+jury_evidence
+---------
+jury_vote_id        FK -> jury_votes
 evidence_id         FK -> evidence      -- can select multiple pieces of evidence as most convincing
-vote                BOOL
-created_at          TIMESTAMP
 
 users
 ---------
-user_id             INT
-name                CHAR(40)
-image_url           CHAR(500)
-bio                 CHAR(500)
+user_id             PK
+username            VARCHAR(40)
+image_url           VARCHAR(500)
+bio                 VARCHAR(500)
 total_xp            INT
-created_at          TIMESTAMP
+created_at          TIMESTAMP           -- submission time
+UNIQUE(username)
+
+
 
 xp_events
 ---------
 xp_event_id         PK
 user_id             FK -> users
 amount              INT
-reason              ENUM          -- EVIDENCE_SUBMITTED, JURY_VOTE, CASE_ADVANCED_TO_TRIAL...
+reason              ENUM          -- SUBMISSION, JURY_VOTE, CASE_ADVANCED_TO_TRIAL, SUBMISSION_VOTE...
 reference_type      ENUM          -- CASE, EVIDENCE, ARGUMENT, VOTE, ACHIEVEMENT
 reference_id        BIGINT        -- ID of the object that caused the XP
-created_at          TIMESTAMP
+created_at          TIMESTAMP     -- submission time
+UNIQUE(user_id, reason, reference_type, reference_id)
 
 achievements
 ---------
 achievement_id      PK
-name                TEXT
+name                VARCHAR(80)
+description         VARCHAR(150)
+requirements        VARCHAR(200)
 
 user_achievements
 ---------
 user_id             FK -> users
 achievement_id      FK -> achievements
+earned_at           TIMESTAMP
 highlighted         BOOL

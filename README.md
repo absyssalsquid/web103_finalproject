@@ -59,8 +59,8 @@ During the Discovery phase, allows users to submit evidence with character limit
 During Argument phase, allows users to submit arguments with character limits and up to five citations referencing evidence or previous cases.                                
 [gif here]
 
-### Jury System                                 
-During the Jury phase, Jurors are allowed to vote on cases. To ensure selected users can complete jury duty, community members elect to become a Juror and are immediately assigned a random case in which they can vote "Guilty" or "Not Guilty".                
+### Jury System
+Each day, a user is issued N jury summons (e.g. 3). When they click "Serve Jury Duty," they consume one summons and are assigned a random eligible case in which they can vote.
 [gif here]
 
 ### Judge Decision Interface                    
