@@ -1,0 +1,9 @@
+.case {
+    padding: 5px;
+}
+
+@media screen and (min-width: 500px) {
+    .case {
+        padding: 20px;
+    }
+}

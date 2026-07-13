@@ -1,0 +1,5 @@
+.CaseCard{
+    padding: 5px;
+    border: 1px solid var(--accent-border);
+    border-radius: 5px;
+}

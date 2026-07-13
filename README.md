@@ -2,7 +2,7 @@
 
 Designed and developed by:  
 Samuel Alemu  
-Tamara B  
+Tamara Berdichevsky  
 Sri Narendrula  
 Dien Tran  
 Tatiana Vela  
@@ -22,8 +22,11 @@ Wanted to do something whimsical and memorable. Inspired by "bird law" in the sh
 ## Tech Stack
 
 Frontend:
+React
 
 Backend:
+Supabase
+Node/Express
 
 ## Features
 
@@ -40,7 +43,7 @@ Allows users to submit an object and accusation within the character limit while
 [gif here]
 
 ### Case Lifecycle Management                   
-Automatically progresses cases through Provisional → Discovery → Arguments → Jury → Verdict → Outcome on a daily schedule. Once a phase is closed, submissions in that phase cannot be voted on.       
+Automatically progresses cases every 24 hours: Provisional → Discovery → Arguments → Jury Deliberation → Verdict → Outcome on a daily schedule. Once a phase is closed, submissions in that phase cannot be voted on.
 [gif here]
 
 ### Case Directory                     
@@ -56,11 +59,11 @@ During the Discovery phase, allows users to submit evidence with character limit
 [gif here]
 
 ### Argument Submission                         
-During Argument phase, allows users to submit arguments with character limits and up to five citations referencing evidence or previous cases.                                
+During Argument phase, allows users to submit arguments with character limits and up to five citations referencing evidence from current case or judgements from previous cases.                                
 [gif here]
 
 ### Jury System
-Each day, a user is issued N jury summons (e.g. 3). When they click "Serve Jury Duty," they consume one summons and are assigned a random eligible case in which they can vote.
+Each day, a user is issued N jury summons (e.g. 3). When they click "Serve Jury Duty," they consume one summons and are assigned a random eligible case in which they can vote Guilty, Not Guilty, or Insufficient Evidence.
 [gif here]
 
 ### Judge Decision Interface                    

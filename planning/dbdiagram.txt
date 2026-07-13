@@ -1,0 +1,193 @@
+Enum submission_vote {
+  UP
+  DOWN
+}
+
+Enum case_phase {
+  PROVISIONAL
+  DISCOVERY
+  ARGUMENT
+  JURY_DELIBERATION
+  RULING
+  CLOSED
+}
+
+Enum juror_vote {
+  GUILTY
+  NOT_GUILTY
+  INSUFFICIENT_EVIDENCE
+}
+
+Enum verdict {
+  GUILTY
+  NOT_GUILTY
+  TB_PECKED_AT
+}
+
+Enum xp_event_reason {
+  SUBMISSION
+  JURY_VOTE
+  CASE_ADVANCED_TO_TRIAL
+  SUBMISSION_VOTE
+  SUBMISSION_CITED
+}
+
+Enum xp_event_ref_type {
+  CASE
+  EVIDENCE
+  ARGUMENT
+  VOTE
+}
+
+Table users {
+  user_id bigint [pk]
+  username varchar(40) [unique]
+  image_url varchar(500)
+  bio varchar(500)
+  total_xp int
+  created_at timestamptz
+}
+
+Table cases {
+  case_id bigint [pk]
+  user_id bigint [ref: > users.user_id]
+  created_at timestamptz
+  accusation varchar(200)
+  image_url varchar(500)
+  verdict verdict
+  judge_id bigint [ref: > users.user_id]
+  judge_ruling varchar(300)
+  phase case_phase
+  phase_start timestamptz
+  phase_end timestamptz
+}
+
+Table evidence {
+  evidence_id bigint [pk]
+  case_id bigint [ref: > cases.case_id]
+  user_id bigint [ref: > users.user_id]
+  evidence_num int
+  content varchar(150)
+  image_url varchar(500)
+  created_at timestamptz
+
+  indexes {
+    (case_id, evidence_num) [unique]
+  }
+}
+
+Table arguments {
+  arg_id bigint [pk]
+  case_id bigint [ref: > cases.case_id]
+  user_id bigint [ref: > users.user_id]
+  arg_num int
+  text varchar(600)
+  created_at timestamptz
+
+  indexes {
+    (case_id, arg_num) [unique]
+  }
+}
+
+Table argument_case_refs {
+  arg_id bigint [ref: > arguments.arg_id]
+  case_id bigint [ref: > cases.case_id]
+
+  indexes {
+    (arg_id, case_id) [pk]
+  }
+}
+
+Table argument_evidence_refs {
+  arg_id bigint [ref: > arguments.arg_id]
+  evidence_id bigint [ref: > evidence.evidence_id]
+
+  indexes {
+    (arg_id, evidence_id) [pk]
+  }
+}
+
+Table case_submission_votes {
+  case_id bigint [ref: > cases.case_id]
+  user_id bigint [ref: > users.user_id]
+  vote submission_vote
+
+  indexes {
+    (case_id, user_id) [pk]
+  }
+}
+
+Table evidence_votes {
+  evidence_id bigint [ref: > evidence.evidence_id]
+  user_id bigint [ref: > users.user_id]
+  vote submission_vote
+
+  indexes {
+    (evidence_id, user_id) [pk]
+  }
+}
+
+Table argument_votes {
+  arg_id bigint [ref: > arguments.arg_id]
+  user_id bigint [ref: > users.user_id]
+  vote submission_vote
+
+  indexes {
+    (arg_id, user_id) [pk]
+  }
+}
+
+Table jury_assignments {
+  id bigint [pk]
+  case_id bigint [ref: > cases.case_id]
+  user_id bigint [ref: > users.user_id]
+  vote juror_vote
+  created_at timestamptz
+  completed_at timestamptz
+
+  indexes {
+    (case_id, user_id) [unique]
+  }
+}
+
+Table jury_arg_refs {
+  jv_id bigint [ref: > jury_assignments.id]
+  arg_id bigint [ref: > arguments.arg_id]
+
+  indexes {
+    (jv_id, arg_id) [pk]
+  }
+}
+
+Table xp_events {
+  xp_event_id bigint [pk]
+  user_id bigint [ref: > users.user_id]
+  amount int
+  reason xp_event_reason
+  reference_type xp_event_ref_type
+  reference_id bigint
+  created_at timestamptz
+
+  indexes {
+    (user_id, reason, reference_type, reference_id) [unique]
+  }
+}
+
+Table achievements {
+  achievement_id bigint [pk]
+  name varchar(80)
+  requirements varchar(200)
+}
+
+Table user_achievements {
+  user_id bigint [ref: > users.user_id]
+  achievement_id bigint [ref: > achievements.achievement_id]
+  progress int
+  threshold int
+  earned_at timestamptz
+  highlighted boolean
+
+  indexes {
+    (user_id, achievement_id) [pk]
+  }
+}

@@ -1,0 +1,59 @@
+.Navigation {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: 50px;
+}
+.nav-logo {
+  font-weight: bold;
+  font-size: 1.5em;
+  line-height: 1.5em;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  text-decoration: none;
+}
+
+.nav-link {
+  padding: 0.2em 0.8em;
+  text-decoration: none;
+}
+
+.nav-link.active {
+  background-color: var(--accent);
+  color: var(--text-h);
+}
+
+.nav-link:hover {
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.flex-grow {flex-grow: 9999;}
+
+.countdown{
+  padding: 0.2em 0.5em;
+  border-radius: 5px;
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+  display: inline-block;
+}
+
+.text-left {text-align: left;}
+.text-right {text-align: right;}
+
+button {
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  margin: 0.5em;
+  border: 1px solid var(--accent-border);
+  background-color: var(--accent-bg);
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+button:hover {
+  background-color: var(--accent);
+}
+
+tr.summary td {
+  border-top: 1px solid;
+}
