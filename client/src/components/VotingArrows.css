@@ -1,0 +1,28 @@
+.VotingArrows {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+}
+
+.VotingArrows .pair{
+    display: flex;
+    align-items: center;
+    gap:5px
+}
+
+.VotingArrows .arrow {
+    font-size: 1.2rem;
+}
+
+/* .VotingArrows .arrow {
+    padding: 0 0.4rem;
+    border-radius: 99999px;
+}
+.VotingArrows .arrow.up {
+    background-color: aqua;
+}
+
+.VotingArrows .arrow.down {
+    background-color: orange;
+} */

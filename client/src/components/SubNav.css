@@ -1,0 +1,32 @@
+.SubNav{
+    margin-top: 1rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns:  auto auto auto auto;
+    overflow-x: auto;
+    gap: 0.2rem;
+}
+
+.SubNav .nav-link {
+    /* border-radius: 10px 10px 0 0 ; */
+    padding: 0.5em 1em;
+    font-weight: 600;
+    text-align: center;
+    display: block;
+    background-color: var(--dim-bg);
+    transition: all 0.07s ease;
+}
+
+.SubNav .nav-link .nav-text {
+    display: inline-block;
+    transition: all 0.07s ease;
+}
+
+.SubNav .nav-link:hover {
+    background-color: var(--accent-bg);
+    transition: all 0.15s ease;
+}
+
+.SubNav .nav-link:hover .nav-text {
+    transition: all 0.15s ease;
+}

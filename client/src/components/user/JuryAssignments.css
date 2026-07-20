@@ -1,0 +1,11 @@
+.JuryAssignments table{
+    width: 100%;
+    max-width: 580px;
+    align-self: stretch;
+    margin: 0 auto;
+}
+
+.JuryAssignments tbody tr:hover {
+    background-color: var(--dim-bg);
+    cursor: pointer;
+}

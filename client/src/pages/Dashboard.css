@@ -1,0 +1,20 @@
+
+.Dashboard h2{
+    margin-bottom: 0.5rem;
+}
+.Dashboard h2:not(:first-of-type){
+    margin-top: 3rem;
+}
+
+.Dashboard .summary-stat-container{
+    margin-top: 0;
+}
+
+.Dashboard .settings label{
+    margin-right: .8rem;
+}
+
+.Dashboard .sub-content{
+    display: flex;
+    flex-direction: column;
+}

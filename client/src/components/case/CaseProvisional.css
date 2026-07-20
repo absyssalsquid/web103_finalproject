@@ -1,0 +1,22 @@
+.Provisional{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.Provisional .option{
+    padding: 4rem 0; 
+    color: var(--text-h);
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    box-sizing: border-box;
+    flex: 1 1 250px; /* grow, shrink, basis */
+    min-width: 250px;
+    transition: font-size 0.2s ease;
+}
+
+.Provisional .option:hover{font-size: 2.2rem;}
+.Provisional .option:active{font-size: 2.1rem;}
+
+.Provisional .option.prosecute{background-color: rgb(206, 63, 63);}
+.Provisional .option.defend{background-color: rgb(108, 204, 172);}

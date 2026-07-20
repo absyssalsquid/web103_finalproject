@@ -11,7 +11,8 @@ cases
 case_id             PK
 user_id             FK -> users         -- submitted by
 created_at          TIMESTAMPTZ         -- submission time
-accusation          VARCHAR(200)
+object_name         VARCHAR(60)  
+accusation          VARCHAR(250)        -- description of alleged crime and harm
 image_url           VARCHAR(500)
 verdict             ENUM                -- GUILTY, NOT_GUILTY, TB_PECKED_AT (if votes don't meet threshold)
 judge_id            FK -> users
@@ -26,7 +27,7 @@ evidence_id         PK
 case_id             FK -> cases
 user_id             FK -> users
 evidence_num        INT                 -- relative to case, so they can be cited easier in arguments, generated on backend
-content             VARCHAR(150)
+text                VARCHAR(150)        -- evidence indicating crime or harm
 image_url           VARCHAR(500)
 created_at          TIMESTAMPTZ         -- submission time
 UNIQUE(case_id, evidence_num)
@@ -89,6 +90,7 @@ image_url           VARCHAR(500)
 bio                 VARCHAR(500)
 total_xp            INT                 -- cached value
 created_at          TIMESTAMPTZ         -- submission time
+flair               FK -> achievements  -- user flair that shows by username outside of profile. must be achieved
 UNIQUE(username)
 
 jury_assignments
@@ -116,14 +118,13 @@ achievements
 ---------
 achievement_id      PK
 name                VARCHAR(80)
-requirements        VARCHAR(200)        -- description for users
+requirements        VARCHAR(120)        -- description for users
+threshold           INT
 
 user_achievements
 ---------
 user_id             FK -> users
 achievement_id      FK -> achievements
 progress            INT                 -- for achievements that require user do action N times
-threshold           INT
 earned_at           TIMESTAMPTZ
-highlighted         BOOL
 PRIMARY KEY(user_id, achievement_id)

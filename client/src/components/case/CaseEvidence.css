@@ -1,0 +1,17 @@
+.CaseEvidence {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.CaseEvidence .evidence-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+
+    @media screen and (min-width:576px) {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) ;
+    }
+}

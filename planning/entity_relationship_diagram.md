@@ -48,6 +48,7 @@ Each table is outlined below.
 | bio | VARCHAR(500) | user bio |
 | total_xp | INT | cached total XP |
 | created_at | TIMESTAMPTZ | account creation time |
+| flair | FK → achievements | achievement shown by username outside of profile |
 
 ### cases
 
@@ -56,7 +57,8 @@ Each table is outlined below.
 | case_id | PK | primary key |
 | user_id | FK → users | submitted by |
 | created_at | TIMESTAMPTZ | submission time |
-| accusation | VARCHAR(200) | the accusation |
+| object_name | VARCHAR(60) | name of the accused object |
+| accusation | VARCHAR(250) | the accusation |
 | image_url | VARCHAR(500) | image of the accused object |
 | verdict | ENUM (`verdict`) | GUILTY, NOT_GUILTY, TB_PECKED_AT (if votes don't meet threshold) |
 | judge_id | FK → users | assigned judge |
@@ -73,7 +75,7 @@ Each table is outlined below.
 | case_id | FK → cases | parent case |
 | user_id | FK → users | submitted by |
 | evidence_num | INT | case-relative number for citation in arguments, generated on backend |
-| content | VARCHAR(150) | evidence text |
+| text | VARCHAR(150) | evidence text |
 | image_url | VARCHAR(500) | evidence image |
 | created_at | TIMESTAMPTZ | submission time |
 | | | UNIQUE(case_id, evidence_num) |
@@ -172,8 +174,8 @@ Each table is outlined below.
 |-------------|------|-------------|
 | achievement_id | PK | primary key |
 | name | VARCHAR(80) | achievement name |
-| requirements | VARCHAR(200) | description shown to users |
-| | | PRIMARY KEY(user_id, achievement_id) |
+| requirements | VARCHAR(120) | description shown to users |
+| threshold | INT | required count to earn |
 
 ### user_achievements
 
@@ -182,6 +184,4 @@ Each table is outlined below.
 | user_id | FK → users | user |
 | achievement_id | FK → achievements | achievement |
 | progress | INT | current progress for repeat-action achievements |
-| threshold | INT | required count to earn |
 | earned_at | TIMESTAMPTZ | when earned |
-| highlighted | BOOL | whether user pins it to their profile |

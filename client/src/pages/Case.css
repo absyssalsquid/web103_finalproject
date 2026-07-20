@@ -1,9 +1,78 @@
-.case {
-    padding: 5px;
+
+.Case .SubNav .nav-link.active {
+    background-color: var(--accent-bg);
 }
 
-@media screen and (min-width: 500px) {
-    .case {
-        padding: 20px;
+.Case .SubNav .nav-link {
+    border-radius: 10px 10px 0 0 ;
+    margin-top: 1rem;
+}
+
+.Case .SubNav .nav-link:hover {
+    transform: scaleY(1.2) translateY(-0.22em);
+    overflow: visible
+}
+.Case .SubNav .nav-link:hover .nav-text {
+    transform: scaleX(1.2);
+} 
+
+.overview {
+    display: flex;
+    margin: 1rem 0;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.overview img.case-img{
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    background-color: white;
+    width: 250px;
+    align-self: center;
+}
+
+.overview .text{
+    max-width: 40rem;
+}
+
+.overview .case-num {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+    color: var(--text-dim)
+}
+
+.overview .accused{
+    font: 600 1.4rem/1.1 var(--sans);
+    color: var(--text-h);
+    margin-bottom: 0.5rem;
+}
+
+.overview .accusation{
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+
+.overview .file-info{
+    margin-bottom: .5rem;
+}
+
+@media screen and (min-width: 576px) {
+    .overview {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .overview img.case-img{
+        width: 15rem;
+        margin-bottom: 0;
+    }
+
+    .overview .accused{
+        font-size: 1.6rem;
     }
 }
+
+
+
+

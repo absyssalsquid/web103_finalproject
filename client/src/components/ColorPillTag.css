@@ -1,0 +1,24 @@
+.ColorPillTag {
+    font-size: 1rem;
+}
+.ColorPillTag .name{
+    display: inline-block;
+    color: white;
+    padding: 1px 0.7em;
+    border-radius: 99999px;
+    padding-left: 0.7em;
+}
+.ColorPillTag.timer .name{
+    border-radius: 99999px 0 0 99999px;
+    padding: 1px 0.4em;
+}
+
+.ColorPillTag.timer .countdown{
+    display: inline-block;
+    color: var(--text-h);
+    border-radius: 0 99999px 99999px 0;
+    padding: 1px 0.6em;
+    padding-right: 0.7em;
+    background-color: var(--dim-bg);
+}
+/* .ColorPillTag.closed .countdown{display: none;} */

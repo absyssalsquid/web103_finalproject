@@ -1,0 +1,79 @@
+.UserCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.UserCard .user-icon{
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    background-color: white;
+    border-radius: 50%;
+    width: 6rem;
+}
+
+.UserCard .text{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.UserCard .main{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.UserCard .username{
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-h);
+}
+
+.UserCard .flair{
+    font-size: 0.8rem;
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 1px 0.6em;
+}
+
+.UserCard .bio{
+    font-size: .9rem;
+}
+
+.UserCard .joined{
+    color: var(--text-dim);
+    font-size: 0.8rem;
+}
+
+@media screen and (min-width:576px){
+    .UserCard {
+        flex-direction: row;
+    }
+    
+    .UserCard .user-icon{
+        width: 8rem;
+    }
+    .UserCard .text{
+        align-items: flex-start;
+    }
+    .UserCard .main{
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .UserCard .username{
+        font-size: 1.6rem;
+    }
+}
+
+button.edit-profile {
+    font-size: 0.8em;
+    /* transform: scaleX(-1); */
+    padding: 3px 0.8em;
+}

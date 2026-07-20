@@ -1,0 +1,54 @@
+.Achievements{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 5px;
+}
+
+.AchievementTile {
+    border: 1px var(--border);
+    border-style: dashed;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+    position: relative;
+}
+
+.AchievementTile.earned{
+    border-style: solid;
+}
+
+
+.AchievementTile .head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.AchievementTile .head img{
+    width: 40px;
+    aspect-ratio: 1/1;
+    margin-right: 1rem;
+}
+
+.AchievementTile .head .name{
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+
+.AchievementTile .requirements{
+    line-height: 1.2;
+    margin: 0.5em 0;
+}
+
+.AchievementTile .earned-at{
+    color: var(--text-dim);
+    font-size: 0.8rem;
+}
+
+.AchievementTile .star{
+    font-size: 2em;
+    position: absolute;
+    top:0.2rem;
+    right:0.2rem;
+    color: rgb(216, 106, 15);
+}

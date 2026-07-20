@@ -1,4 +1,4 @@
-import ArgumentCard from "./cards/ArgumentCard";
+import ArgumentCard from "../cards/ArgumentCard";
 
 const CaseArguments = ({phaseDelta,  data}) => {
 
@@ -8,10 +8,9 @@ const CaseArguments = ({phaseDelta,  data}) => {
     const isActivePhase = phaseDelta == 0;
 
     return (
-        <div>
-            {isActivePhase && (<button className="btn btn-primary">Submit Argument</button>)}
+        <div className="sub-content">
             {data.length === 0 
-                ? <p>No arguments submitted{isActivePhase && ' yet'}.</p> 
+                ? <div className="minimal">No arguments submitted{isActivePhase && ' yet'}.</div> 
                 : data.map((arg, index) => <ArgumentCard key={index} data={arg} />)}
         </div>
     )

@@ -1,4 +1,30 @@
-a.UserTag {
+.UserTag {
+    display: inline-flex;
     padding: 0.2rem;
-    text-decoration: underline;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.UserTag img.user-icon {
+    height: 30px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    /* background-color: white; */
+    border: 1px solid var(--text-dim);
+@media screen and (min-width: 576px) {
+    height: 35px;
+}
+}
+
+.UserTag .text .name {
+    display: block;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.UserTag .text .date {
+    font-size: 0.7em;
+    color: var(--text-dim);
 }

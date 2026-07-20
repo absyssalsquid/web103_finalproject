@@ -46,13 +46,15 @@ Table users {
   bio varchar(500)
   total_xp int
   created_at timestamptz
+  flair bigint [ref: > achievements.achievement_id]
 }
 
 Table cases {
   case_id bigint [pk]
   user_id bigint [ref: > users.user_id]
   created_at timestamptz
-  accusation varchar(200)
+  object_name varchar(60)
+  accusation varchar(250)
   image_url varchar(500)
   verdict verdict
   judge_id bigint [ref: > users.user_id]
@@ -67,7 +69,7 @@ Table evidence {
   case_id bigint [ref: > cases.case_id]
   user_id bigint [ref: > users.user_id]
   evidence_num int
-  content varchar(150)
+  text varchar(150)
   image_url varchar(500)
   created_at timestamptz
 
@@ -176,16 +178,15 @@ Table xp_events {
 Table achievements {
   achievement_id bigint [pk]
   name varchar(80)
-  requirements varchar(200)
+  requirements varchar(120)
+  threshold int
 }
 
 Table user_achievements {
   user_id bigint [ref: > users.user_id]
   achievement_id bigint [ref: > achievements.achievement_id]
   progress int
-  threshold int
   earned_at timestamptz
-  highlighted boolean
 
   indexes {
     (user_id, achievement_id) [pk]
