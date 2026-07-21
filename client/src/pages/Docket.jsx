@@ -18,10 +18,11 @@ const PHASE_OPTIONS = [
 const SORT_OPTIONS = [
     { value: 'newest', label: 'Newest' },
     { value: 'oldest', label: 'Oldest' },
-    // { value: 'top', label: 'Top rated' },
-    { value: 'hot', label: 'Hot' },
-    // { value: 'controversial', label: 'Controversial' },
+    { value: 'popular', label: 'Popular' },
+    { value: 'prosecute', label: 'Prosecute' },
+    { value: 'defend', label: 'Defend' },
     { value: 'countdown', label: 'Countdown' },
+    // { value: 'controversial', label: 'Controversial' },
 ]
 
 const SAMPLE_CASES = [
@@ -39,13 +40,12 @@ const total = (c) => (c.up_count ?? 0) + (c.down_count ?? 0)
 const SORTERS = {
     newest: (a, b) => b.case_id - a.case_id,
     oldest: (a, b) => a.case_id - b.case_id,
-    top: (a, b) => net(b) - net(a),
-    hot: (a, b) => total(b) - total(a),
-    // closest up/down split (relative to volume) first
-    controversial: (a, b) =>
+    prosecute: (a, b) => net(b) - net(a),
+    defend: (a, b) => net(a) - net(b),
+    popular: (a, b) => total(b) - total(a),
+    countdown: (a, b) => a.phase_end - b.phase_end, // soonest phase deadline first
+    controversial: (a, b) => // closest up/down split (relative to volume) first
         Math.abs(net(a)) / (total(a) || 1) - Math.abs(net(b)) / (total(b) || 1),
-    // soonest phase deadline first
-    countdown: (a, b) => a.phase_end - b.phase_end,
 }
 
 const Docket = () => {

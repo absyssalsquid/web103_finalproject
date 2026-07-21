@@ -4,7 +4,7 @@ export async function login(params) {
 }
 
 export async function register(params) {
-    console.log('registering with', params.username, params.password)
+    console.log('registering with', params.username, params.password, params.password2)
   // ...
 }
 
