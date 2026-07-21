@@ -1,0 +1,17 @@
+.CaseArguments {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.CaseArguments .arguments-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 600px;
+
+    @media screen and (min-width:576px) {
+        
+    }
+}

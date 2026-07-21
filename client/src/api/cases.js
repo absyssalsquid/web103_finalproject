@@ -1,5 +1,5 @@
 
-import {SAMPLE_USER, SAMPLE_CASE, SAMPLE_CASE_EVIDENCE, SAMPLE_JURY_SUMMARY, SAMPLE_ACHIEVEMENTS} from "./test_data"
+import {SAMPLE_USER, SAMPLE_CASE, generateSampleEvidences, generateSampleArguments, SAMPLE_JURY_SUMMARY, SAMPLE_ACHIEVEMENTS} from "./test_data"
 
 export async function fetchUserData(case_id){
     return SAMPLE_USER
@@ -14,11 +14,11 @@ export async function fetchCaseData(case_id){
 }
 
 export async function fetchCaseEvidence(case_id){
-    return SAMPLE_CASE_EVIDENCE
+    return generateSampleEvidences(20)
 }
 
 export async function fetchCaseArguments(case_id){
-    return []
+    return generateSampleArguments(20)
 }
 
 export async function fetchJurySummary(case_id){

@@ -75,7 +75,7 @@ Each table is outlined below.
 | case_id | FK → cases | parent case |
 | user_id | FK → users | submitted by |
 | evidence_num | INT | case-relative number for citation in arguments, generated on backend |
-| text | VARCHAR(150) | evidence text |
+| text | VARCHAR(200) | evidence text |
 | image_url | VARCHAR(500) | evidence image |
 | created_at | TIMESTAMPTZ | submission time |
 | | | UNIQUE(case_id, evidence_num) |

@@ -51,6 +51,8 @@ h1,h2,h3,h4,h5,h6{
   --accent-border: rgba(231, 46, 107, 0.5);
   --accent-bg:     rgba(231, 46, 107, 0.1);
   --dim-bg: rgba(236, 235, 229, 0.5);
+  --citation-bg: rgba(255, 231, 74, 0.075);
+  --citation-border: rgba(167, 146, 13, 0.199);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 7px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 }
@@ -70,6 +72,8 @@ h1,h2,h3,h4,h5,h6{
   --accent-border: rgba(245, 151, 195, 0.5);
   --accent-bg:     rgba(245, 151, 195, 0.15);
   --dim-bg: rgba(47, 48, 58, 0.5);
+  --citation-bg: rgba(255, 231, 74, 0.075);
+  --citation-border: rgba(167, 146, 13, 0.199);
   --shadow:
     rgba(0, 0, 0, 0.4) 0 7px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }

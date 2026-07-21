@@ -27,7 +27,7 @@ evidence_id         PK
 case_id             FK -> cases
 user_id             FK -> users
 evidence_num        INT                 -- relative to case, so they can be cited easier in arguments, generated on backend
-text                VARCHAR(150)        -- evidence indicating crime or harm
+text                VARCHAR(200)        -- evidence indicating crime or harm
 image_url           VARCHAR(500)
 created_at          TIMESTAMPTZ         -- submission time
 UNIQUE(case_id, evidence_num)

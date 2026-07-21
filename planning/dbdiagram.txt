@@ -69,7 +69,7 @@ Table evidence {
   case_id bigint [ref: > cases.case_id]
   user_id bigint [ref: > users.user_id]
   evidence_num int
-  text varchar(150)
+  text varchar(200)
   image_url varchar(500)
   created_at timestamptz
 
