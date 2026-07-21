@@ -20,9 +20,9 @@ function EvidenceCard({data, isActivePhase}){
                     data={data}
                     arrowVals={{
                         up: '👍', 
-                        up_tooltip: 'corroborate',
+                        up_tooltip: 'credible',
                         down: '👎',
-                        down_tooltip: 'dispute'
+                        down_tooltip: 'questionable'
                     }}
                     voteFn={voteEvidence}
                     isActive={isActivePhase}

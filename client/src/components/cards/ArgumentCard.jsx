@@ -34,9 +34,9 @@ function ArgumentCard({data, isActivePhase}){
                     data={data}
                     arrowVals={{
                         up: '👍', 
-                        up_tooltip: 'corroborate',
+                        up_tooltip: 'sound',
                         down: '👎',
-                        down_tooltip: 'dispute'
+                        down_tooltip: 'fallacious'
                     }}
                     voteFn={voteArgument}
                     isActive={isActivePhase}
