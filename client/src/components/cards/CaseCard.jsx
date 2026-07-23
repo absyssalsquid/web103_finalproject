@@ -18,8 +18,8 @@ function CaseCard({ data }) {
                     <UserTag 
                         user_id={data.user_id} 
                         username={data.username} 
-                        image_url={data.user_image_url} 
-                        date={data.created_at.toLocaleDateString()}/>
+                        flair={data.user_flair} 
+                        image_url={data.user_image_url} />
                 </div>
                 <div className='case-num'>Case #{data.case_id}</div>
                 <Link to={`/cases/${data.case_id}`} className="accused main-card-link">

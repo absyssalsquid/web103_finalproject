@@ -1,8 +1,22 @@
-.JuryAssignments table{
+.JuryAssignments .table-container {
+    box-sizing: border-box;
     width: 100%;
-    max-width: 580px;
-    align-self: stretch;
+    max-width: 520px;
     margin: 0 auto;
+    align-self: stretch;
+    
+    background-color: var(--card-bg);
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow-small);
+
+    @media screen and (min-width:576px) {
+        padding: 1.5rem 3rem;
+    }
+}
+
+.JuryAssignments .table-container table{
+    width: 100%;
 }
 
 .JuryAssignments tbody tr:hover {

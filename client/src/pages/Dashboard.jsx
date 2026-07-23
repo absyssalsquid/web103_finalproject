@@ -112,11 +112,11 @@ const Dashboard = () => {
             <h2>Activity</h2>
             <SubNav 
                 items={[
-                    {text: 'Provisional\xa0votes'     , href: `/dashboard/provisional`},
                     {text: 'Cases'     , href: `/dashboard/cases`},
                     {text: 'Evidence'   , href: `/dashboard/evidence` },
                     {text: 'Arguments'  , href: `/dashboard/arguments` },
-                    {text: 'Jury\xa0Assignments'    , href: `/dashboard/jury-assignments`}
+                    {text: 'Jury\xa0Assignments'    , href: `/dashboard/jury-assignments`},
+                    // {text: 'Likes/dislikes'     , href: `/dashboard/reactions`},
                 ]}
             />
             <div className='sub-content'>

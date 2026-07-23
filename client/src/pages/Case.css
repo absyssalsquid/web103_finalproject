@@ -1,29 +1,29 @@
-
-.Case .SubNav .nav-link.active {
-    background-color: var(--accent-bg);
-}
-
+/* subnav */
 .Case .SubNav .nav-link {
     border-radius: 10px 10px 0 0 ;
     margin-top: 1rem;
 }
 
+.Case .SubNav .nav-link.active {
+    border-bottom: 2px solid var(--accent);
+}
 .Case .SubNav .nav-link:hover {
-    transform: scaleY(1.2) translateY(-0.22em);
+    transform: scaleY(1.2) translateY(-0.2em);
     overflow: visible
 }
 .Case .SubNav .nav-link:hover .nav-text {
     transform: scaleX(1.2);
 } 
 
-.overview {
+/* overview */
+.Case .overview {
     display: flex;
     margin: 1rem 0;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.overview img.case-img{
+.Case .overview img.case-img{
     aspect-ratio: 1/1;
     object-fit: cover;
     background-color: white;
@@ -31,18 +31,30 @@
     align-self: center;
 }
 
-.overview .text{
+.Case .overview .case-details{
     max-width: 40rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
 }
 
-.overview .case-num {
-    font-weight: 600;
+/* user tag */
+.Case .overview .UserTag{
+    margin-bottom: 0.1rem;
+}
+
+.Case .UserTag:hover img.user-icon {
+    outline: 10px solid var(--accent-bg);
+    scale: 1.2;
+}
+
+.Case .overview .case-num {
+    font-weight: 450;
     font-size: 1.2rem;
-    margin-bottom: 0.2rem;
     color: var(--text-dim)
 }
 
-.overview .accused{
+.Case .overview .accused{
     font-weight: 600;
     font-size: 1.4rem;
     line-height: 1.1;
@@ -50,27 +62,29 @@
     margin-bottom: 0.5rem;
 }
 
-.overview .accusation{
+.Case .overview .accusation{
     line-height: 1.3;
     margin-bottom: 0.5rem;
 }
 
-.overview .file-info{
-    margin-bottom: .5rem;
+.Case .overview .date{
+    color: var(--text-dim);
+    font-size: 0.8em;
+    margin-bottom: 0.5rem;
 }
 
 @media screen and (min-width: 576px) {
-    .overview {
+    .Case .overview {
         flex-direction: row;
         align-items: center;
     }
 
-    .overview img.case-img{
+    .Case .overview img.case-img{
         width: 15rem;
         margin-bottom: 0;
     }
 
-    .overview .accused{
+    .Case .overview .accused{
         font-size: 1.6rem;
     }
 }

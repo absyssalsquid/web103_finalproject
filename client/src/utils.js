@@ -57,5 +57,5 @@ export function formatDateTime(date){
       hour: 'numeric',
       minute: '2-digit'
   })
-  return date_str + ' ' + time_str
+  return date_str + ' · ' + time_str
 }

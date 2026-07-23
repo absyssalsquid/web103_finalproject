@@ -11,7 +11,11 @@ function EvidenceCard({data, isActivePhase}){
         <div className="EvidenceCard">
             <img src={data.image_url}/>
             <div className="ev-number">#{data.evidence_num}</div>
-            <UserTag user_id={data.user_id} username={data.username} image_url={data.user_image_url}/>
+            <UserTag 
+                user_id={data.user_id} 
+                username={data.username} 
+                flair={data.user_flair} 
+                image_url={data.user_image_url}/>
             <div className="header">
             </div>
             <div>{data.text}</div>

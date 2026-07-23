@@ -136,18 +136,19 @@ const Case = () => {
 
                 <div className='overview'>
                     <img className='case-img' src={caseData.image_url}/>
-                    <div className='text'>
-                        <div className='file-info'>
-                            <UserTag 
-                                user_id={caseData.user_id} 
-                                username={caseData.username}
-                                image_url={caseData.user_image_url}
-                                date={formatDateTime(caseData.created_at)}
-                            />
+                    <div className='case-details'>
+                        <UserTag 
+                            user_id={caseData.user_id} 
+                            username={caseData.username}
+                            flair={caseData.user_flair} 
+                            image_url={caseData.user_image_url}
+                        />
+                        <div>
+                            <div className='case-num'>Case #{id}</div>
+                            <div className='accused'>{caseData.object_name}</div>
                         </div>
-                        <div className='case-num'>Case #{id}</div>
-                        <div className='accused'>{caseData.object_name}</div>
                         <div className='accusation'>{caseData.accusation}</div>
+                        <div className='date'>{formatDateTime(caseData.created_at)}</div>
 
                         <div>
                             <ColorPillTag phase={caseData.phase} phase_end={caseData.phase_end}/>

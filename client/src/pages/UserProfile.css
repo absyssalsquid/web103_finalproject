@@ -1,5 +1,13 @@
 
 .UserProfile .summary-stat-container{
-    margin: 2rem 0;
-    margin-bottom: 3rem;
+    margin: 2rem 0 3rem 0;
+}
+
+
+.UserProfile .SubNav .nav-link:hover {
+    background-color: var(--accent-bg);
+}
+
+.UserProfile .SubNav .nav-link.active {
+    border-bottom: 2px solid var(--accent);
 }

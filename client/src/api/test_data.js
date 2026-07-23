@@ -42,6 +42,7 @@ export const SAMPLE_CASE = {
     user_id: SAMPLE_USER.user_id,
     username: 'GuiltyGoose',
     user_image_url: 'https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w',
+    user_flair: 'One Wing to Rule Them All',
     created_at: dateWithDelta({days: -4}),
     object_name: 'office building on the intersection of elm street and 5th avenue',
     accusation: 'contains a counterfeit sky, deceiving birds into flying into it. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In molestie tortor nec augue imperdiet, quis vestibulum turpis euismod. Intege',
@@ -62,6 +63,7 @@ function generateSampleEvidence(){
         user_id: SAMPLE_USER.user_id,
         username: 'GuiltyGoose',
         user_image_url: 'https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w',
+        user_flair: 'One Wing to Rule Them All',
         created_at: dateWithDelta({days: -5}),
         evidence_num: 1, 
         text: generateLoremIpsum(50, 200),
@@ -122,6 +124,7 @@ function generateSampleArgument(){
         user_id: SAMPLE_USER.user_id,
         username: 'GuiltyGoose',
         user_image_url: 'https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w',
+        user_flair: 'One Wing to Rule Them All',
         created_at: dateWithDelta({days: -4}),
         
         up_count: getRandomInt(1, 100),

@@ -1,9 +1,11 @@
 .UserTag {
-    display: inline-flex;
+    display: flex;
     padding: 0.2rem;
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    position: relative;
+    width: fit-content;
 }
 
 .UserTag img.user-icon {
@@ -12,9 +14,13 @@
     border-radius: 50%;
     /* background-color: white; */
     border: 1px solid var(--text-dim);
-@media screen and (min-width: 576px) {
-    height: 35px;
-}
+    outline: 0px;
+    transition: 
+        outline 0.3s ease,
+        scale 0.3s ease;
+    @media screen and (min-width: 576px) {
+        height: 35px;
+    }
 }
 
 .UserTag .text .name {
@@ -22,11 +28,29 @@
     text-decoration: none;
     font-weight: 600;
     color: var(--text);
+    z-index: 1;  /* Above the overlay */
     transition:
         text-decoration 0.2s ease;
 }
+.UserTag .text .name::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
 .UserTag .text .name:hover {
     text-decoration: underline;
+}
+
+.UserTag .text .flair {
+    color: var(--text-dim);
+    font-size: 0.8em;
+    /* border: 1px solid;
+    border-radius: 999px;
+    padding: 1px 0.6em; */
+
 }
 
 .UserTag .text .date {

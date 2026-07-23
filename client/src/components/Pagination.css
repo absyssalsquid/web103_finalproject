@@ -14,7 +14,7 @@
 }
 
 .Pagination .arrows button {
-    color: var(--accent);
+    color: var(--text-accent);
     background-color: transparent;
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -28,7 +28,6 @@
 .Pagination .arrows button:hover {
     background-color: var(--accent-bg);
     border-color: var(--accent-border);
-    color: var(--accent);
 }
 
 .Pagination .arrows .page-nums {

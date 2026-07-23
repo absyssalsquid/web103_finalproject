@@ -43,27 +43,26 @@ h1,h2,h3,h4,h5,h6{
 }
 
 :root[data-theme="light"] {
-  --nav-bg: #141108;
-  --nav-logo: #f0eeeb;
-  --nav-logo-hover: #f0eeeb;
-  --nav-link-bg-hover: #e6a441;
-  --nav-border: none;
-
-  --text: #535352;
-  --text-via-filter: invert(37%) sepia(5%) saturate(194%) hue-rotate(2deg) brightness(98%) contrast(91%);
-  --text-dim: #969ca5;
-  --text-h: #0e0d0ae1;
   --bg: #ffffff;
   --bg: rgb(253, 252, 250);
   --bg: rgb(240, 238, 235);
+  --card-bg: transparent;
+  --card-bg-dim: transparent;
+  --dim-bg: rgba(207, 207, 202, 0.5);
+  
   --border: rgba(58, 58, 58, 0.1);
+  --card-border: rgba(58, 58, 58, 0.1);
+
+
+  --text: #535352;
+  --text-dim: #969ca5;
+  --text-h: #0e0d0ae1;
 
   --text-accent: rgb(185, 121, 0);
   --accent:        rgb(224, 154, 24);
   --accent-border: rgba(224, 154, 24, 0.5);
   --accent-bg:     rgba(224, 154, 24, 0.15);
-
-  --dim-bg: rgba(207, 207, 202, 0.5);
+  --text-on-accent: var(--text-h);
 
   --citation-bg: rgba(255, 231, 74, 0.075);
   --citation-border: rgba(167, 146, 13, 0.137);
@@ -74,28 +73,42 @@ h1,h2,h3,h4,h5,h6{
   --shadow-small:
     rgba(0, 0, 0, 0.1) 1px 4px 6px -3px,
     rgba(0, 0, 0, 0.05) -1px 3px 3px -2px;
+    
+    /* navbar */
+  --nav-bg: #141108;
+  --nav-logo: #f0eeeb;
+  --nav-logo-hover: #f0eeeb;
+
+  --nav-link-text: var(--text);
+  --nav-link-text-active: var(--text);
+  --nav-link-text-via-filter: invert(37%) sepia(5%) saturate(194%) hue-rotate(2deg) brightness(98%) contrast(91%);
+  --nav-link-text-hover: #141108;
+  --nav-link-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
+  --nav-link-bg-hover: #e6a441;
 }
 
 /* Dark theme — applied via the data-theme attribute set by the ThemeProvider.
    The provider resolves the "System" choice to light/dark at runtime, so this
    attribute is always concrete. */
 :root[data-theme="dark"] {
-  --nav-link-bg-hover: #e6a441;
+  --bg: #16171d;
+  --card-bg: transparent;
+  --card-bg-dim: transparent;
+  --dim-bg: rgba(47, 48, 58, 0.5);
+
+  --border: #252530;
+  --card-border: #252530;
+
 
   --text: #9ca3af;
-  --text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
   --text-h: #f3f4f6;
-  --text-h-via-filter: invert(100%) sepia(22%) saturate(738%) hue-rotate(178deg) brightness(100%) contrast(93%);;
   --text-dim: #505c6e;
-  --bg: #16171d;
-  --border: #252530;
 
   --text-accent: rgb(224, 154, 24);
   --accent:        rgb(224, 154, 24);
   --accent-border: rgba(224, 154, 24, 0.5);
   --accent-bg:     rgba(224, 154, 24, 0.15);
-
-  --dim-bg: rgba(47, 48, 58, 0.5);
+  --text-on-accent: var(--text-h);
 
   --citation-bg: rgba(255, 231, 74, 0.03);
   --citation-border: rgba(167, 146, 13, 0.17);
@@ -106,26 +119,53 @@ h1,h2,h3,h4,h5,h6{
   --shadow-small:
     rgba(0, 0, 0, 0.6) 2px 4px 6px -3px,
     rgba(0, 0, 0, 0.35) -2px 3px 3px -2px;
+    
+    /* navbar */
+  --nav-link-text: var(--text);
+  --nav-link-text-active: var(--text);
+  --nav-link-text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
+  --nav-link-text-hover: #141108;
+  --nav-link-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
+  --nav-link-bg-hover: #e6a441;
 }
 
-/* Fallback for the brief moment before the provider's JS runs (and if it
-   doesn't): honor the OS preference when no theme has been set explicitly. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --text: #9ca3af;
-    --text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
-    --text-h: #f3f4f6;
-    --text-h-via-filter: invert(100%) sepia(22%) saturate(738%) hue-rotate(178deg) brightness(100%) contrast(93%);;
-    --text-dim: #505c6e;
-    --bg: #16171d;
-    --border: #2e303a;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --dim-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 7px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+:root[data-theme="sky"] {
+  --bg: #96c7d5;
+  --dim-bg: rgba(89, 141, 156, 0.199);
+  --card-bg: #fff6e5;
+  --card-bg-dim: #fff6e556;
+  --border: #698494;
+  --card-border: transparent;
+
+
+  --text: #445658;
+  --text-dim: #3953537c;
+  --text-h: #0e0d0ae1;
+
+  --text-accent: rgb(160, 15, 12);
+  --accent:        rgb(190, 37, 34);
+  --accent-border: rgba(62, 129, 168, 0.72);
+  --accent-bg:     rgba(62, 129, 168, 0.308);
+  --text-on-accent: white;
+
+  --citation-bg: rgba(255, 231, 74, 0.075);
+  --citation-border: rgba(167, 146, 13, 0.137);
+
+  --shadow:
+    rgba(0, 0, 0, 0.12) 0 7px 15px -3px,
+    rgba(0, 0, 0, 0.07) 0 4px 6px -2px;
+  --shadow-small:
+    rgba(0, 0, 0, 0.1) 1px 4px 6px -3px,
+    rgba(0, 0, 0, 0.05) -1px 3px 3px -2px;
+
+  /* navbar */
+  --nav-bg: rgba(164, 6, 3, 1);
+  --nav-logo: #fff6e5;
+  --nav-logo-hover: #f0eeeb;
+
+  --nav-link-text: #fff6e5;
+  --nav-link-text-via-filter: invert(82%) sepia(30%) saturate(224%) hue-rotate(329deg) brightness(114%) contrast(101%);
+  --nav-link-text-hover: #141108;
+  --nav-link-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
+  --nav-link-bg-hover: #e6a441;
 }
-
-

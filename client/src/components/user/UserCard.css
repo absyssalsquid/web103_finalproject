@@ -26,13 +26,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.4rem;
 }
 
 .UserCard .username{
     font-size: 1.4rem;
     font-weight: 600;
     color: var(--text-h);
+    transform: translateY(-0.1em);
 }
 
 .UserCard .flair{
@@ -51,6 +52,13 @@
     font-size: 0.8rem;
 }
 
+.UserCard button.edit-profile {
+    font-size: 0.8em;
+    /* transform: scaleX(-1); */
+    padding: 3px 0.8em;
+    margin: 0.4rem 0;
+}
+
 @media screen and (min-width:576px){
     .UserCard {
         flex-direction: row;
@@ -61,6 +69,7 @@
     }
     .UserCard .text{
         align-items: flex-start;
+        gap: 0rem;
     }
     .UserCard .main{
         flex-direction: row;
@@ -72,8 +81,4 @@
     }
 }
 
-button.edit-profile {
-    font-size: 0.8em;
-    /* transform: scaleX(-1); */
-    padding: 3px 0.8em;
-}
+

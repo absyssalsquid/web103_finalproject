@@ -7,7 +7,7 @@
 }
 
 .Dashboard .summary-stat-container{
-    margin-top: 0;
+    margin-bottom: 1rem;
 }
 
 .Dashboard .settings label{
@@ -17,4 +17,12 @@
 .Dashboard .sub-content{
     display: flex;
     flex-direction: column;
+}
+
+.Dashboard .SubNav .nav-link:hover {
+    background-color: var(--accent-bg);
+}
+
+.Dashboard .SubNav .nav-link.active {
+    border-bottom: 2px solid var(--accent);
 }

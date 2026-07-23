@@ -11,27 +11,29 @@ function JuryAssignments({juryAssignments, pageInfo, setPageInfo}){
     const nav = useNavigate();
     return (
         <div className="JuryAssignments sub-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th className='text-left'>Date</th>
-                        <th className='text-left'>Case#</th>
-                        <th className='text-left'>Vote</th>
-                        <th className='text-left'>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {juryAssignments.map((item)=>(
-                        <tr key={item.id} onClick={()=>nav(`/jury-duty/${item.case_id}`)}>
-                            <td>{item.created_at.toLocaleDateString()}</td>
-                            <td><Link to={`/cases/${item.case_id}`}>{item.case_id}</Link></td>
-                            <td>{toTitleCase(item.vote)}</td>
-                            <td>{(now < item.expiration_date) ? 'open' : 'closed'}</td>
-                            {/* <td><Link to={}>View</Link></td> */}
+            <div className='table-container'>
+                <table>
+                    <thead>
+                        <tr>
+                            <th className='text-left'>Date</th>
+                            <th className='text-left'>Case#</th>
+                            <th className='text-left'>Vote</th>
+                            <th className='text-left'>Status</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {juryAssignments.map((item)=>(
+                            <tr key={item.id} onClick={()=>nav(`/jury-duty/${item.case_id}`)}>
+                                <td>{item.created_at.toLocaleDateString()}</td>
+                                <td><Link to={`/cases/${item.case_id}`}>{item.case_id}</Link></td>
+                                <td>{toTitleCase(item.vote)}</td>
+                                <td>{(now < item.expiration_date) ? 'open' : 'closed'}</td>
+                                {/* <td><Link to={}>View</Link></td> */}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             <Pagination pageInfo={pageInfo} setPageInfo={setPageInfo}/>
         </div>
     )

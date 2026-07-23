@@ -39,9 +39,9 @@ th{
   border-bottom: 1px solid var(--border);
   font-weight: 700;
 }
-
 tr.summary td {
   font-weight: 800;
+  border-top: 1px solid;
 }
 
 .flex-grow {flex-grow: 9999;}
@@ -58,7 +58,6 @@ tr.summary td {
   height: 3rem;
   padding: 0 1rem;
   background-color: var(--nav-bg);
-  border-bottom: var(--nav-border);
   box-shadow: var(--shadow);
   @media screen and (min-width: 576px) {
   }
@@ -82,19 +81,22 @@ tr.summary td {
   transform: scaleY(1.2);
 }
 
-.nav-link {
+.Navigation .nav-link {
   display: flex;
   align-items: center;
   padding: 0 0.5em;
-  color: var(--text);
+  color: var(--nav-link-text);
   font-weight: 500;
   text-decoration: none;
-  /* border-bottom: 2px solid transparent; */
   transition: 
     all 0.15s ease-in-out,
 }
+.Navigation .nav-link:hover {
+  color: var(--nav-link-text-hover);
+  background-color: var(--nav-link-bg-hover);
+}
 
-.nav-link.qmark {
+.Navigation .nav-link.qmark {
   width: 50px;
   padding: 0;
   display: flex;
@@ -102,23 +104,17 @@ tr.summary td {
   align-items: center;
 }
 
-.nav-link.qmark img{
+.Navigation .nav-link.qmark img{
   width: 20px;
-  filter: var(--text-via-filter);
+  filter: var(--nav-link-text-via-filter);
+}
+.Navigation .nav-link:hover.qmark img{
+  filter: var(--nav-link-text-via-filter-hover);
 }
 
-.nav-link:hover.qmark img{
-  filter: var(--text-h-via-filter);
-}
-
-.nav-link.active {
+.Navigation .nav-link.active {
   color: var(--text-h);
   border-bottom-color: var(--accent);
-}
-
-.nav-link:hover {
-  background-color: var(--nav-link-bg-hover);
-  color: var(--text-h);
 }
 
 
@@ -127,19 +123,19 @@ tr.summary td {
 button {
   padding: 0.5em 1em;
   border-radius: 5px;
-  border: 1px solid var(--accent-border);
-  color: var(--text-accent);
-  background-color: var(--accent-bg);
+  font-family: inherit;
+  border: none;
   cursor: pointer;
   transition: 
     all 0.15s ease,
     transform 0.05s ease;
 }
 
-button:not(:disabled):hover {
+/* button:not(:disabled):hover {
   background-color: var(--accent);
-  color: white;
-}
+  border: 1px var(--accent);
+  color: var(--text-on-accent);
+} */
 
 button:not(:disabled):active {
     transform: translateY(1px);
@@ -148,21 +144,23 @@ button:not(:disabled):active {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  border: 1px solid var(--accent-border);
 }
 
 /* -------------------------- forms -------------------------- */
 
 input[type="text"],
+input[type="search"],
 textarea {
     padding: 0.6rem 0.75rem;
     font: inherit;
     color: var(--text);
-    background: var(--bg);
+    background-color: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
     outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: 
+      border-color 0.15s ease, 
+      box-shadow 0.15s ease;
 }
 
 input[type="text"]::placeholder,
@@ -180,9 +178,10 @@ select {
     padding: 0.5rem 0.6rem;
     font: inherit;
     color: var(--text-h);
-    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 8px;
+    background-color: var(--card-bg);
+
     cursor: pointer;
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -203,12 +202,12 @@ select option {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     gap: 5px;
-    margin: 1rem 0;
 }
 .stat-card {
-    border: 1px solid var(--border);
+    border: 1px solid var(--card-border);
     padding: 0.5em 1em;
     border-radius: 0.3rem;
+    background-color: var(--card-bg);
 }
 
 .stat-card .desc{
@@ -222,7 +221,3 @@ select option {
 }
 
 /* -------------------------- other -------------------------- */
-
-tr.summary td {
-  border-top: 1px solid;
-}

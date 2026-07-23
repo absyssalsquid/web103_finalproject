@@ -23,7 +23,7 @@ const CaseVerdict = ({phaseDelta, caseData, data}) => {
     return (
         <div className="sub-content">
             <div className="minimal">
-                <div>Jury still in session</div>
+                <div>Jury still in session.</div>
                 <div>{data.total} jurors have voted</div>
             </div>
         </div>

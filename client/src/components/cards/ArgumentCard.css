@@ -1,7 +1,8 @@
 .ArgumentCard{
-    border: 1px solid var(--border);
+    border: 1px solid var(--card-border);
     border-radius: 10px;
     box-shadow: var(--shadow-small);
+    background-color: var(--card-bg);
 
     padding: 0.6rem 1rem;
     position: relative;
@@ -15,7 +16,6 @@
     position: absolute;
     font-size: 1.1em;
     font-weight: 600;
-    /* color: var(--accent); */
     padding: 0.5rem 0.8rem;
     top: 0;
     right: 0;
@@ -50,8 +50,4 @@
     color: var(--text-dim);
     font-size: 0.8em;
     margin-top: 0.5rem;
-    /* position: absolute;
-    padding: 0.5rem 0.8rem;
-    bottom: 0;
-    right: 0; */
 }

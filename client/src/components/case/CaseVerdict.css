@@ -15,16 +15,14 @@
     margin: 1rem;
     padding: 1rem 2rem;
 
+    background: var(--card-bg);
     border-radius: 10px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--card-border);
     box-shadow: var(--shadow-small);
 }
 
 .CaseVerdict table {
     width: 100%;
-}
-
-.conclusion {
 }
 
 .CaseVerdict .verdict {

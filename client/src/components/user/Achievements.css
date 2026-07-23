@@ -5,15 +5,18 @@
 }
 
 .AchievementTile {
-    border: 1px var(--border);
-    border-style: dashed;
     padding: 0.5rem 0.8rem;
     font-size: 0.9rem;
     position: relative;
 }
 
 .AchievementTile.earned{
-    border-style: solid;
+    border: 1px solid var(--card-border);
+    background-color: var(--card-bg);
+}
+.AchievementTile:not(.earned){
+    border: 1px dashed var(--accent-border);
+    background-color: var(--card-bg-dim);
 }
 
 
@@ -30,7 +33,7 @@
 }
 
 .AchievementTile .head .name{
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1.1rem;
 }
 
