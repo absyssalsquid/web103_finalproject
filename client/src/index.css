@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Ranchers&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 html {
   min-width: 320px;
@@ -21,6 +23,8 @@ body{
   --logo: "Ranchers", sans-serif;
   /* --sans: system-ui, 'Segoe UI', Roboto, sans-serif; */
   --sans: "Nunito", sans-serif;
+  --sans: "Barlow Semi Condensed", sans-serif;
+  --marker: "Permanent Marker", sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
@@ -39,43 +43,69 @@ h1,h2,h3,h4,h5,h6{
 }
 
 :root[data-theme="light"] {
-  --nav-bg: rgba(55, 185, 224, 0.356);
-  --nav-border: rgba(55, 185, 224, 0.808);
-  --text: #6b6375;
+  --nav-bg: #141108;
+  --nav-logo: #f0eeeb;
+  --nav-logo-hover: #f0eeeb;
+  --nav-link-bg-hover: #e6a441;
+  --nav-border: none;
+
+  --text: #535352;
+  --text-via-filter: invert(37%) sepia(5%) saturate(194%) hue-rotate(2deg) brightness(98%) contrast(91%);
   --text-dim: #969ca5;
-  --text-h: #0b0a0ee1;
+  --text-h: #0e0d0ae1;
   --bg: #ffffff;
   --bg: rgb(253, 252, 250);
-  --border: #e5e4e7;
-  --accent:        rgb(231, 46, 107);
-  --accent-border: rgba(231, 46, 107, 0.5);
-  --accent-bg:     rgba(231, 46, 107, 0.1);
-  --dim-bg: rgba(236, 235, 229, 0.5);
+  --bg: rgb(240, 238, 235);
+  --border: rgba(58, 58, 58, 0.1);
+
+  --text-accent: rgb(185, 121, 0);
+  --accent:        rgb(224, 154, 24);
+  --accent-border: rgba(224, 154, 24, 0.5);
+  --accent-bg:     rgba(224, 154, 24, 0.15);
+
+  --dim-bg: rgba(207, 207, 202, 0.5);
+
   --citation-bg: rgba(255, 231, 74, 0.075);
-  --citation-border: rgba(167, 146, 13, 0.199);
+  --citation-border: rgba(167, 146, 13, 0.137);
+
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 7px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.12) 0 7px 15px -3px,
+    rgba(0, 0, 0, 0.07) 0 4px 6px -2px;
+  --shadow-small:
+    rgba(0, 0, 0, 0.1) 1px 4px 6px -3px,
+    rgba(0, 0, 0, 0.05) -1px 3px 3px -2px;
 }
 
 /* Dark theme — applied via the data-theme attribute set by the ThemeProvider.
    The provider resolves the "System" choice to light/dark at runtime, so this
    attribute is always concrete. */
 :root[data-theme="dark"] {
+  --nav-link-bg-hover: #e6a441;
+
   --text: #9ca3af;
   --text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
   --text-h: #f3f4f6;
   --text-h-via-filter: invert(100%) sepia(22%) saturate(738%) hue-rotate(178deg) brightness(100%) contrast(93%);;
   --text-dim: #505c6e;
   --bg: #16171d;
-  --border: #2e303a;
-  --accent:        rgb(245, 151, 195);
-  --accent-border: rgba(245, 151, 195, 0.5);
-  --accent-bg:     rgba(245, 151, 195, 0.15);
+  --border: #252530;
+
+  --text-accent: rgb(224, 154, 24);
+  --accent:        rgb(224, 154, 24);
+  --accent-border: rgba(224, 154, 24, 0.5);
+  --accent-bg:     rgba(224, 154, 24, 0.15);
+
   --dim-bg: rgba(47, 48, 58, 0.5);
-  --citation-bg: rgba(255, 231, 74, 0.075);
-  --citation-border: rgba(167, 146, 13, 0.199);
+
+  --citation-bg: rgba(255, 231, 74, 0.03);
+  --citation-border: rgba(167, 146, 13, 0.17);
+
   --shadow:
-    rgba(0, 0, 0, 0.4) 0 7px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.4) 0 7px 15px -3px,
+    rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  --shadow-small:
+    rgba(0, 0, 0, 0.6) 2px 4px 6px -3px,
+    rgba(0, 0, 0, 0.35) -2px 3px 3px -2px;
 }
 
 /* Fallback for the brief moment before the provider's JS runs (and if it

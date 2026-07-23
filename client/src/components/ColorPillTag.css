@@ -1,24 +1,25 @@
 .ColorPillTag {
     font-size: 1rem;
+    --pad-outer: 0.7em;
+    --pad-inner: 0.4em;
 }
 .ColorPillTag .name{
     display: inline-block;
     color: white;
-    padding: 1px 0.7em;
+    padding: 0 var(--pad-outer) 2px var(--pad-outer);
     border-radius: 99999px;
-    padding-left: 0.7em;
 }
 .ColorPillTag.timer .name{
     border-radius: 99999px 0 0 99999px;
-    padding: 1px 0.4em;
+    padding: 0 var(--pad-inner) 2px var(--pad-outer);
 }
 
 .ColorPillTag.timer .countdown{
     display: inline-block;
     color: var(--text-h);
     border-radius: 0 99999px 99999px 0;
-    padding: 1px 0.6em;
-    padding-right: 0.7em;
+    padding: 0 var(--pad-outer) 2px var(--pad-inner);
     background-color: var(--dim-bg);
+    width: 3.4em;
 }
 /* .ColorPillTag.closed .countdown{display: none;} */

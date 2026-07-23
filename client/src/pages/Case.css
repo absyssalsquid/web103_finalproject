@@ -43,7 +43,9 @@
 }
 
 .overview .accused{
-    font: 600 1.4rem/1.1 var(--sans);
+    font-weight: 600;
+    font-size: 1.4rem;
+    line-height: 1.1;
     color: var(--text-h);
     margin-bottom: 0.5rem;
 }

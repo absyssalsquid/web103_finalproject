@@ -1,6 +1,8 @@
 import {LIMITS} from "/src/api/limits"
 import {getTimeString} from "/src/utils"
 
+import "./Guidelines.css"
+
 function Guidelines(){
     return (
         <div className="Guidelines main-content">

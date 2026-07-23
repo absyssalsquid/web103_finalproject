@@ -1,3 +1,9 @@
+.docket.main-content {
+    max-width: 900px;
+    margin: 0 auto;
+    --search-bar-height: 2rem;
+}
+
 .docket .search-bar {
     display: flex;
     flex-wrap: wrap;
@@ -8,20 +14,26 @@
 
 /* "Submit a case" button */
 .docket .submit-case {
-    padding: 0.55rem 1rem;
     font-weight: 600;
+    text-decoration: none;
     color: white;
+
+    padding: 0.55rem 1rem;
     background-color: var(--accent);
     border: 1px solid var(--accent-border);
     border-radius: 8px;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: all 0.15s ease;
     box-shadow: var(--shadow);
+    
     position: fixed;
     bottom: 1rem;
     right: 1rem;
     cursor: pointer;
+    z-index: 99999;
+
+    transition: all 0.15s ease;
+}
+.docket .submit-case:hover {
+    transform: scale(1.2);
 }
 
 .docket .submit-case:hover {
@@ -32,7 +44,7 @@
 /* search input takes the leftover space */
 .docket .search-bar .search-input {
     flex: 1 1 200px;
-    min-width: 0;
+    height: var(--search-bar-height);
     padding: 0.3rem 0.85rem;
     font: inherit;
     color: var(--text-h);
@@ -59,6 +71,10 @@
     gap: 0.4rem;
     font-size: 0.85rem;
     color: var(--text);
+}
+
+.docket .search-bar .control select {
+    height: var(--search-bar-height);
 }
 
 

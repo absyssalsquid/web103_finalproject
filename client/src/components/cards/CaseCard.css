@@ -1,19 +1,42 @@
 .CaseCard {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     padding: 0.75rem;
 
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 3px;
+    outline: 0px solid transparent;
+
+    text-decoration: none;
+
     background: var(--bg);
     box-shadow: var(--shadow);
-    transition: border-color 0.15s ease, transform 0.15s ease;
+    transition: 
+        outline 0.07s ease,
+        transform 0.07s ease;
 }
 
 .CaseCard:hover {
-    border-color: var(--accent-border);
-    /* transform: translateY(-1px); */
+    outline: 10px solid var(--accent-border);
+    transform: scale(1.02);
+    z-index: 1;
+    transition: 
+        outline 0.5s ease,
+        transform 0.2s ease;
+}
+
+.CaseCard .text .main-card-link:hover {
+    text-decoration: underline;
+}
+.CaseCard .text .main-card-link::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
 }
 
 /* ------------------------- thumbnail ------------------------- */
@@ -29,9 +52,17 @@
 }
 
 /* ------------------------- text column ------------------------- */
+
+.CaseCard .file-info,
+.CaseCard .file-info * {
+    position: relative;
+    z-index: 1;  /* Above the overlay */
+}
+
 .CaseCard .text {
     flex-grow: 1;
     justify-content: center;
+    color: var(--text);
 }
 
 .CaseCard .text .header {
@@ -48,20 +79,15 @@
 }
 
 .CaseCard .text .accused {
+    display: block;
     font-size: 1.2rem;
     line-height: 1.2;
     font-weight: 600;
     margin-bottom: 0.5rem;
-}
-
-.CaseCard .text .accused a {
     color: var(--text-h);
     text-decoration: none;
 }
 
-.CaseCard .text .accused:hover {
-    color: var(--accent);
-}
 
 .CaseCard .text .accusation {
     font-size: 1rem;

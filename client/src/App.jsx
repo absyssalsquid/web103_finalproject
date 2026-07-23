@@ -47,7 +47,9 @@ function App() {
         <nav className='Navigation'>
           <Link    className='nav-logo' to="/">Bird Court</Link>
           <div className='flex-grow'></div>
-          <Link className="nav-link qmark" to="/guidelines"><img src="https://upload.wikimedia.org/wikipedia/commons/archive/d/d9/20110302085513%21Icon-round-Question_mark.svg"/></Link>
+            <Link className="nav-link qmark" to="/guidelines">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/archive/d/d9/20110302085513%21Icon-round-Question_mark.svg"/>
+            </Link>
           { (!userID) && (<Link className="nav-link" to="/dashboard">Dashboard </Link>) }
           { (!userID) && (<Link className='nav-link' to="/sign-in">Sign&nbsp;in</Link>) } 
           {/* all conditions set to userID for testing, to see all tabs */}

@@ -1,6 +1,7 @@
 .EvidenceCard{
     border: 1px solid var(--border);
     border-radius: 10px;
+    box-shadow: var(--shadow-small);
 
     padding: 0.6rem 1rem;
     max-width: 450px;

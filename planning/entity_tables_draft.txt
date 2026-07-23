@@ -6,6 +6,17 @@ verdict                 GUILTY, NOT_GUILTY, TB_PECKED_AT
 xp_event_reason         SUBMISSION, JURY_VOTE, CASE_ADVANCED_TO_TRIAL, SUBMISSION_VOTE, SUBMISSION_CITED
 xp_event_ref_type       CASE, EVIDENCE, ARGUMENT, VOTE
 
+users
+---------
+user_id             PK
+username            VARCHAR(40)
+image_url           VARCHAR(500)
+bio                 VARCHAR(500)
+total_xp            INT                 -- cached value
+created_at          TIMESTAMPTZ         -- submission time
+flair               FK -> achievements  -- user flair that shows by username outside of profile. must be achieved
+UNIQUE(username)
+
 cases
 ---------
 case_id             PK
@@ -82,16 +93,7 @@ jv_id               FK -> jury_assignments(id)
 arg_id              FK -> arguments      -- can select multiple args as most convincing
 PRIMARY KEY(jv_id, arg_id)
 
-users
----------
-user_id             PK
-username            VARCHAR(40)
-image_url           VARCHAR(500)
-bio                 VARCHAR(500)
-total_xp            INT                 -- cached value
-created_at          TIMESTAMPTZ         -- submission time
-flair               FK -> achievements  -- user flair that shows by username outside of profile. must be achieved
-UNIQUE(username)
+
 
 jury_assignments
 ---------

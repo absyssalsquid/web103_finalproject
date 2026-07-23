@@ -9,8 +9,6 @@ function CaseCard({ data }) {
 
     return (
         <div className="CaseCard">
-
-
             {data.image_url && (
                 <img className="thumb" src={data.image_url} alt={data.object_name} />
             )}
@@ -24,11 +22,9 @@ function CaseCard({ data }) {
                         date={data.created_at.toLocaleDateString()}/>
                 </div>
                 <div className='case-num'>Case #{data.case_id}</div>
-                <div className="accused">
-                    <Link to={`/cases/${data.case_id}`} >
-                        {data.object_name}
-                    </Link>
-                </div>
+                <Link to={`/cases/${data.case_id}`} className="accused main-card-link">
+                    {data.object_name}
+                </Link>
 
                 <div className="accusation">{data.accusation}</div>
 
