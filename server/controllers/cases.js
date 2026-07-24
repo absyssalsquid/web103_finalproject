@@ -2,9 +2,17 @@ import { supabase } from '../client.js'
 
 const getCases = async (req, res) => {
   try {
-    const { phase, sort, search, limit, offset } = req.query
-    // Get cases with filters (?phase=...|?sort=...|?search=...|?limit=20&offset=0)
-    res.json({ /* cases data */ })
+    const { phase } = req.query
+
+    let query = supabase.from('cases').select('*')
+    if (phase) {
+      query = query.eq('phase', phase)
+    }
+
+    const { data, error } = await query
+    if (error) throw error
+
+    res.json(data)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
