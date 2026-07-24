@@ -2,11 +2,29 @@ import { supabase } from '../client.js'
 
 const getCases = async (req, res) => {
   try {
-    const { phase } = req.query
+    const { phase, status } = req.query
 
     let query = supabase.from('cases').select('*')
+
     if (phase) {
       query = query.eq('phase', phase)
+    }
+
+    if (status !== undefined) {
+      if (typeof status !== 'string') {
+        return res.status(400).json({
+         error: "Status must be 'open' or 'closed'.",
+       })
+     }
+
+      const normalizedStatus = status.toLowerCase()
+      if (normalizedStatus === 'closed') {
+        query = query.eq('phase', 'CLOSED')
+      } else if (normalizedStatus === 'open') {
+        query = query.neq('phase', 'CLOSED')
+      } else {
+        return res.status(400).json({ error: `Invalid status: '${status}'. Must be 'open' or 'closed'.` })
+      }
     }
 
     const { data, error } = await query
