@@ -1,5 +1,3 @@
-import { supabase } from '../client.js'
-
 const getLimits = async (req, res) => {
   try {
     // Get global limits configuration

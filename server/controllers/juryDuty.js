@@ -1,5 +1,3 @@
-import { supabase } from '../client.js'
-
 const assignCase = async (req, res) => {
   try {
     // Auto-assign user to random eligible case with >2hrs remaining in jury phase

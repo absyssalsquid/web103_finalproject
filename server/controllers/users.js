@@ -1,5 +1,3 @@
-import { supabase } from '../client.js'
-
 const getUser = async (req, res) => {
   try {
     const { id } = req.params

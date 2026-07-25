@@ -1,5 +1,5 @@
+import './config/dotenv.js'
 import express from 'express'
-dotenv.config()
 
 import userRouter from './routes/users.js'
 import caseRouter from './routes/cases.js'

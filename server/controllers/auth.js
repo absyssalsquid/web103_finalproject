@@ -1,5 +1,3 @@
-import { supabase } from '../client.js'
-
 const createUser = async (req, res) => {
   try {
     const { email, password, username } = req.body

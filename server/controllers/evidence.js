@@ -1,5 +1,3 @@
-import { supabase } from '../client.js'
-
 const createEvidence = async (req, res) => {
   try {
     const { caseId, content } = req.body
