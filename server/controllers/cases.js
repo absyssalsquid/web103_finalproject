@@ -1,13 +1,22 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
+
+// fixed allowlist: user input selects a key here, never builds the SQL text itself
+const ORDER_BY_CLAUSES = {
+  newest: 'created_at DESC',
+  oldest: 'created_at ASC',
+  countdown: 'phase_end ASC NULLS LAST',
+}
 
 const getCases = async (req, res) => {
   try {
     const { phase, status, sort } = req.query
 
-    let query = supabase.from('cases').select('*')
+    const conditions = []
+    const params = []
 
     if (phase) {
-      query = query.eq('phase', phase)
+      params.push(phase)
+      conditions.push(`phase = $${params.length}`)
     }
 
     if (status !== undefined) {
@@ -19,9 +28,9 @@ const getCases = async (req, res) => {
 
       const normalizedStatus = status.toLowerCase()
       if (normalizedStatus === 'closed') {
-        query = query.eq('phase', 'CLOSED')
+        conditions.push(`phase = 'CLOSED'`)
       } else if (normalizedStatus === 'open') {
-        query = query.neq('phase', 'CLOSED')
+        conditions.push(`phase != 'CLOSED'`)
       } else {
         return res.status(400).json({ error: `Invalid status: '${status}'. Must be 'open' or 'closed'.` })
       }
@@ -35,25 +44,18 @@ const getCases = async (req, res) => {
       })
     }
 
-    if (sortOrder === 'newest') {
-      query = query.order('created_at', { ascending: false })
-    } else if (sortOrder === 'oldest') {
-      query = query.order('created_at', { ascending: true })
-    } else if (sortOrder === 'countdown') {
-      query = query.order('phase_end', {
-        ascending: true,
-        nullsFirst: false,
-      })
-    } else {
+    const orderByClause = ORDER_BY_CLAUSES[sortOrder]
+    if (!orderByClause) {
       return res.status(400).json({
         error: `Invalid sort: '${sortOrder}'. Must be 'newest', 'oldest', or 'countdown'.`,
       })
     }
 
-    const { data, error } = await query
-    if (error) throw error
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+    const queryText = `SELECT * FROM cases ${whereClause} ORDER BY ${orderByClause}`
 
-    res.json(data)
+    const { rows } = await pool.query(queryText, params)
+    res.json(rows)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
