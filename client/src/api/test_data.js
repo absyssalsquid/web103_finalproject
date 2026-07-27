@@ -52,8 +52,8 @@ export const SAMPLE_CASE = {
     phase_end:    dateWithDelta({seconds: 5}), 
     verdict: null,
 
-    up_count: getRandomInt(1, 100),
-    down_count: getRandomInt(1, 100),
+    up_votes: getRandomInt(1, 100),
+    down_votes: getRandomInt(1, 100),
 }
 
 function generateSampleEvidence(){
@@ -68,8 +68,8 @@ function generateSampleEvidence(){
         evidence_num: 1, 
         text: generateLoremIpsum(50, 200),
         image_url: null,
-        up_count: getRandomInt(1, 100),
-        down_count: getRandomInt(1, 100),
+        up_votes: getRandomInt(1, 100),
+        down_votes: getRandomInt(1, 100),
     }
 
 }
@@ -102,8 +102,8 @@ function generateSampleEvidenceCitations(count){
             evidence_num: getRandomInt(1, 100), 
             text: generateLoremIpsum(70, 200),
             image_url: null,
-            up_count: getRandomInt(1, 100),
-            down_count: getRandomInt(1, 100),
+            up_votes: getRandomInt(1, 100),
+            down_votes: getRandomInt(1, 100),
         });
     }
     return arr;
@@ -129,8 +129,8 @@ function generateSampleArgument(){
         user_flair: 'One Wing to Rule Them All',
         created_at: dateWithDelta({days: -4}),
         
-        up_count: getRandomInt(1, 100),
-        down_count: getRandomInt(1, 100),
+        up_votes: getRandomInt(1, 100),
+        down_votes: getRandomInt(1, 100),
     }
 }
 

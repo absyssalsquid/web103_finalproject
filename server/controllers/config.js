@@ -1,4 +1,4 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
 
 const getLimits = async (req, res) => {
   try {

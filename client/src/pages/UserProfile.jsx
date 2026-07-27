@@ -6,7 +6,7 @@ import SubNav from '../components/SubNav'
 import Achievements from '../components/user/Achievements'
 import UserCard from '../components/user/UserCard'
 import UserContributions from '../components/Contributions'
-import { getCurrentUserID } from "/src/api/auth.js"
+
 import { SAMPLE_USER, SAMPLE_ACHIEVEMENTS } from "/src/api/test_data.js"
 import { toTitleCase } from "/src/utils.js"
 
@@ -24,7 +24,6 @@ const UserProfile = () => {
     // works for both /users/:id/* and /profile/* mounts
     const base = id ? `/users/${id}` : '/profile';
 
-    const [userID, setUserID] = useState({user_id: id})
     const [profileData, setProfileData] = useState({});
     const [userStats, setUserStats] = useState({});
     const [achievements, setAchievements] = useState([]);
@@ -35,9 +34,6 @@ const UserProfile = () => {
     useEffect(() => {
         console.log('user id', id);
         async function fetchData(){
-            const res = await getCurrentUserID();
-            if (res) setUserID(res);
-            
             setProfileData(SAMPLE_USER)
             setUserStats(SAMPLE_STATS)
             setAchievements(SAMPLE_ACHIEVEMENTS)

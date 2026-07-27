@@ -1,6 +1,5 @@
-import { Link, useRoutes } from 'react-router-dom'
+import { Link, useNavigate, useRoutes } from 'react-router-dom'
 
-import { useState, useEffect } from 'react'
 import Docket from './pages/Docket'
 import Dashboard from './pages/Dashboard'
 import NewCase from './pages/NewCase'
@@ -11,22 +10,14 @@ import Register from './pages/Register'
 import JuryDuty from './pages/JuryDuty'
 import Guidelines from './pages/Guidelines'
 
+import { useAuthContext } from '/src/contexts/auth'
+
 import './App.css'
 
-import {getCurrentUserID} from './api/auth'
 
 function App() {
-  const [userID, setUserID] = useState(null)
-
-  useEffect(()=>{
-    async function getUserID(){
-      const res = await getCurrentUserID();
-      if (res) setUserID(res);
-      
-      // console.log("fetched id", id)
-    }
-    getUserID()
-  },[])
+  const nav = useNavigate();
+  const { isAuthenticated, logout} = useAuthContext()
 
   const element = useRoutes([
     {'path': '/'           , 'element': <Docket />},
@@ -42,6 +33,11 @@ function App() {
     {'path': '/jury-duty/*'   , 'element': <JuryDuty />},
   ]);
 
+  function handleLogout(){
+    logout()
+    nav('/')
+  }
+
   return (
       <>
         <nav className='Navigation'>
@@ -50,8 +46,9 @@ function App() {
             <Link className="nav-link qmark" to="/guidelines">
               <img src="https://upload.wikimedia.org/wikipedia/commons/archive/d/d9/20110302085513%21Icon-round-Question_mark.svg"/>
             </Link>
-          { (!userID) && (<Link className="nav-link" to="/dashboard">Dashboard </Link>) }
-          { (!userID) && (<Link className='nav-link' to="/sign-in">Sign&nbsp;in</Link>) } 
+          { (isAuthenticated) && (<Link className="nav-link" to="/dashboard">Dashboard </Link>) }
+          { (!isAuthenticated) && (<Link className='nav-link' to="/sign-in">Sign&nbsp;in</Link>) } 
+          { (isAuthenticated) && (<div className="nav-link" onClick={()=>handleLogout()}>Sign&nbsp;out </div>) }
           {/* all conditions set to userID for testing, to see all tabs */}
         </nav>
 

@@ -5,11 +5,11 @@ import SubNav from '../components/SubNav'
 import JuryAssignments from '../components/user/JuryAssignments'
 import UserCard from '../components/user/UserCard'
 
-import {useTheme} from '/src/contexts/theme'
+import { useTheme } from '/src/contexts/theme'
+import { useAuthContext } from '/src/contexts/auth'
 
 import { SAMPLE_USER, generateJuryAssignments} from "/src/api/test_data.js"
 import {LIMITS} from "/src/api/limits"
-import { getCurrentUserID} from "/src/api/auth"
 
 import "./Dashboard.css"
 
@@ -25,7 +25,8 @@ const SAMPLE_JURY_ASSIGNMENTS = generateJuryAssignments(8,2)
 
 const Dashboard = () => {
     const { theme, setTheme, themes } = useTheme()
-    const [userID, setUserID] = useState(1)
+    const { isAuthenticated } = useAuthContext()
+
     const [profileData, setProfileData] = useState({});
 
     const [submissionsUsed, setSubmissionsUsed] = useState({})
@@ -47,8 +48,6 @@ const Dashboard = () => {
 
     useEffect(() => {
         async function fetchData(){
-            const res = await getCurrentUserID();
-            if (res) setUserID(res);
             setProfileData(SAMPLE_USER)
             setSubmissionsUsed(SAMPLE_SUBMISSIONS_USED)
             setJuryAssignments(SAMPLE_JURY_ASSIGNMENTS)
@@ -63,9 +62,9 @@ const Dashboard = () => {
         {'path': '/jury-assignments' , 'element': <JuryAssignments pageInfo={juryPageInfo} setPageInfo={setJuryPageInfo} juryAssignments={juryAssignments}/>},
     ]);
 
-    if (!userID){
+    if (!isAuthenticated){
         return (
-            <div className='main-content'>
+            <div className='main-content minimal'>
                 <h2><Link to="/sign-in">Sign in</Link> to view your dashboard</h2>
             </div>
         )

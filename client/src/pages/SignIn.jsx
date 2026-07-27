@@ -1,28 +1,23 @@
 import {useState, useEffect} from 'react'
-
 import { useNavigate,Link } from 'react-router-dom'
 
-import {login,  getCurrentUserID} from "../api/auth.js"
+import { useAuthContext } from '/src/contexts/auth'
 
 import './SignIn.css'
 
 const SignIn = () =>{
     const nav = useNavigate();
-    const [user, setUser] = useState({})
+    const { isAuthenticated, login} = useAuthContext()
+
     const [signInParams, setSignInParams] = useState({username: '', password: ''})
-    const [errorMsg, setErrorMsg] = useState('')
+    const [alertMsg, setAlertMsg] = useState('')
 
     useEffect(()=>{
         // check if user is signed in
-        async function init(){
-            const res = await getCurrentUserID();
-            if (res) setUser(res);
-        }
-        init()
     },[])
 
     const handleChange = (e) => {
-        if (errorMsg) setErrorMsg('')
+        if (alertMsg) setAlertMsg('')
         var newSignInParams = {
             ...signInParams,
             [e.target.name]: e.target.value,
@@ -32,16 +27,22 @@ const SignIn = () =>{
 
     const handleSignIn = async (e) => {
         e.preventDefault()
-        const res = await login(signInParams)
-        if (res.error) setErrorMsg(res.msg)
+        const data = await login(signInParams);
+        if (!data.error) {
+            setAlertMsg('Signed in. You will be redirected shortly.');
+            nav('/');
+        }
         else{
-            setErrorMsg(res.msg)
-            nav('/')
+            setAlertMsg(data.error);
         }
     }
 
-    if (user.user_id) {
-        return(<div className='sign-in'>You are already signed in!</div>)
+    if (isAuthenticated) {
+        return(<div className='sign-in'>
+            <div className='minimal'>
+                You are already signed in!
+            </div>
+        </div>)
     }
 
     return (
@@ -66,7 +67,7 @@ const SignIn = () =>{
                 </div>
             </form>
 
-            {errorMsg && <div className='error-msg'>{errorMsg}</div>}
+            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )
 

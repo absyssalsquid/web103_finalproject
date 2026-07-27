@@ -1,13 +1,6 @@
 
-import {SAMPLE_USER, SAMPLE_CASE, generateSampleEvidences, generateSampleArguments, SAMPLE_JURY_SUMMARY, SAMPLE_ACHIEVEMENTS} from "./test_data"
+import {SAMPLE_CASE, generateSampleEvidences, generateSampleArguments, SAMPLE_JURY_SUMMARY} from "./test_data"
 
-export async function fetchUserData(case_id){
-    return SAMPLE_USER
-}
-
-export async function fetchUserAchievements(case_id){
-    return SAMPLE_ACHIEVEMENTS
-}
 
 export async function fetchCaseData(case_id){
     return SAMPLE_CASE
