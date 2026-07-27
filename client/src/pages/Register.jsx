@@ -1,46 +1,43 @@
-import {useState, useEffect} from 'react'
+import {useState} from 'react'
 import { useNavigate} from 'react-router-dom'
 
-import {register, getCurrentUserID} from "../api/auth.js"
+import { useAuthContext } from '/src/contexts/auth'
 
 import './SignIn.css'
 
 const SignIn = () =>{
     const nav = useNavigate();
-    const [user, setUser] = useState({})
-    const [RegisterParams, setRegisterParams] = useState({username: '', password: '', password2: ''})
-    const [errorMsg, setErrorMsg] = useState('')
+    const { isAuthenticated, register } = useAuthContext()
 
-    useEffect(()=>{
-        // check if user is signed in
-        async function init(){
-            const res = await getCurrentUserID();
-            if (res) setUser(res);
-        }
-        init()
-    },[])
+    const [RegisterParams, setRegisterParams] = useState({email: '', username: '', password: '', password2: ''})
+    const [alertMsg, setAlertMsg] = useState('')
 
     const handleChange = (e) => {
-        if (errorMsg) setErrorMsg('')
-        var newRegisterParams = {
+        if (alertMsg) setAlertMsg('')
+        setRegisterParams({
             ...RegisterParams,
             [e.target.name]: e.target.value,
-        }
-        setRegisterParams(newRegisterParams)
+        })
     }
 
     const handleRegister = async (e) => {
         e.preventDefault()
-        const res = await register(RegisterParams)
-        if (res.error) setErrorMsg(res.msg)
+        const data = await register(RegisterParams)
+        if (!data.error) {
+            setAlertMsg('Signed in. You will be redirected shortly.');
+            nav('/');
+        }
         else{
-            setErrorMsg(res.msg)
-            nav('/')
+            setAlertMsg(data.error);
         }
     }
 
-    if (user.user_id) {
-        return(<div className='sign-in'>You are already signed in!</div>)
+    if (isAuthenticated) {
+        return(<div className='sign-in'>
+            <div className='minimal'>
+                You are already signed in!
+            </div>
+        </div>)
     }
 
     return (
@@ -48,6 +45,12 @@ const SignIn = () =>{
             <div className='heading'>Register for an account</div>
 
             <form className='form'>
+                <input
+                    name='email'
+                    placeholder='email'
+                    onChange={handleChange}
+                />
+
                 <input
                     name='username'
                     placeholder='username'
@@ -71,7 +74,7 @@ const SignIn = () =>{
                 </div>
             </form>
 
-            {errorMsg && <div className='error-msg'>{errorMsg}</div>}
+            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )
 

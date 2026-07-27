@@ -1,4 +1,4 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
 
 const assignCase = async (req, res) => {
   try {

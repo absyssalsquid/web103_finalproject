@@ -1,4 +1,5 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
+import { updateReaction } from '../utils/reactionService.js'
 
 const getCases = async (req, res) => {
   try {
@@ -101,20 +102,15 @@ const getCompleteCase = async (req, res) => {
 
 const voteCase = async (req, res) => {
   try {
-    const { id } = req.params
-    const { value } = req.body
     // Vote on case (provisional phase)
-    res.json({ /* vote data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const deleteVote = async (req, res) => {
-  try {
-    const { id } = req.params
-    // Remove vote on case
-    res.json({ success: true })
+    const params = {
+      submission_type: 'case',
+      submission_id: req.params.id,
+      user_id: req.body.user_id,
+      reaction: req.body.reaction,
+    }
+    const { status, message, data } = updateReaction(params)
+    res.status(status).json(data || message)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -184,4 +180,4 @@ const changePhase = async (req, res) => {
   }
 }
 
-export default { getCases, createCase, withdrawCase, getCase, getCompleteCase, voteCase, deleteVote, voteCountCase, getCaseEvidence, getCaseArguments, getJurySummary, submitRuling, changePhase }
+export default { getCases, createCase, withdrawCase, getCase, getCompleteCase, voteCase, voteCountCase, getCaseEvidence, getCaseArguments, getJurySummary, submitRuling, changePhase }

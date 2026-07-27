@@ -1,86 +1,125 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+
+import {newToken, TOKEN_COOKIE_OPTIONS} from '../utils/jwt.js'
 
 const createUser = async (req, res) => {
+  console.log('createUser')
+  const { email, username, password, password2 } = req.body;
+
   try {
-    const { email, password, username } = req.body
-    // Create new user account
-    res.json({ /* user data */ })
+    // Check existing account
+    const emailExists = await pool.query(
+      "SELECT 1 FROM users WHERE email = $1",
+      [email]
+    );
+
+    if (emailExists.rowCount > 0) {
+      return res.status(409).json({
+        field: "email",
+        error: "Email already exists"
+      });
+    }
+
+    const usernameExists = await pool.query(
+      "SELECT 1 FROM users WHERE username = $1",
+      [username]
+    );
+
+    if (usernameExists.rowCount > 0) {
+      return res.status(409).json({
+        field: "username",
+        error: "Username already exists"
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const result = await pool.query(
+      `
+      INSERT INTO users (email, username, pw_hash)
+      VALUES ($1, $2, $3)
+      RETURNING user_id, username, email
+      `,
+      [email, username, passwordHash]
+    );
+
+    const user = result.rows[0];
+    const token = newToken(user)
+    res.cookie("access_token", token, TOKEN_COOKIE_OPTIONS);
+    return res.status(201).json({
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.email
+      }
+    });
+
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    // Handle race condition if DB unique constraint catches duplicate
+    if (error.code === "23505") {
+      return res.status(409).json({
+        error: "Email or username already exists"
+      });
+    }
+
+    console.error(error);
+    return res.status(500).json({error: "Internal server error"});
   }
-}
+};
 
 const login = async (req, res) => {
   try {
     const { username, password } = req.body
     // Authenticate user and return token/session
-    res.json({ /* token, user data */ })
+
+    const result = await pool.query(
+      `
+      SELECT user_id, username, email, pw_hash
+        FROM users
+      WHERE username = $1
+      `,
+      [username]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(409).json({
+        field: "username",
+        error: "Username not found"
+      });
+    }
+
+    var user = result.rows[0]
+
+    // compare hash
+    const valid = await bcrypt.compare(password, user.pw_hash);
+
+    if (!valid) {
+      return res.status(401).json({
+        error: "Invalid username or password"
+      });
+    }
+
+    delete user.pw_hash
+    const token = newToken(user);
+
+    res.cookie("access_token", token, TOKEN_COOKIE_OPTIONS);
+
+    return res.status(200).json({user});
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 }
 
 const logout = async (req, res) => {
-  try {
-    // Invalidate session/token
-    res.json({ success: true })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
+  // Invalidate session/token
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+  return res.status(200).json({ message: "Logged out" });
 }
 
-const getUserFromCreds = async (req, res) => {
-  try {
-    // Get current authenticated user from token/session
-    res.json({ /* user data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const updateUser = async (req, res) => {
-  try {
-    // Update current user profile
-    res.json({ /* updated user data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const getLimits = async (req, res) => {
-  try {
-    // Get current user's participation limits for today
-    res.json({ /* limits data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const getUserActivity = async (req, res) => {
-  try {
-    // Get aggregated activity: likes, jury assignments, submissions
-    res.json({ /* activity data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const getUserLikes = async (req, res) => {
-  try {
-    // Get user's votes (?limit=20&offset=0)
-    res.json({ /* likes data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const getUserJuryAssignments = async (req, res) => {
-  try {
-    // Get user's jury assignments (?limit=20&offset=0)
-    res.json({ /* assignments data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-export default { createUser, login, logout, getUserFromCreds, updateUser, getLimits, getUserActivity, getUserLikes, getUserJuryAssignments }
+export default { createUser, login, logout }

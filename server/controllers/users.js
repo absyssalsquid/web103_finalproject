@@ -1,4 +1,4 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
 
 const getUser = async (req, res) => {
   try {

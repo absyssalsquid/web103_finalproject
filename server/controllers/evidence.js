@@ -1,4 +1,4 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
 
 const createEvidence = async (req, res) => {
   try {
@@ -33,19 +33,9 @@ const deleteEvidence = async (req, res) => {
 const voteEvidence = async (req, res) => {
   try {
     const { id } = req.params
-    const { value } = req.body
+    const { evidence_id, user_id, value } = req.body
     // Vote on evidence (restricted to evidence phase)
     res.json({ /* vote data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-const deleteVote = async (req, res) => {
-  try {
-    const { id } = req.params
-    // Remove vote on evidence (restricted to evidence phase)
-    res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -61,4 +51,4 @@ const voteCountEvidence = async (req, res) => {
   }
 }
 
-export default { createEvidence, getEvidence, deleteEvidence, voteEvidence, deleteVote, voteCountEvidence }
+export default { createEvidence, getEvidence, deleteEvidence, voteEvidence, voteCountEvidence }

@@ -21,7 +21,6 @@ router.get('/:id/complete', controller.getCompleteCase) // get full data for cas
 // judge ruling
 
 router.put('/:id/vote', controller.voteCase)
-router.delete('/:id/vote', controller.deleteVote)
 router.get('/:id/votes', controller.voteCountCase)
 
 router.get('/:id/evidence', controller.getCaseEvidence) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted

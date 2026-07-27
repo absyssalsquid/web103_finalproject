@@ -34,8 +34,8 @@ const SAMPLE_CASES = [
     {...SAMPLE_CASE, case_id: 6, phase: 'RULING',            },
 ]
 
-const net = (c) => (c.up_count ?? 0) - (c.down_count ?? 0)
-const total = (c) => (c.up_count ?? 0) + (c.down_count ?? 0)
+const net = (c) => (c.up_votes ?? 0) - (c.down_votes ?? 0)
+const total = (c) => (c.up_votes ?? 0) + (c.down_votes ?? 0)
 
 const SORTERS = {
     newest: (a, b) => b.case_id - a.case_id,

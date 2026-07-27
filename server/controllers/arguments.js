@@ -1,4 +1,4 @@
-import { supabase } from '../client.js'
+import { pool } from '../config/database.js'
 
 const createArgument = async (req, res) => {
   try {
@@ -41,16 +41,6 @@ const voteArgument = async (req, res) => {
   }
 }
 
-const deleteVote = async (req, res) => {
-  try {
-    const { id } = req.params
-    // Remove vote on argument (restricted to argument phase)
-    res.json({ success: true })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
 const voteCountArgument = async (req, res) => {
   try {
     const { id } = req.params
@@ -61,4 +51,4 @@ const voteCountArgument = async (req, res) => {
   }
 }
 
-export default { createArgument, getArgument, deleteArgument, voteArgument, deleteVote, voteCountArgument }
+export default { createArgument, getArgument, deleteArgument, voteArgument, voteCountArgument }

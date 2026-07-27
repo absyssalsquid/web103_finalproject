@@ -1,0 +1,6 @@
+import { pool } from './database.js'
+import './dotenv.js'
+// import users from '../data/users.js'
+// import cases from '../data/cases.js'
+// import evidence from '../data/evidence.js'
+// import arguments from '../data/arguments.js'
