@@ -1,11 +1,11 @@
 # Bird Court
 
 Designed and developed by:  
-Samuel Alemu  
+Tatiana Vela  
 Tamara Berdichevsky  
+Samuel Alemu  
 Sri Narendrula  
 Dien Tran  
-Tatiana Vela  
 Ying Wang  
 
 🔗 Link to deployed app:
@@ -25,33 +25,25 @@ Frontend:
 React
 
 Backend:
-Supabase
+Render
 Node/Express
 
 ## Features
 
-### User Accounts                               
+### ✅ User Accounts                               
 Register, log in, and maintain a persistent account with XP, achievements, and participation history.                                                  
-[gif here]
-
-### User Profiles                               
-Public profile displaying bio, profile image, XP, contribution statistics, highlighted achievements, and all achievements.                             
-[gif here]
+![user account gif](/walkthrough/user_accounts.gif)
 
 ### Case Submission                             
 Allows users to submit an object and accusation within the character limit while enforcing daily submission limits.                                    
-[gif here]
-
-### Case Lifecycle Management                   
-Automatically progresses cases every 24 hours: Provisional → Discovery → Arguments → Jury Deliberation → Verdict → Outcome on a daily schedule. Once a phase is closed, submissions in that phase cannot be voted on.
 [gif here]
 
 ### Case Directory                     
 Stores cases with every phase: submissions, votes, verdict, and final outcome are preserved. For completed cases, it also displays what future cases reference it. Can filter by case status and sort by countdown to next phase.
 [gif here]
 
-### Voting                                      
-Lets users vote on provisional cases, evidence, and arguments.                                                                                         
+### Case Lifecycle Management                   
+Automatically progresses cases every 24 hours: Provisional → Discovery → Arguments → Jury Deliberation → Verdict → Outcome on a daily schedule. Once a phase is closed, submissions in that phase cannot be voted on.
 [gif here]
 
 ### Evidence Submission                         
@@ -66,16 +58,26 @@ During Argument phase, allows users to submit arguments with character limits an
 Each day, a user is issued N jury summons (e.g. 3). When they click "Serve Jury Duty," they consume one summons and are assigned a random eligible case in which they can vote Guilty, Not Guilty, or Insufficient Evidence.
 [gif here]
 
-### Judge Decision Interface                    
-Allows the assigned judge to declare the object's final legal status after the jury verdict.                                                           
-[gif here]
+------
 
 ### Participation Limits                        
 Enforces daily limits on submissions and jury participation while allowing unlimited eligible community voting.                                        
 [gif here]
 
+### Voting                                      
+Lets users vote on provisional cases, evidence, and arguments.                                                                                         
+[gif here]
+
 ### Contribution History                        
 Lets users view all current and completed cases they have participated in, along with their evidence, arguments, jury service, and submissions.        
+[gif here]
+
+### User Profiles                               
+Public profile displaying bio, profile image, XP, contribution statistics, highlighted achievements, and all achievements.                             
+[gif here]
+
+### Judge Decision Interface    *(stretch)*                 
+Allows the assigned judge to declare the object's final legal status after the jury verdict.                                                           
 [gif here]
 
 ### XP & Progression System     *(stretch)*     
