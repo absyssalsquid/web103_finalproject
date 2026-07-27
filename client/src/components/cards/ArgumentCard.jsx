@@ -1,5 +1,6 @@
 import UserTag from "/src/components/UserTag"
 import VotingArrows from "/src/components/VotingArrows"
+import ColorPillTag from "/src/components/ColorPillTag"
 
 import {formatDateTime} from "/src/utils"
 import {voteArgument} from "/src/api/cases"
@@ -8,16 +9,16 @@ import "./ArgumentCard.css"
 
 function ArgumentCard({data, isActivePhase}){
     return (
-        <div className="ArgumentCard">
-            <img src={data.image_url}/>
-            <div className="ev-number">#{data.evidence_num}</div>
+        <div className={`ArgumentCard`}>
+            <div className="header">
+                <ColorPillTag phase={data.argument_tag}/>
+                <div className="ev-number">#{data.evidence_num}</div>
+            </div>
             <UserTag 
                 user_id={data.user_id} 
                 username={data.username} 
                 flair={data.user_flair} 
                 image_url={data.user_image_url}/>
-            <div className="header">
-            </div>
             <div className="argument">{data.text}</div>
             <div className="citations">
                 {data.evidence_citations.map((item)=>(

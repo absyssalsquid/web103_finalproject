@@ -112,12 +112,14 @@ function generateSampleEvidenceCitations(count){
 function generateSampleArgument(){
     const n_case_citations = getRandomInt(0, 3)
     const n_evidence_citations = getRandomInt(0, 5-n_case_citations)
+    
 
     return {
         arg_id: getRandomInt(1, 100000000),
         case_id: getRandomInt(1, 100000),
         arg_num: getRandomInt(1, 50),
         text: generateLoremIpsum(220, 600),
+        argument_tag: getRandomInt(0, 1) == 0 ? 'PROSECUTION' : 'DEFENSE', 
         case_citations: generateSampleCaseCitations(n_case_citations),
         evidence_citations: generateSampleEvidenceCitations(n_evidence_citations),
     

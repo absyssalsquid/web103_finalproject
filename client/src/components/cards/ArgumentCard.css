@@ -11,15 +11,20 @@
         padding: 0.8rem 1.2rem;
     }
 }
-
-.ArgumentCard .ev-number {
+.ArgumentCard .header{
+    display: flex;
+    align-items: center;
     position: absolute;
-    font-size: 1.1em;
-    font-weight: 600;
-    padding: 0.5rem 0.8rem;
     top: 0;
     right: 0;
 }
+
+.ArgumentCard .ev-number {
+    font-size: 1.1em;
+    font-weight: 600;
+    padding: 0.5rem 0.8rem;
+}
+
 
 .ArgumentCard .citations {
     display: flex;
@@ -50,4 +55,6 @@
     color: var(--text-dim);
     font-size: 0.8em;
     margin-top: 0.5rem;
+    /* font-size: 0.7em; */
+    /* font-family: var(--mono); */
 }

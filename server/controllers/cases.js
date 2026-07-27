@@ -2,9 +2,58 @@ import { supabase } from '../client.js'
 
 const getCases = async (req, res) => {
   try {
-    const { phase, sort, search, limit, offset } = req.query
-    // Get cases with filters (?phase=...|?sort=...|?search=...|?limit=20&offset=0)
-    res.json({ /* cases data */ })
+    const { phase, status, sort } = req.query
+
+    let query = supabase.from('cases').select('*')
+
+    if (phase) {
+      query = query.eq('phase', phase)
+    }
+
+    if (status !== undefined) {
+      if (typeof status !== 'string') {
+        return res.status(400).json({
+         error: "Status must be 'open' or 'closed'.",
+       })
+     }
+
+      const normalizedStatus = status.toLowerCase()
+      if (normalizedStatus === 'closed') {
+        query = query.eq('phase', 'CLOSED')
+      } else if (normalizedStatus === 'open') {
+        query = query.neq('phase', 'CLOSED')
+      } else {
+        return res.status(400).json({ error: `Invalid status: '${status}'. Must be 'open' or 'closed'.` })
+      }
+    }
+
+    const sortOrder = sort === undefined ? 'newest' : sort
+
+    if (typeof sortOrder !== 'string') {
+      return res.status(400).json({
+        error: "Sort must be 'newest', 'oldest', or 'countdown'.",
+      })
+    }
+
+    if (sortOrder === 'newest') {
+      query = query.order('created_at', { ascending: false })
+    } else if (sortOrder === 'oldest') {
+      query = query.order('created_at', { ascending: true })
+    } else if (sortOrder === 'countdown') {
+      query = query.order('phase_end', {
+        ascending: true,
+        nullsFirst: false,
+      })
+    } else {
+      return res.status(400).json({
+        error: `Invalid sort: '${sortOrder}'. Must be 'newest', 'oldest', or 'countdown'.`,
+      })
+    }
+
+    const { data, error } = await query
+    if (error) throw error
+
+    res.json(data)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

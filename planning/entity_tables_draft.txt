@@ -3,6 +3,7 @@ submission_vote         UP, DOWN
 case_phase              PROVISIONAL, DISCOVERY, ARGUMENT, JURY_DELIBERATION, RULING, CLOSED
 juror_vote              GUILTY, NOT_GUILTY, INSUFFICIENT_EVIDENCE
 verdict                 GUILTY, NOT_GUILTY, TB_PECKED_AT
+argument_tag            PROSECUTION, DEFENSE
 xp_event_reason         SUBMISSION, JURY_VOTE, CASE_ADVANCED_TO_TRIAL, SUBMISSION_VOTE, SUBMISSION_CITED
 xp_event_ref_type       CASE, EVIDENCE, ARGUMENT, VOTE
 
@@ -49,6 +50,7 @@ arg_id              PK
 case_id             FK -> cases
 user_id             FK -> users
 arg_num             INT                 -- relative to case, so they can be cited easier by jurors 
+argument_tag        argument_tag
 text                VARCHAR(600)
 created_at          TIMESTAMPTZ         -- submission time
 UNIQUE(case_id, arg_num)
@@ -112,7 +114,7 @@ user_id             FK -> users
 amount              INT
 reason              ENUM                -- SUBMISSION, JURY_VOTE, CASE_ADVANCED_TO_TRIAL, SUBMISSION_VOTE...
 reference_type      ENUM                -- CASE, EVIDENCE, ARGUMENT, VOTE
-reference_id        BIGINT              -- ID of the object that caused the XP
+reference_id        INT                 -- ID of the object that caused the XP
 created_at          TIMESTAMPTZ         -- submission time
 UNIQUE(user_id, reason, reference_type, reference_id)
 
@@ -122,6 +124,7 @@ achievement_id      PK
 name                VARCHAR(80)
 requirements        VARCHAR(120)        -- description for users
 threshold           INT
+image_url           VARCHAR(500)
 
 user_achievements
 ---------
