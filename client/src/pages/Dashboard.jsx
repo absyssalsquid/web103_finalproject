@@ -3,54 +3,53 @@ import { Link, useRoutes } from 'react-router-dom'
 
 import SubNav from '../components/SubNav'
 import JuryAssignments from '../components/user/JuryAssignments'
-import UserCard from '../components/user/UserCard'
 
 import { useTheme } from '/src/contexts/theme'
 import { useAuthContext } from '/src/contexts/auth'
 
-import { SAMPLE_USER, generateJuryAssignments} from "/src/api/test_data.js"
+import { getUsage } from '/src/api/me'
+
 import {LIMITS} from "/src/api/limits"
 
 import "./Dashboard.css"
 
-
-const SAMPLE_SUBMISSIONS_USED = {
-    case: 1,
-    jury: 2,
-    evidence: 3,
-    argument: 4
+const CARD_TITLES = {
+    jury_assignments: 'juries served',
+    cases: 'cases filed',
+    evidence: 'evidence submitted',
+    arguments: 'arguments made'
 }
 
-const SAMPLE_JURY_ASSIGNMENTS = generateJuryAssignments(8,2)
+const SUBMISSION_LIMITS = {
+    jury_assignments: LIMITS.JURY_ASSIGNMENTS,
+    cases: LIMITS.CASE_SUBMISSIONS,
+    evidence: LIMITS.EVIDENCE_SUBMISSIONS,
+    arguments: LIMITS.ARGUMENT_SUBMISSIONS,
+}
+
+const LINKS = {
+    jury_assignments: (<Link to='/new-case'> start a case </Link>),
+    cases: (<Link to='/jury-duty'> serve on a jury </Link>),
+}
 
 const Dashboard = () => {
     const { theme, setTheme, themes } = useTheme()
     const { isAuthenticated } = useAuthContext()
 
-    const [profileData, setProfileData] = useState({});
+    const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
 
-    const [submissionsUsed, setSubmissionsUsed] = useState({})
-
-    // const [caseHPageNum, setCaseHPageNum] = useState(1)
-    // const [caseHTotalPages, setCaseHTotalPages] = useState(null)
-    // const [caseH, setCaseH] = useState([])
-
-    // const [evidenceHPageNum, setEvidenceHPageNum] = useState(1)
-    // const [evidenceHTotalPages, setEvidenceHTotalPages] = useState(null)
-    // const [evidenceH, setEvidenceH] = useState([])
-
-    // const [argumentHPageNum, setArgumentHPageNum] = useState(1)
-    // const [argumentHTotalPages, setArgumentHTotalPages] = useState(null)
-    // const [argumentsH, setArgumentsH] = useState([])
-
-    const [juryPageInfo, setJuryPageInfo] = useState({curr: 1, last: 12})
-    const [juryAssignments, setJuryAssignments] = useState([])
+    const [caseHistoryData    , setCaseHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    const [juryHistoryData    , setJuryHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
 
     useEffect(() => {
         async function fetchData(){
-            setProfileData(SAMPLE_USER)
-            setSubmissionsUsed(SAMPLE_SUBMISSIONS_USED)
-            setJuryAssignments(SAMPLE_JURY_ASSIGNMENTS)
+            const res = await getUsage();
+            if (res.ok) {
+                const data = await res.json()
+                setUsage(data)
+            }
         }
         fetchData();
     }, []);
@@ -59,7 +58,7 @@ const Dashboard = () => {
         {'path': '/cases'            , 'element': <h2>cases</h2>},
         {'path': '/evidence'         , 'element': <h2>evidence</h2>},
         {'path': '/arguments'        , 'element': <h2>arguments</h2>},
-        {'path': '/jury-assignments' , 'element': <JuryAssignments pageInfo={juryPageInfo} setPageInfo={setJuryPageInfo} juryAssignments={juryAssignments}/>},
+        {'path': '/jury-assignments' , 'element': <JuryAssignments history={juryHistoryData} setHistory={setJuryHistoryData}/>},
     ]);
 
     if (!isAuthenticated){
@@ -72,34 +71,17 @@ const Dashboard = () => {
     
     return (
         <div className='Dashboard main-content'>
-            <UserCard profileData={profileData} isPublic={false} />
-            <Link to={`/users/${profileData.user_id}`}>Public profile</Link>
 
             {/* ---------------------- daily activity ---------------------- */}
             <h2>Today</h2>
             <div className='summary-stat-container'>
-                <div className='stat-card'>
-                    <div className='desc'>jury summons</div>
-                    <div className='count'>{submissionsUsed.jury}/{LIMITS.JURY_SUMMONS}</div>
-                    <Link to='/jury-duty' role='button' className=''>
-                        serve on a jury
-                    </Link>
-                </div>
-                <div className='stat-card'>
-                    <div className='desc'>case submissions</div>
-                    <div className='count'>{submissionsUsed.case}/{LIMITS.CASE_SUBMISSIONS}</div>
-                    <Link to='/new-case' role='button' className=''>
-                        start a case
-                    </Link>
-                </div>
-                <div className='stat-card'>
-                    <div className='desc'>evidence submissions</div>
-                    <div className='count'>{submissionsUsed.evidence}/{LIMITS.EVIDENCE_SUBMISSIONS}</div>
-                </div>
-                <div className='stat-card'>
-                    <div className='desc'>argument submissions</div>
-                    <div className='count'>{submissionsUsed.argument}/{LIMITS.ARGUMENT_SUBMISSIONS}</div>
-                </div>
+                {Object.entries(CARD_TITLES).map(([key, val])=>(
+                    <div className='stat-card'>
+                        <div className='desc'>{val}</div>
+                        <div className='count'>{usage[key]}/{SUBMISSION_LIMITS[key]}</div>
+                        {(key in LINKS) && LINKS[key]}
+                    </div>
+                ))}
             </div>
 
             <div>New day starts at {LIMITS.REFRESH_TIME.toLocaleTimeString(undefined, {

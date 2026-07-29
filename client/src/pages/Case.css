@@ -1,17 +1,17 @@
 /* subnav */
-.Case .SubNav .nav-link {
+.Case .SubNav .nav-item {
     border-radius: 10px 10px 0 0 ;
     margin-top: 1rem;
 }
 
-.Case .SubNav .nav-link.active {
+.Case .SubNav .nav-item.active {
     border-bottom: 2px solid var(--accent);
 }
-.Case .SubNav .nav-link:hover {
+.Case .SubNav .nav-item:hover {
     transform: scaleY(1.2) translateY(-0.2em);
     overflow: visible
 }
-.Case .SubNav .nav-link:hover .nav-text {
+.Case .SubNav .nav-item:hover .nav-text {
     transform: scaleX(1.2);
 } 
 

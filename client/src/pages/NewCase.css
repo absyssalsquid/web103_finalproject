@@ -1,16 +1,72 @@
-.NewCase {
+.NewCase .main-content {
     max-width: 500px;
-    margin: 1rem auto;
+    position: relative;
 }
 
-.NewCase h2 {
-    color: var(--text-h);
-    margin-bottom: 0.25rem;
+.NewCase .header {
+    width: fit-content;
+    transform: rotate(-1deg);
+
+    perspective: 100px;
+    clip-path: polygon(0 10%, 100% 0, 100% 96%, 4% 100%);
+    
+    background-color: var(--accent);
+
+    position: relative;
+    bottom: -0.5rem;
+    left: -1.5rem;
+    z-index: -1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.5rem 2rem 1.2rem 2rem;
 }
 
-.NewCase > p {
-    margin-top: 0;
-    color: var(--text);
+.NewCase .header h2 {
+    color: var(--text-on-accent);
+    margin: 0;
+}
+
+.NewCase .header p {
+    margin: 0;
+    margin-left: 0.5rem;
+    color: var(--text-on-accent);
+    opacity: 0.85;
+}
+
+.NewCase .form-block {
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+
+    padding: 1rem;
+    background-color: rgba(233, 233, 0, 0.384);
+
+    /* top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0; */
+}
+
+.NewCase .form-block .alert {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: rgb(255, 217, 0);
+    color: black;
+    width: 2rem;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    font-size: 1.5rem;
+}
+.NewCase .form-block .alert * {
+    position: relative;
+    top:-0.1rem;
+    left: 0.03rem;
 }
 
 .NewCase form {
@@ -36,11 +92,8 @@
     color: var(--text-h);
 }
 
-
-.NewCase textarea {
-    resize: vertical;
-    min-height: 5rem;
-}
+.NewCase textarea { resize: vertical; }
+.NewCase textarea.obj-name{ min-height: 5rem; }
 
 /* character counters */
 .NewCase small {
@@ -75,10 +128,38 @@
     color: var(--text-on-accent);
 }
 
-.NewCase form img {
-    width: auto;
+.NewCase form .evidence-img-container{
+    position: relative;
+    margin-top: 0.5rem;
+    width: fit-content;
+}
+
+.NewCase form .evidence-img-container img {
+    display: 'block';
     border: 1px solid var(--border);
     border-radius: 8px;
+    max-width: 200px;
+    max-height: 300px;
+}
+
+.NewCase form .evidence-img-container button{
+    padding: 0;
+    width: 25px;
+    aspect-ratio: 1/1;
+    font-size: 12px;
+    
+    position: absolute;
+    top: -10px;
+    right: -10px;
+
+    background-color: red;
+    color: white;
+    border-radius: 99999px;
+}
+.NewCase form .evidence-img-container button:hover{
+    background-color: white;
+    color: red;
+    border: 1px solid red;
 }
 
 /* actions */

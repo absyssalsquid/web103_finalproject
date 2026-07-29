@@ -8,7 +8,10 @@ import UserProfile from './pages/UserProfile'
 import SignIn from './pages/SignIn'
 import Register from './pages/Register'
 import JuryDuty from './pages/JuryDuty'
+import JuryBallot from './pages/JuryBallot'
 import Guidelines from './pages/Guidelines'
+
+import UserTag from '/src/components/UserTag'
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -17,7 +20,7 @@ import './App.css'
 
 function App() {
   const nav = useNavigate();
-  const { isAuthenticated, logout} = useAuthContext()
+  const { user, isAuthenticated, logout} = useAuthContext()
 
   const element = useRoutes([
     {'path': '/'           , 'element': <Docket />},
@@ -29,7 +32,8 @@ function App() {
     {'path': '/cases/:id/*'   , 'element': <Case />},
     {'path': '/profile/*'    , 'element': <UserProfile />},
     {'path': '/users/:id/*'   , 'element': <UserProfile />},
-    {'path': '/jury-duty/:id/'   , 'element': <JuryDuty />},
+    {'path': '/jury/serve/'   , 'element': <JuryDuty />},
+    {'path': '/jury/ballot/:id' , 'element': <JuryBallot />},
     {'path': '/jury-duty/*'   , 'element': <JuryDuty />},
   ]);
 
@@ -43,12 +47,20 @@ function App() {
         <nav className='Navigation'>
           <Link    className='nav-logo' to="/">Bird Court</Link>
           <div className='flex-grow'></div>
-            <Link className="nav-link qmark" to="/guidelines">
+            <Link className="nav-item qmark" to="/guidelines">
               <img src="https://upload.wikimedia.org/wikipedia/commons/archive/d/d9/20110302085513%21Icon-round-Question_mark.svg"/>
             </Link>
-          { (isAuthenticated) && (<Link className="nav-link" to="/dashboard">Dashboard </Link>) }
-          { (!isAuthenticated) && (<Link className='nav-link' to="/sign-in">Sign&nbsp;in</Link>) } 
-          { (isAuthenticated) && (<div className="nav-link" onClick={()=>handleLogout()}>Sign&nbsp;out </div>) }
+          { (isAuthenticated) && (<Link className="nav-item" to="/dashboard">Dashboard </Link>) }
+          { (!isAuthenticated) && (<Link className='nav-item' to="/sign-in">Sign&nbsp;in</Link>) } 
+          { (isAuthenticated) && (<div className="nav-item" onClick={()=>handleLogout()}>Sign&nbsp;out </div>) }
+          { (isAuthenticated && user) && (
+            <div className="nav-item">
+              <UserTag 
+                user_id={user.user_id}
+                username={user.username}
+                isReversed={true}
+                /> 
+            </div>) }
           {/* all conditions set to userID for testing, to see all tabs */}
         </nav>
 

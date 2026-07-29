@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import { useNavigate,Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -38,17 +38,21 @@ const SignIn = () =>{
     }
 
     if (isAuthenticated) {
-        return(<div className='sign-in'>
+        return(<div className='sign-in main-content'>
             <div className='minimal'>
-                You are already signed in!
+                <h2>You are already signed in!</h2>
             </div>
         </div>)
     }
 
     return (
-        <div className='sign-in '>
-            <div className='heading'>Sign in or <Link to={"/register"}>register</Link> for an account</div>
+        <div className='sign-in main-content'>
 
+            <div className='header'>
+                <h2>Sign in </h2>
+                <p>or <Link to={"/register"}>register</Link> for an account</p>
+            </div>
+            
             <form className='form'>
                 <input
                     name='username'

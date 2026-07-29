@@ -1,6 +1,11 @@
+import { useAuthContext } from '/src/contexts/auth'
+
 import "./UserCard.css"
 
-function UserCard({profileData, isPublic}){
+function UserCard({profileData}){
+    const { user, isAuthenticated} = useAuthContext()
+    // console.log(profileData.user_id, user.user_id)
+
     if (!profileData || Object.keys(profileData).length === 0) {
         return (
             <></>
@@ -13,13 +18,12 @@ function UserCard({profileData, isPublic}){
             <div className='text'>
                 <div className='main'>
                     <div className='username'>{profileData.username}</div>
-                    <div className='flair'>{profileData.flair_name}</div>
+                    { (profileData.flair_name != null) && (<div className='flair'>{profileData.flair_name}</div>)}
                 </div>
                 <div className='bio'>{profileData.bio}</div>
-                { isPublic
-                    ? <div className='joined'>Member since {profileData.created_at.toLocaleDateString()}</div>
-                    : <button className='edit-profile'>edit</button>
-                }
+                <div className='joined'>Member since {(new Date(profileData.created_at)).toLocaleDateString()}</div>
+
+                {/* { isAuthenticated && user.user_id === profileData.user_id && (<button className='edit-profile'>edit</button>)} */}
             </div>
         </div>
     )

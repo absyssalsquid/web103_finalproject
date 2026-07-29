@@ -31,7 +31,6 @@ body{
 
   font-family: var(--sans);
   
-  /* color-scheme: light dark; */
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -47,20 +46,21 @@ h1,h2,h3,h4,h5,h6{
   --bg: #ffffff;
   --bg: rgb(253, 252, 250);
   --bg: rgb(240, 238, 235);
-  --card-bg: transparent;
-  --card-bg-dim: transparent;
   --dim-bg: rgba(207, 207, 202, 0.5);
-  
-  --border: rgba(58, 58, 58, 0.1);
-  --card-border: rgba(58, 58, 58, 0.1);
 
+  --card-bg: var(--bg);
+  --card-bg-dim: var(--bg);
+  
+  --border: rgba(58, 58, 58, 0.15);
+  --card-border: var(--border);
+  --card-border-dim: var(--card-border);
 
   --text: #535352;
   --text-dim: #969ca5;
   --text-h: #0e0d0ae1;
 
   --text-accent: rgb(185, 121, 0);
-  --accent:        rgb(224, 154, 24);
+  --accent:        rgb(233, 159, 23);
   --accent-border: rgba(224, 154, 24, 0.5);
   --accent-bg:     rgba(224, 154, 24, 0.15);
   --text-on-accent: var(--text-h);
@@ -80,12 +80,12 @@ h1,h2,h3,h4,h5,h6{
   --nav-logo: #f0eeeb;
   --nav-logo-hover: #f0eeeb;
 
-  --nav-link-text: var(--text);
-  --nav-link-text-active: var(--text);
-  --nav-link-text-via-filter: invert(37%) sepia(5%) saturate(194%) hue-rotate(2deg) brightness(98%) contrast(91%);
-  --nav-link-text-hover: #141108;
-  --nav-link-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
-  --nav-link-bg-hover: #e6a441;
+  --nav-item-text: var(--text);
+  --nav-item-text-active: var(--text);
+  --nav-item-text-via-filter: invert(37%) sepia(5%) saturate(194%) hue-rotate(2deg) brightness(98%) contrast(91%);
+  --nav-item-text-hover: #141108;
+  --nav-item-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
+  --nav-item-bg-hover: #e6a441;
 }
 
 /* Dark theme — applied via the data-theme attribute set by the ThemeProvider.
@@ -93,12 +93,13 @@ h1,h2,h3,h4,h5,h6{
    attribute is always concrete. */
 :root[data-theme="dark"] {
   --bg: #16171d;
-  --card-bg: transparent;
-  --card-bg-dim: transparent;
   --dim-bg: rgba(47, 48, 58, 0.5);
+  --card-bg: var(--bg);
+  --card-bg-dim: var(--bg);
 
   --border: #252530;
-  --card-border: #252530;
+  --card-border: var(--border);
+  --card-border-dim: var(--card-border);
 
 
   --text: #9ca3af;
@@ -109,7 +110,7 @@ h1,h2,h3,h4,h5,h6{
   --accent:        rgb(224, 154, 24);
   --accent-border: rgba(224, 154, 24, 0.5);
   --accent-bg:     rgba(224, 154, 24, 0.15);
-  --text-on-accent: var(--text-h);
+  --text-on-accent: rgb(14, 12, 11);
 
   --citation-bg: rgba(255, 231, 74, 0.03);
   --citation-border: rgba(167, 146, 13, 0.17);
@@ -122,21 +123,24 @@ h1,h2,h3,h4,h5,h6{
     rgba(0, 0, 0, 0.35) -2px 3px 3px -2px;
     
     /* navbar */
-  --nav-link-text: var(--text);
-  --nav-link-text-active: var(--text);
-  --nav-link-text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
-  --nav-link-text-hover: #141108;
-  --nav-link-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
-  --nav-link-bg-hover: #e6a441;
+  --nav-item-text: var(--text);
+  --nav-item-text-active: var(--text);
+  --nav-item-text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
+  --nav-item-text-hover: #141108;
+  --nav-item-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
+  --nav-item-bg-hover: #e6a441;
 }
 
 :root[data-theme="sky"] {
   --bg: #96c7d5;
   --dim-bg: rgba(89, 141, 156, 0.199);
+
   --card-bg: #fff6e5;
   --card-bg-dim: #fff6e556;
+
   --border: #698494;
   --card-border: transparent;
+  --card-border-dim: var(--accent-border);
 
 
   --text: #445658;
@@ -164,9 +168,9 @@ h1,h2,h3,h4,h5,h6{
   --nav-logo: #fff6e5;
   --nav-logo-hover: #f0eeeb;
 
-  --nav-link-text: #fff6e5;
-  --nav-link-text-via-filter: invert(82%) sepia(30%) saturate(224%) hue-rotate(329deg) brightness(114%) contrast(101%);
-  --nav-link-text-hover: #141108;
-  --nav-link-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
-  --nav-link-bg-hover: #e6a441;
+  --nav-item-text: #fff6e5;
+  --nav-item-text-via-filter: invert(82%) sepia(30%) saturate(224%) hue-rotate(329deg) brightness(114%) contrast(101%);
+  --nav-item-text-hover: #141108;
+  --nav-item-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);
+  --nav-item-bg-hover: #e6a441;
 }

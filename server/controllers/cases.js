@@ -1,60 +1,89 @@
 import { pool } from '../config/database.js'
 import { updateReaction } from '../utils/reactionService.js'
+import { dateWithDelta } from '../utils/time.js'
+
+const sort_modes = {
+  newest: 'created_at DESC',
+  oldest: 'created_at ASC',
+  popular:   `(up_votes + down_votes) DESC`,
+  prosecute: `((down_votes - up_votes)/total_votes) DESC`,
+  defend:    `((up_votes - down_votes)/total_votes) DESC`,
+  countdown: 'phase_end ASC NULLS LAST',
+}
+
+const filter_modes = {
+  ALL: `TRUE`,
+  ACTIVE: `phase_end IS NOT NULL`,
+  ENDED: `phase_end IS NULL`,
+  PROVISIONAL: `phase = 'PROVISIONAL' `,
+  DISCOVERY: `phase = 'DISCOVERY' `,
+  ARGUMENT: `phase = 'ARGUMENT' `,
+  JURY_DELIBERATION: `phase = 'JURY_DELIBERATION' `,
+  RULING: `phase = 'RULING' `,
+  CLOSED: `phase = 'CLOSED' `,
+  WITHDRAWN: `phase = 'WITHDRAWN' `,
+  DISMISSED: `phase = 'DISMISSED' `
+}
 
 const getCases = async (req, res) => {
+  let { filterBy, sortBy, limit, page } = req.query
+  
+  limit = Number(limit)
+  if (!Number.isInteger(limit))
+    return {status: 422, message: 'Invalid limit (number of results)'}
+  else if (limit < 5 || limit > 50)
+    return {status: 422, message: 'Limit (number of results) must be between 5 and 50.'}
+  
+  page = Number(page)
+  if (!Number.isInteger(page))
+    return {status: 422, message: 'Invalid page num'}
+  else if (page < 1 )
+    return {status: 422, message: 'Invalid page num'}
+
+  const offset = (page-1) * limit;
+
+  // check filter
+  if (!(filterBy in filter_modes)){
+    return res.status(422).json({
+      error: "Invalid status filter",
+    })
+  }
+  
+  // check sort
+  if (!(sortBy in sort_modes)){
+    return res.status(422).json({
+      error: "Invalid sort method",
+    })  
+  }
+  
   try {
-    const { phase, status, sort } = req.query
+    const count_response = await pool.query(`SELECT COUNT(*) FROM cases`)
+    const count = Number(count_response.rows[0].count)
+    const last_page = Math.ceil(count / limit)
 
-    let query = supabase.from('cases').select('*')
+    const response = await pool.query(`
+      SELECT
+        cases.*,
+        (down_votes + up_votes) AS total_votes,
+        users.username,
+        users.image_url AS user_image_url,
+        ach.name AS flair_name
+      FROM cases
+      JOIN users
+        ON cases.user_id = users.user_id
+      LEFT JOIN achievements AS ach
+        ON users.flair = ach.achievement_id
+      WHERE ${filter_modes[filterBy]}
+      ORDER BY ${sort_modes[sortBy]}
+      LIMIT $1
+      OFFSET $2
+      `, [limit, offset])
+    const entries = response.rows
 
-    if (phase) {
-      query = query.eq('phase', phase)
-    }
-
-    if (status !== undefined) {
-      if (typeof status !== 'string') {
-        return res.status(400).json({
-         error: "Status must be 'open' or 'closed'.",
-       })
-     }
-
-      const normalizedStatus = status.toLowerCase()
-      if (normalizedStatus === 'closed') {
-        query = query.eq('phase', 'CLOSED')
-      } else if (normalizedStatus === 'open') {
-        query = query.neq('phase', 'CLOSED')
-      } else {
-        return res.status(400).json({ error: `Invalid status: '${status}'. Must be 'open' or 'closed'.` })
-      }
-    }
-
-    const sortOrder = sort === undefined ? 'newest' : sort
-
-    if (typeof sortOrder !== 'string') {
-      return res.status(400).json({
-        error: "Sort must be 'newest', 'oldest', or 'countdown'.",
-      })
-    }
-
-    if (sortOrder === 'newest') {
-      query = query.order('created_at', { ascending: false })
-    } else if (sortOrder === 'oldest') {
-      query = query.order('created_at', { ascending: true })
-    } else if (sortOrder === 'countdown') {
-      query = query.order('phase_end', {
-        ascending: true,
-        nullsFirst: false,
-      })
-    } else {
-      return res.status(400).json({
-        error: `Invalid sort: '${sortOrder}'. Must be 'newest', 'oldest', or 'countdown'.`,
-      })
-    }
-
-    const { data, error } = await query
-    if (error) throw error
-
-    res.json(data)
+    res.status(200).json({
+      last_page,
+      entries
+    })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -62,10 +91,24 @@ const getCases = async (req, res) => {
 
 const createCase = async (req, res) => {
   try {
-    const { title, description } = req.body
-    // Create new case
-    res.json({ /* case data */ })
+    const { object_name, accusation, image } = req.body
+    const { user_id } = req.token_payload.user
+    const now = new Date();
+    const tomorrow = dateWithDelta({days: 1}, now)
+    // upload the image
+    // console.log(image)
+    // console.log(req.body, user_id, now)
+
+    const response = await pool.query(`
+      INSERT INTO cases (user_id, created_at, object_name, accusation, image_url, phase_start, phase_end)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING case_id`,
+      [user_id, now, object_name, accusation, null, now.toISOString(), tomorrow.toISOString()]
+    )
+
+    res.status(201).json({ case_id: response.rows[0].case_id})
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: error.message })
   }
 }
@@ -74,8 +117,18 @@ const withdrawCase = async (req, res) => {
   try {
     const { id } = req.params
     // Withdraw case (only by case author)
-    res.json({ success: true })
+    const now = (new Date()).toISOString();
+
+    const response = await pool.query(`
+      UPDATE cases
+      SET (phase, phase_start, phase_end) = ($1, $2, $3)
+      WHERE case_id = $4`,
+      ['WITHDRAWN', now, null, id]
+    )
+
+    res.status(204)
   } catch (error) {
+    console.log(error.message)
     res.status(500).json({ error: error.message })
   }
 }
@@ -172,8 +225,19 @@ const submitRuling = async (req, res) => {
 const changePhase = async (req, res) => {
   try {
     const { id } = req.params
-    const { phase } = req.body
-    // Update case phase (for rollback or manual advance, only presiding judge)
+    const { targetPhase } = req.body
+    const newStart = new Date()
+    const newEnd = dateWithDelta({days:1}, newStart)
+
+    const response = await pool.query(`
+      UPDATE cases 
+      SET (phase, phase_start, phase_end) = ($1, $2, $3)
+      WHERE case_id = $4`,
+      [targetPhase, newStart, newEnd, id]
+    )
+    const data = response.rows[0]
+
+    // Update case phase (for rollback or manual advance, only presiding judge can do)
     res.json({ /* updated case */ })
   } catch (error) {
     res.status(500).json({ error: error.message })

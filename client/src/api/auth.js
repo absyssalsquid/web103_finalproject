@@ -40,8 +40,7 @@ export async function logout() {
   return await fetch(`${API_BASE}/auth/logout`, options);
 }
 
-export async function userFromToken() {
-  console.log('userFromToken')
+export async function decodeToken() {
   const options = {
     method: "GET",
     credentials: "include",

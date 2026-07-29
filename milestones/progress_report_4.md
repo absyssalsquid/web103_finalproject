@@ -53,3 +53,5 @@ Achievement system
 ## Features Completed This Unit
 List each feature you completed and checked off in readme.md this unit, one per line:
 - User accounts
+- Case directory
+- Case Submission                             

@@ -12,7 +12,7 @@ export const LIMITS = {
     ARGUMENT_LENGTH: 600, 
     
     // business rules — the real count comes from the API
-    JURY_SUMMONS: 5,
+    JURY_ASSIGNMENTS: 5,
     CASE_SUBMISSIONS: 3,
     ARGUMENT_SUBMISSIONS: 5,
     EVIDENCE_SUBMISSIONS: 8,

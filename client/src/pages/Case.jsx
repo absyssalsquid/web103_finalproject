@@ -9,50 +9,20 @@ import CaseRuling from '../components/case/CaseRuling'
 import UserTag from '../components/UserTag'
 import ColorPillTag from '../components/ColorPillTag'
 
-import {phaseDelta, nextPhase, formatDateTime } from '/src/utils'
-import {dateWithDelta} from "/src/api/test_data"
-import {fetchCaseData, fetchCaseArguments, fetchCaseEvidence, fetchJurySummary} from "/src/api/cases"
+import {phaseDelta, formatDateTime } from '/src/utils'
+import {fetchCase, fetchCaseArguments, fetchCaseEvidence, fetchJurySummary} from "/src/api/cases"
+import {incrementCase} from "/src/api/cron"
 
 import './Case.css'
 import SubNav from '../components/SubNav'
 
 const redirects = {
     'PROVISIONAL':       'provisional',
-    'DISCOVERY':         'evidence',          
-    'ARGUMENT':          'arguments',         
-    'JURY_DELIBERATION': 'verdict',                   
-    'RULING':            'ruling',  
-    'CLOSED':            'ruling',  
-}
-
-function incrementCase(caseData, jurySummary){
-    // for the purposes of testing, calculated here
-    // TODO: create api for this
-
-    var newCaseData = {
-        ...caseData,
-        phase: nextPhase(caseData.phase),
-        phase_start: caseData.phase_end,
-        phase_end: dateWithDelta({seconds:2}, caseData.phase_end)
-    }
-
-    if (caseData.phase == 'JURY_DELIBERATION'){
-        // tally votes
-        let maxKey = null;
-        let maxValue = 0;
-        for (const [key, value] of Object.entries(jurySummary.breakdown)) {
-            if (value > maxValue) {
-                maxValue = value;
-                maxKey = key;
-            }
-        }
-        newCaseData.verdict = maxKey;
-    }
-    else if (caseData.phase == 'RULING'){
-        caseData.ruling = 'New judge ruling!!!'
-        newCaseData.phase_end = null;
-    }
-    return newCaseData;
+    'DISCOVERY':         'evidence',
+    'ARGUMENT':          'arguments',
+    'JURY_DELIBERATION': 'verdict',
+    'RULING':            'ruling',
+    'CLOSED':            'ruling',
 }
 
 const Case = () => {
@@ -70,16 +40,19 @@ const Case = () => {
             console.log('fetching data')
 
             const completeCaseResponse = await Promise.all([
-                fetchCaseData(id),
+                fetchCase(id),
                 fetchCaseEvidence(id),
                 fetchCaseArguments(id),
                 fetchJurySummary(id)
             ])
 
-            const completeCaseData = completeCaseResponse;
-            // const completeCaseData = await Promise.all(completeCaseResponse.map((item) => item.json()));
+            const completeCaseData = await Promise.all(
+                completeCaseResponse.map((item) => item.json()));
             
-            const newCaseData = (Object.keys(caseData).length === 0) ? completeCaseData[0] : incrementCase(caseData, jurySummary);
+            // cron testing
+            const newCaseData = (Object.keys(caseData).length === 0) 
+                ? completeCaseData[0] 
+                : incrementCase(caseData, jurySummary);
             // console.log(newCaseData)
             
             setCaseData(newCaseData)
@@ -107,7 +80,7 @@ const Case = () => {
         return () => clearInterval(intervalId);
     }, [caseData]);
 
-    const element = useRoutes([
+    const child_element = useRoutes([
         { path: '/',            element: <></> },
         { path: 'provisional',  element: <Provisional   phaseDelta={phaseDelta(caseData.phase, 'PROVISIONAL')} /> },
         { path: 'evidence',     element: <CaseEvidence  phaseDelta={phaseDelta(caseData.phase, 'DISCOVERY')}           caseData={caseData} data={evidence} /> },
@@ -123,7 +96,7 @@ const Case = () => {
             </div>
         )
     }
-    else if (caseData == {}) {
+    else if (Object.keys(caseData).length === 0) {
         return (
             <div className="Case">
                <div className='minimal'>Case not found!</div>
@@ -166,7 +139,7 @@ const Case = () => {
                     ]}
                 />
                 
-                {element}
+                {child_element}
             </div>
         )
     }

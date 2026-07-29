@@ -1,6 +1,6 @@
 import { pool } from '../config/database.js'
 
-const getLimits = async (req, res) => {
+const getUsage = async (req, res) => {
   try {
     // Get global limits configuration
     res.json({ /* limits data */ })
@@ -9,4 +9,4 @@ const getLimits = async (req, res) => {
   }
 }
 
-export default { getLimits }
+export default { getUsage }

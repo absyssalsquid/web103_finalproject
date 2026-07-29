@@ -1,13 +1,14 @@
 
 .UserProfile .summary-stat-container{
     margin: 2rem 0 3rem 0;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 150px));
 }
 
 
-.UserProfile .SubNav .nav-link:hover {
+.UserProfile .SubNav .nav-item:hover {
     background-color: var(--accent-bg);
 }
 
-.UserProfile .SubNav .nav-link.active {
+.UserProfile .SubNav .nav-item.active {
     border-bottom: 2px solid var(--accent);
 }
