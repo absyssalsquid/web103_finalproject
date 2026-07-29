@@ -8,6 +8,7 @@
 
 .Dashboard .summary-stat-container{
     margin-bottom: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 200px));
 }
 
 .Dashboard .settings label{
@@ -19,10 +20,10 @@
     flex-direction: column;
 }
 
-.Dashboard .SubNav .nav-link:hover {
+.Dashboard .SubNav .nav-item:hover {
     background-color: var(--accent-bg);
 }
 
-.Dashboard .SubNav .nav-link.active {
+.Dashboard .SubNav .nav-item.active {
     border-bottom: 2px solid var(--accent);
 }

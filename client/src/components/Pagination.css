@@ -25,7 +25,11 @@
     }
 }
 
-.Pagination .arrows button:hover {
+.Pagination .arrows button:disabled {
+    color: var(--border);
+}
+
+.Pagination .arrows button:hover:not(:disabled) {
     background-color: var(--accent-bg);
     border-color: var(--accent-border);
 }
@@ -41,10 +45,21 @@
     /* box-sizing: border-box; */
     width: 3rem;
     padding: 6px 7px;
-    background-color: var(--dim-bg);
+    background-color: transparent;
     text-align: center;
 }
 
+.Pagination button[type="submit"]{
+    color: var(--text-accent);
+    background-color: var(--text-on-accent);
+    background-color: transparent;
+    border: 1px solid var(--text-accent);
+}
+
+.Pagination button[type="submit"]:hover{
+    color: var(--text-on-accent);
+    background-color: var(--accent);
+}
 
 .Pagination .arrows .page-nums .last-num {
     font-weight: 600;

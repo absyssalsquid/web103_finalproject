@@ -18,7 +18,7 @@ function CaseCard({ data }) {
                     <UserTag 
                         user_id={data.user_id} 
                         username={data.username} 
-                        flair={data.user_flair} 
+                        flair={data.flair_name} 
                         image_url={data.user_image_url} />
                 </div>
                 <div className='case-num'>Case #{data.case_id}</div>

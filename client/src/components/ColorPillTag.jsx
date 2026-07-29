@@ -9,6 +9,8 @@ const TAG_COLORS = {
     'JURY_DELIBERATION': '#8B5CF6',
     'RULING': '#1faf4f',
     'CLOSED': '#5c5e54',
+    'DISMISSED': '#093d3b',
+    'WITHDRAWN': '#4c5a0e',
     
     'PROSECUTION': '#da2100cc', 
     'DEFENSE': '#9cbe14c7'

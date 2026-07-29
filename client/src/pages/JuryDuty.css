@@ -11,7 +11,7 @@
     padding: 1.5rem;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: var(--bg);
+    background: var(--card-bg);
     box-shadow: var(--shadow);
     text-align: center;
 }

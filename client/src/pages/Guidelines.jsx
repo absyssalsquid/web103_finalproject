@@ -64,7 +64,7 @@ function Guidelines(){
                     </tr>
                     <tr>
                         <td>Serve jury duty</td>
-                        <td className="text-right">{LIMITS.JURY_SUMMONS}</td>
+                        <td className="text-right">{LIMITS.JURY_ASSIGNMENTS}</td>
                     </tr>
                     <tr>
                         <td></td>

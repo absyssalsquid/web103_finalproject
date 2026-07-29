@@ -1,7 +1,7 @@
 // AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 
-import { login as loginApi, logout as logoutApi, register as registerApi, userFromToken} from '/src/api/auth';
+import { login as loginApi, logout as logoutApi, register as registerApi, decodeToken} from '/src/api/auth';
 
 // Initialize context
 const AuthContext = createContext(undefined);
@@ -13,11 +13,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const res = await userFromToken();
+      const res = await decodeToken();
 
       if (res.ok) {
-        const user = await res.json();
-        setUser(user);
+        const data = await res.json();
+        setUser(data.user);
       } else {
         setUser(null);
       }

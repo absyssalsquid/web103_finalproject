@@ -1,11 +1,10 @@
 import { pool } from './database.js'
 import './dotenv.js'
-import achievements from '../data/achievements.js'
 
 // enums shared across tables, created before any table that uses them
 const ENUMS = {
     submission_rxn:    `submission_rxn AS ENUM ('UP', 'DOWN')`,
-    case_phase:        `case_phase AS ENUM ('PROVISIONAL', 'DISCOVERY', 'ARGUMENT', 'JURY_DELIBERATION', 'RULING', 'CLOSED')`,
+    case_phase:        `case_phase AS ENUM ('PROVISIONAL', 'DISCOVERY', 'ARGUMENT', 'JURY_DELIBERATION', 'RULING', 'CLOSED', 'WITHDRAWN', 'DISMISSED')`,
     juror_vote:        `juror_vote AS ENUM ('GUILTY', 'NOT_GUILTY', 'INSUFFICIENT_EVIDENCE')`,
     verdict:           `verdict AS ENUM ('GUILTY', 'NOT_GUILTY', 'TB_PECKED_AT')`,
     argument_tag:      `argument_tag AS ENUM('DEFENSE, PROSECUTION')`,
@@ -20,7 +19,7 @@ const SINGLE_INDEXES = {
     cases: ['created_at', 'phase', 'phase_end'],
     evidence: ['created_at'],
     arguments: ['created_at'],
-    jury_assignments: ['user_id'],
+    jury_assignments: ['user_id', 'created_at'],
     reactions: ['user_id'],
 }
 
@@ -64,11 +63,11 @@ const TABLES = {
             verdict         verdict,
             judge_id        INT REFERENCES users(user_id),
             judge_ruling    VARCHAR(300),
-            phase           case_phase,
+            phase           case_phase DEFAULT 'PROVISIONAL',
             phase_start     TIMESTAMPTZ,
             phase_end       TIMESTAMPTZ,
-            up_votes        INT,
-            down_votes      INT,
+            up_votes        INT DEFAULT 0,
+            down_votes      INT DEFAULT 0,
             CONSTRAINT chk_min_length_obj CHECK (length(object_name) >= 3),
             CONSTRAINT chk_min_length_acc CHECK (length(accusation) >= 20) 
         )
@@ -135,12 +134,13 @@ const TABLES = {
 
     jury_assignments: `
         CREATE TABLE IF NOT EXISTS jury_assignments (
-            id           SERIAL PRIMARY KEY,
-            case_id      INT REFERENCES cases(case_id),
-            user_id      INT REFERENCES users(user_id),
-            vote         juror_vote,
-            created_at   TIMESTAMPTZ DEFAULT NOW(),
-            completed_at TIMESTAMPTZ,
+            id                  SERIAL PRIMARY KEY,
+            case_id             INT REFERENCES cases(case_id),
+            user_id             INT REFERENCES users(user_id),
+            vote                juror_vote,
+            created_at          TIMESTAMPTZ DEFAULT NOW(),
+            expires_at          TIMESTAMPTZ,
+            completed_at        TIMESTAMPTZ,
             UNIQUE(case_id, user_id)
         )
     `,
@@ -230,26 +230,6 @@ const createIndex = async(table_name, field) => {
     }
 }
 
-const seedAchievements = async () => {
-    console.log("seeding achievements table")
-    const results = await Promise.allSettled(
-        achievements.map(ach =>
-            pool.query(
-                `INSERT INTO achievements (achievement_id, name, requirements, threshold, image_url) VALUES ($1, $2, $3, $4, $5)`,
-                [ach.achievement_id, ach.name, ach.requirements, ach.threshold, ach.image_url]
-            )
-        )
-    )
-    const success_count = results.filter(r => r.status === 'fulfilled').length
-    results.forEach((result, i) => {
-        if (result.status === 'rejected') {
-            console.error(`⚠️ error seeding achievement: ${achievements[i].name}`, result.reason)
-        }
-    })
-    const symbol = success_count === achievements.length ? '🎉' : '⚠️'
-    console.log(`${symbol} seeded ${success_count}/${achievements.length} achievements`)
-}
-
 async function doAll(){
     console.log("deleting all tables")
     for (const [table_name, query] of Object.entries(TABLES).toReversed()) {
@@ -278,7 +258,7 @@ async function doAll(){
         }
     }
 
-    await seedAchievements();
+    await pool.end(); 
 }
 
 doAll();

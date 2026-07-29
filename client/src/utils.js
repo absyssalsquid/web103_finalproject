@@ -23,7 +23,6 @@ export function nextPhase(currPhase){
   return PHASES[idx];
 }
 
-
 export function getNextOccurrence(Time){
   const now = new Date();
 
@@ -38,7 +37,6 @@ export function getNextOccurrence(Time){
   if (nextRefresh <= now) {
       nextRefresh.setDate(nextRefresh.getDate() + 1);
   }
-  console.log(nextRefresh)
   return nextRefresh;
 }
 

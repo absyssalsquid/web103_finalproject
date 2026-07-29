@@ -1,5 +1,6 @@
 .main-content {
   padding: 0.6rem;
+  margin: 0 auto;
 
   @media screen and (min-width: 500px) {
       padding: 1rem 2.5rem;
@@ -20,7 +21,8 @@
   box-sizing: border-box;
   padding: 4rem;
   width: 100%;
-  text-align: center
+  text-align: center;
+  margin: 0 auto;
 }
 
 /* -------------------------- general -------------------------- */
@@ -81,23 +83,32 @@ tr.summary td {
   transform: scaleY(1.2);
 }
 
-.Navigation .nav-link {
+.Navigation .nav-item .UserTag *{
+  color: var(--nav-item-text);
+  border-color: var(--nav-item-text);
+}
+.Navigation .nav-item:hover .UserTag *{
+  color: var(--nav-item-text-hover);
+  border-color: var(--nav-item-text-hover);
+}
+
+.Navigation .nav-item {
   display: flex;
   align-items: center;
   padding: 0 0.5em;
-  color: var(--nav-link-text);
+  color: var(--nav-item-text);
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
   transition: 
     all 0.15s ease-in-out,
 }
-.Navigation .nav-link:hover {
-  color: var(--nav-link-text-hover);
-  background-color: var(--nav-link-bg-hover);
+.Navigation .nav-item:hover {
+  color: var(--nav-item-text-hover);
+  background-color: var(--nav-item-bg-hover);
 }
 
-.Navigation .nav-link.qmark {
+.Navigation .nav-item.qmark {
   width: 50px;
   padding: 0;
   display: flex;
@@ -105,15 +116,15 @@ tr.summary td {
   align-items: center;
 }
 
-.Navigation .nav-link.qmark img{
+.Navigation .nav-item.qmark img{
   width: 20px;
-  filter: var(--nav-link-text-via-filter);
+  filter: var(--nav-item-text-via-filter);
 }
-.Navigation .nav-link:hover.qmark img{
-  filter: var(--nav-link-text-via-filter-hover);
+.Navigation .nav-item:hover.qmark img{
+  filter: var(--nav-item-text-via-filter-hover);
 }
 
-.Navigation .nav-link.active {
+.Navigation .nav-item.active {
   color: var(--text-h);
   border-bottom-color: var(--accent);
 }
@@ -222,3 +233,11 @@ select option {
 }
 
 /* -------------------------- other -------------------------- */
+
+.error-msg {
+    min-height: 1.2em;
+    margin: 1rem;
+    text-align: center;
+    color: #e5484d;
+    font-size: 0.9rem;
+}

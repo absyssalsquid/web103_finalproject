@@ -1,10 +1,9 @@
-.docket.main-content {
-    max-width: 900px;
-    margin: 0 auto;
+.Docket.main-content {
+    max-width: 800px;
     --search-bar-height: 2rem;
 }
 
-.docket .search-bar {
+.Docket .search-bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -13,7 +12,7 @@
 }
 
 /* "Submit a case" button */
-.docket .submit-case {
+.Docket .submit-case {
     font-weight: 600;
     text-decoration: none;
     color: white;
@@ -31,17 +30,18 @@
 
     transition: all 0.15s ease;
 }
-.docket .submit-case:hover {
+.Docket .submit-case:hover {
     transform: scale(1.2);
 }
 
-.docket .submit-case:hover {
+.Docket .submit-case:hover {
     background-color: var(--accent);
     color: #fff;
 }
 
 /* search input takes the leftover space */
-.docket .search-bar .search-input {
+.Docket .search-bar .search-input {
+    display: none;
     flex: 1 1 200px;
     height: var(--search-bar-height);
     padding: 0.3rem 0.85rem;
@@ -49,7 +49,7 @@
 
 
 /* labelled select controls */
-.docket .search-bar .control {
+.Docket .search-bar .control {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -57,27 +57,26 @@
     color: var(--text);
 }
 
-.docket .search-bar .control select {
+.Docket .search-bar .control select {
     height: var(--search-bar-height);
 }
 
-.docket .case-container {
+.Docket .case-container {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
 }
 
-.docket .empty {
+.Docket .empty {
     padding: 2rem;
     text-align: center;
     color: var(--text);
 }
 
 @media (max-width: 400px) {
-    .docket .search-bar .control {
-        flex: 1 1 100%;
+    .Docket .search-bar .control {
     }
-    .docket .search-bar .control select {
+    .Docket .search-bar .control select {
         flex: 1;
     }
 }

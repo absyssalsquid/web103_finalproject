@@ -7,7 +7,7 @@
     gap: 0.2rem;
 }
 
-.SubNav .nav-link {
+.SubNav .nav-item {
     padding: 0.5em 1em;
     font-weight: 600;
     text-align: center;
@@ -18,15 +18,15 @@
     border-bottom: 2px solid transparent;
 }
 
-.SubNav .nav-link .nav-text {
+.SubNav .nav-item .nav-text {
     display: inline-block;
     transition: all 0.07s ease;
 }
 
-.SubNav .nav-link:hover {
+.SubNav .nav-item:hover {
     transition: all 0.15s ease;
 }
 
-.SubNav .nav-link:hover .nav-text {
+.SubNav .nav-item:hover .nav-text {
     transition: all 0.15s ease;
 }

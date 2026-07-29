@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import { useNavigate} from 'react-router-dom'
+import { useNavigate, Link} from 'react-router-dom'
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -42,7 +42,11 @@ const SignIn = () =>{
 
     return (
         <div className='sign-in '>
-            <div className='heading'>Register for an account</div>
+
+            <div className='header'>
+                <h2>Register </h2>
+                <p>or <Link to={"/register"}>sign in</Link></p>
+            </div>
 
             <form className='form'>
                 <input

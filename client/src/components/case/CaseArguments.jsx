@@ -4,7 +4,7 @@ import "./CaseArguments.css"
 const CaseArguments = ({phaseDelta,  data}) => {
 
     if (phaseDelta > 0)
-        return (<div>Phase not started yet.</div>)
+        return (<div className="minimal">Phase not started yet.</div>)
 
     const isActivePhase = phaseDelta == 0;
 

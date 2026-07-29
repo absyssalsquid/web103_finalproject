@@ -35,12 +35,12 @@ Register, log in, and maintain a persistent account with XP, achievements, and p
 ![user account gif](/walkthrough/user_accounts.gif)
 
 ### Case Submission                             
-Allows users to submit an object and accusation within the character limit while enforcing daily submission limits.                                    
-[gif here]
+✅ Allows users to submit an object and accusation within the character limit while enforcing daily submission limits.                                    
+![case submission gif](/walkthrough/case_submission.gif)
 
 ### Case Directory                     
-Stores cases with every phase: submissions, votes, verdict, and final outcome are preserved. For completed cases, it also displays what future cases reference it. Can filter by case status and sort by countdown to next phase.
-[gif here]
+✅ Stores cases with every phase: submissions, votes, verdict, and final outcome are preserved. For completed cases, it also displays what future cases reference it. Can filter by case status and sort by countdown to next phase.
+![case directory gif](/walkthrough/docket.gif)
 
 ### Case Lifecycle Management                   
 Automatically progresses cases every 24 hours: Provisional → Discovery → Arguments → Jury Deliberation → Verdict → Outcome on a daily schedule. Once a phase is closed, submissions in that phase cannot be voted on.

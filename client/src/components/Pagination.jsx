@@ -1,43 +1,48 @@
 import { useEffect, useRef, useState } from 'react';
 import './Pagination.css'
 
-function Pagination({pageInfo, setPageInfo}){
+function Pagination({history, setHistory}){
     const [pageQuery, setPageQuery] = useState('');
     const submittingRef = useRef(false);
 
     useEffect(()=>{
         function init() {
-            setPageQuery(pageInfo.curr)
+            setPageQuery(history.page)
         }
         init()
     }, [])
 
     function isValidPage(pageNum) {
         const num = parseInt(pageNum, 10);
-        return !isNaN(num) && num >= 1 && num <= pageInfo.last;
+        return !isNaN(num) && num >= 1 && num <= history.last_page;
     }
 
     function validateAndSetPage(pageNum){
         if (isValidPage(pageNum)) {
-            setPageInfo((prev)=>({
+            setHistory((prev)=>({
                 ...prev,
-                curr: pageNum
+                page: pageNum
             }))
             setPageQuery(pageNum)
         }
         else {
             // restore to previous state
-            setPageQuery(pageInfo.curr)
+            setPageQuery(history.page)
         }
     }
 
     // ➤ Black Right Arrowhead. no left? only found equilateral left
 
+    const isFirstPage = history.page === 1;
+    const isLastPage = history.page === history.last_page;
+
+    if (history.last_page===1) return(<></>)
+
     return (
         <div className="Pagination">
             <div className='arrows'>
-                <button className='arrow' onClick={()=>validateAndSetPage(1)}>⮜⮜</button>
-                <button className='arrow' onClick={()=>validateAndSetPage(pageInfo.curr-1)}>⮜</button>
+                <button className='arrow' disabled={isFirstPage} onClick={()=>validateAndSetPage(1)}>⮜⮜</button>
+                <button className='arrow' disabled={isFirstPage} onClick={()=>validateAndSetPage(history.page-1)}>⮜</button>
                 <div className="page-nums">
                     <input type='text'
                         value={pageQuery}
@@ -45,14 +50,14 @@ function Pagination({pageInfo, setPageInfo}){
                         onBlur={() => {
                             // Only reset if not currently submitting via button
                             if (!submittingRef.current) {
-                                setPageQuery(pageInfo.curr);
+                                setPageQuery(history.page);
                             }
                         }} />
                     <div className='of'>/</div>
-                    <div className='last-num'>{pageInfo.last}</div>
+                    <div className='last-num'>{history.last_page}</div>
                 </div>
-                <button className='arrow' onClick={()=>validateAndSetPage(pageInfo.curr+1)}>⮞</button>
-                <button className='arrow' onClick={()=>validateAndSetPage(pageInfo.last)}>⮞⮞</button> 
+                <button className='arrow' disabled={isLastPage} onClick={()=>validateAndSetPage(history.page+1)}>⮞</button>
+                <button className='arrow' disabled={isLastPage} onClick={()=>validateAndSetPage(history.last_page)}>⮞⮞</button>
             </div>
             <button
                 type='submit'
@@ -62,13 +67,13 @@ function Pagination({pageInfo, setPageInfo}){
                 onMouseLeave={() => {
                     // User moved away; abort the submit
                     submittingRef.current = false;
-                    setPageQuery(pageInfo.curr);
+                    setPageQuery(history.page);
                 }}
                 onClick={() => {
                     validateAndSetPage(pageQuery);
                     submittingRef.current = false;
                 }}
-            >Go</button> 
+            >Go</button>
         </div>
     )
 }

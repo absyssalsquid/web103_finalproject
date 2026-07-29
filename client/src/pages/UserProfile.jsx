@@ -7,15 +7,17 @@ import Achievements from '../components/user/Achievements'
 import UserCard from '../components/user/UserCard'
 import UserContributions from '../components/Contributions'
 
-import { SAMPLE_USER, SAMPLE_ACHIEVEMENTS } from "/src/api/test_data.js"
+import { fetchUserData, fetchUserStats, fetchUserAchievements } from "/src/api/users.js"
+
 import { toTitleCase } from "/src/utils.js"
 
-const SAMPLE_STATS = {
-    cases_contributed: 95,
-    cases_filed: 8,
-    evidence_submitted: 55,
-    arguments_made: 34,
-    jury_duty_served: 13
+const STAT_NAMES = {
+    total_xp: 'total xp',
+    cases_contributed: 'cases contributed',
+    cases: 'cases filed',
+    jury_assignments: 'juries served',
+    evidence: 'evidence submitted',
+    arguments: 'arguments made',
 }
 
 const UserProfile = () => {
@@ -34,9 +36,21 @@ const UserProfile = () => {
     useEffect(() => {
         console.log('user id', id);
         async function fetchData(){
-            setProfileData(SAMPLE_USER)
-            setUserStats(SAMPLE_STATS)
-            setAchievements(SAMPLE_ACHIEVEMENTS)
+
+            const results = await Promise.all([
+                fetchUserData(id),
+                fetchUserStats(id),
+                fetchUserAchievements(id)
+            ])
+            console.log(results)
+            const data = await Promise.all(
+                results.map((item) => item.json()));
+            console.log(data)
+
+            setProfileData(data[0])
+            setUserStats(data[1])
+            setAchievements(data[2])
+            console.log(data[0])
         }
         fetchData();
     }, []);
@@ -58,18 +72,14 @@ const UserProfile = () => {
     return (
         <div className="UserProfile main-content">
 
-            <UserCard profileData={profileData} isPublic={true} />
+            <UserCard profileData={profileData}/>
 
             <div className='summary-stat-container'>
-                <div className='stat-card'>
-                    <div className='desc'>total xp</div>
-                    <div className='count'>{profileData.total_xp}</div>
-                </div>
-                {Object.entries(userStats).map(([key, value]) => {
+                {Object.entries(STAT_NAMES).map(([key, value]) => {
                     return(
                         <div className='stat-card'>
-                            <div className='desc'>{toTitleCase(key).toLowerCase()}</div>
-                            <div className='count'>{value}</div>
+                            <div className='desc'>{toTitleCase(value).toLowerCase()}</div>
+                            <div className='count'>{userStats[key]}</div>
                         </div>
                     )
                 })}

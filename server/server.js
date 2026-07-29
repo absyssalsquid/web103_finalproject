@@ -12,16 +12,16 @@ import evidenceRouter from './routes/evidence.js'
 import argumentsRouter from './routes/arguments.js'
 import juryRouter from './routes/jury.js'
 
+const corsOptions = {
+    origin: 'http://localhost:5173',                      // Restrict to this origin
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],   // Allowed HTTP verbs
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true                                     // Allow cookies/auth headers
+};
+
 const app = express()
 app.use(express.json());
 app.use(cookieParser());
-
-const corsOptions = {
-    origin: 'http://localhost:5173', // Restrict to this origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP verbs
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true                           // Allow cookies/auth headers
-};
 app.use(cors(corsOptions));
 
 
