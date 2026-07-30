@@ -1,13 +1,14 @@
 import express from 'express'
 import controller from '../controllers/me.js'
 import { validateJWT } from '../utils/jwt.js'
+import { validateProfileUpdate } from '../utils/validation.js'
 
 const router = express.Router()
 
 router.get('/', validateJWT, (req, res) => {
     res.json(req.token_payload);
 })
-router.patch('/edit', validateJWT, controller.updateUser)
+router.patch('/edit', validateJWT, validateProfileUpdate, controller.updateUser)
 router.get('/usage', validateJWT, controller.getUsage) // user participation for today
 
 // disabled for now, stretch features

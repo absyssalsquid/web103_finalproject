@@ -67,6 +67,49 @@ export function validateCaseSubmission(req, res, next) {
   next();
 }
 
+export function validateProfileUpdate(req, res, next) {
+  const body = req.body || {}
+  const hasBio = Object.prototype.hasOwnProperty.call(body, 'bio')
+  const hasImage = Object.prototype.hasOwnProperty.call(body, 'image_url')
+
+  if (!hasBio && !hasImage) {
+    return res.status(400).json({
+      error: `Request body must include at least one of: bio, image_url.`
+    });
+  }
+
+  if (hasBio) {
+    const { bio } = body
+    if (bio !== null && typeof bio !== 'string') {
+      return res.status(400).json({
+        error: `bio must be a string or null.`
+      });
+    }
+    if (typeof bio === 'string' && bio.length > LENGTH_LIMITS.bio_max) {
+      return res.status(400).json({
+        error: `Bio must be at most ${LENGTH_LIMITS.bio_max} characters.`
+      });
+    }
+  }
+
+  if (hasImage) {
+    const { image_url } = body
+    if (image_url !== null && typeof image_url !== 'string') {
+      return res.status(400).json({
+        error: `image_url must be a string or null.`
+      });
+    }
+    // matches users.image_url VARCHAR(500)
+    if (typeof image_url === 'string' && image_url.length > 500) {
+      return res.status(400).json({
+        error: `image_url must be at most 500 characters.`
+      });
+    }
+  }
+
+  next();
+}
+
 export function validateCaseQuery(req, res, next) {
   let { filterBy, sortBy, limit, page } = req.query
   limit = Number(limit)
