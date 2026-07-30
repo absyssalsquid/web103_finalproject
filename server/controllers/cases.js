@@ -1,6 +1,7 @@
 import { pool } from '../config/database.js'
 import { updateReaction } from '../utils/reactionService.js'
 import { DateTime } from "luxon";
+import { uploadCaseImage, deleteCaseImage } from '../utils/imageUpload.js'
 
 import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_MODES } from '../config/queryOptions.js'
 
@@ -47,23 +48,48 @@ const getCases = async (req, res) => {
 }
 
 const createCase = async (req, res) => {
+  let uploadedPublicId = null
+
   try {
-    const { object_name, accusation, image } = req.body
+    const { object_name, accusation } = req.body
     const { user_id } = req.token_payload.user
     const now = DateTime.now();
     const tomorrow = now.plus({days: 1})
 
-    // TODO: image uploads
     // TODO: limit verification
 
-    const response = await pool.query(`
-      INSERT INTO cases (user_id, created_at, object_name, accusation, image_url, phase_start, phase_end)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING case_id`,
-      [user_id, now, object_name, accusation, null, now.toISO(), tomorrow.toISO()]
-    )
+    let imageUrl = null
+    if (req.file) {
+      try {
+        const uploaded = await uploadCaseImage(req.file.buffer)
+        imageUrl = uploaded.url
+        uploadedPublicId = uploaded.publicId
+      } catch (uploadError) {
+        console.log('Case image upload failed:', uploadError.message)
+        return res.status(500).json({ error: 'Image upload failed.' })
+      }
+    }
 
-    res.status(201).json({ case_id: response.rows[0].case_id})
+    try {
+      const response = await pool.query(`
+        INSERT INTO cases (user_id, created_at, object_name, accusation, image_url, phase_start, phase_end)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING case_id, image_url`,
+        [user_id, now, object_name, accusation, imageUrl, now.toISO(), tomorrow.toISO()]
+      )
+
+      res.status(201).json({ case_id: response.rows[0].case_id, image_url: response.rows[0].image_url })
+    } catch (dbError) {
+      // the case row was never created, so an uploaded image would be orphaned — clean it up
+      if (uploadedPublicId) {
+        try {
+          await deleteCaseImage(uploadedPublicId)
+        } catch (cleanupError) {
+          console.log('Cleanup failed for orphaned Cloudinary asset:', uploadedPublicId, cleanupError.message)
+        }
+      }
+      throw dbError
+    }
   } catch (error) {
     console.log(error.message)
     res.status(500).json({ error: 'Internal server error.' })
