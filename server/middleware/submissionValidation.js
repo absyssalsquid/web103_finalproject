@@ -79,23 +79,63 @@ export function validateProfileUpdate(req, res, next){
 }
 
 export function validateCaseSubmission(req, res, next) {
-  const { object_name, accusation, image} = req.body
+  const { object_name, accusation } = req.body ?? {}
 
-  let min_v = LENGTH_LIMITS.object_name_min
-  let max_v = LENGTH_LIMITS.object_name_max
-  if (object_name.length < min_v || object_name.length > max_v) {
+  if (object_name == null || object_name === '') {
     return res.status(400).json({
-      error: `Object name must be between ${min_v} and ${max_v} characters.`
+      error: 'Object name is required.'
+    });
+  }
+  if (typeof object_name !== 'string') {
+    return res.status(400).json({
+      error: 'Object name must be a string.'
     });
   }
 
-  min_v = LENGTH_LIMITS.accusation_min
-  max_v = LENGTH_LIMITS.accusation_max
-  if (accusation.length < min_v || accusation.length > max_v) {
+  const trimmedObjectName = object_name.trim()
+  if (trimmedObjectName.length === 0) {
     return res.status(400).json({
-      error: `Accusation must be between ${min_v} and ${max_v} characters.`
+      error: 'Object name is required.'
     });
   }
+
+  const objectNameMin = LENGTH_LIMITS.object_name_min
+  const objectNameMax = LENGTH_LIMITS.object_name_max
+  if (trimmedObjectName.length < objectNameMin || trimmedObjectName.length > objectNameMax) {
+    return res.status(400).json({
+      error: `Object name must be between ${objectNameMin} and ${objectNameMax} characters.`
+    });
+  }
+
+  if (accusation == null || accusation === '') {
+    return res.status(400).json({
+      error: 'Accusation is required.'
+    });
+  }
+  if (typeof accusation !== 'string') {
+    return res.status(400).json({
+      error: 'Accusation must be a string.'
+    });
+  }
+
+  const trimmedAccusation = accusation.trim()
+  if (trimmedAccusation.length === 0) {
+    return res.status(400).json({
+      error: 'Accusation is required.'
+    });
+  }
+
+  const accusationMin = LENGTH_LIMITS.accusation_min
+  const accusationMax = LENGTH_LIMITS.accusation_max
+  if (trimmedAccusation.length < accusationMin || trimmedAccusation.length > accusationMax) {
+    return res.status(400).json({
+      error: `Accusation must be between ${accusationMin} and ${accusationMax} characters.`
+    });
+  }
+
+  req.body.object_name = trimmedObjectName
+  req.body.accusation = trimmedAccusation
+
   next();
 }
 
