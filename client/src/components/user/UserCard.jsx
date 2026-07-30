@@ -24,7 +24,7 @@ function UserCard({profileData}){
                 <div className='bio'>{profileData.bio}</div>
                 <div className='joined'>Member since {(new Date(profileData.created_at)).toLocaleDateString()}</div>
 
-                { isAuthenticated && user.user_id === profileData.user_id && (<Link to={'/me/edit'} className='edit-profile'>edit</Link>)}
+                { isAuthenticated && user.user_id === profileData.user_id && (<Link to={'/profile/edit'} className='edit-profile'>edit</Link>)}
             </div>
         </div>
     )

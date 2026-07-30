@@ -90,7 +90,7 @@ const Docket = () => {
 
             <div className='case-container'>
                 {caseHistory.entries.length === 0
-                    ? (<p className='minimal'>No cases match your search.</p>)
+                    ? (<div className='minimal'><h2>No cases match your search.</h2></div>)
                     : (caseHistory.entries.map((el) => (
                         <CaseCard key={el.case_id} data={el} />
                        )))

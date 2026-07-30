@@ -24,17 +24,20 @@ function App() {
   const element = useRoutes([
     {'path': '/'           , 'element': <Docket />},
     {'path': '/guidelines'    , 'element': <Guidelines />},
+
     {'path': '/sign-in'    , 'element': <SignIn />},
     {'path': '/register'    , 'element': <Register />},
+    
     {'path': '/dashboard/*' , 'element': <Dashboard />},
     {'path': '/new-case'   , 'element': <NewCase/>},
     {'path': '/cases/:id/*'   , 'element': <Case />},
-    {'path': '/profile/*'    , 'element': <UserProfile />},
+    
     {'path': '/users/:id/*'   , 'element': <UserProfile />},
+    {'path': '/profile/edit'   , 'element': <EditProfile />},
+    {'path': '/profile/*'    , 'element': <UserProfile />},
+
     {'path': '/jury/serve/'   , 'element': <JuryDuty />},
     {'path': '/jury/ballot/:id' , 'element': <JuryBallot />},
-    {'path': '/jury-duty/*'   , 'element': <JuryDuty />},
-    {'path': '/me/edit'   , 'element': <EditProfile />},
   ]);
 
   function handleLogout(){

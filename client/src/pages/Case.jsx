@@ -95,7 +95,7 @@ const Case = () => {
     else if (Object.keys(caseData).length === 0) {
         return (
             <div className="Case">
-               <div className='minimal'>Case not found!</div>
+               <h1 className='minimal'>Case not found!</h1>
             </div>
         )
     }

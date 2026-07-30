@@ -78,7 +78,7 @@ const UserProfile = () => {
         return (
             <div className="main-content">
                 <div className='minimal'>
-                    <p><Link to={'/sign-in'}>Sign in</Link> to edit your profile.</p>
+                    <h1><Link to={'/sign-in'}>Sign in</Link> to see your profile.</h1>
                 </div>
             </div>
         )

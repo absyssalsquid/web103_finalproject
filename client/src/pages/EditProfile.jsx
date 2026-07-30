@@ -20,8 +20,8 @@ function EditProfile(){
     const [earned, setEarned] = useState([]);        // earned achievements, flair options
 
     // the saved profile values — used to reset the form on cancel
-    const [original, setOriginal] = useState({ image_url: null, bio: null, flair: null });
-    const [edited, setEdited] = useState({ image_url: null, bio: null, flair: null });
+    const [original, setOriginal] = useState({ image_url: null, bio: '', flair: null });
+    const [edited, setEdited] = useState({ image_url: null, bio: '', flair: null });
 
     // editable form state
     const [imagePreview, setImagePreview] = useState('');
@@ -31,34 +31,35 @@ function EditProfile(){
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user?.user_id) return;
         console.log("enter useEffect")
 
         async function fetchData(){
-            const [profileRes, achRes, limitsRes] = await Promise.all([
-                fetchUserData(user.user_id),
-                fetchUserAchievements(user.user_id),
-                getLengthLimits(),
-            ])
-            const [profile, achievements, limits] = await Promise.all(
-                [profileRes, achRes, limitsRes].map((r) => r.json()))
-
-            setLengthLimits(limits)
-            const earnedAchievements = achievements.filter((a) => a.earned_at != null)
-            setEarned(earnedAchievements)
-            
-            // console.log(earnedAchievements)
-            // console.log("profile", profile)
-            
-            const currProfile = {
-                image_url: profile.image_url, 
-                bio: profile.bio || '',
-                flair: profile.flair ? Number(profile.flair) : null,
+            if (user?.user_id) {
+                const [profileRes, achRes, limitsRes] = await Promise.all([
+                    fetchUserData(user.user_id),
+                    fetchUserAchievements(user.user_id),
+                    getLengthLimits(),
+                ])
+                const [profile, achievements, limits] = await Promise.all(
+                    [profileRes, achRes, limitsRes].map((r) => r.json()))
+    
+                setLengthLimits(limits)
+                const earnedAchievements = achievements.filter((a) => a.earned_at != null)
+                setEarned(earnedAchievements)
+                
+                // console.log(earnedAchievements)
+                // console.log("profile", profile)
+                
+                const currProfile = {
+                    image_url: profile.image_url, 
+                    bio: profile.bio || '',
+                    flair: profile.flair ? Number(profile.flair) : null,
+                }
+                console.log(currProfile)
+                setOriginal(currProfile)
+                setEdited(currProfile)
+                setImagePreview(currProfile.image_url || '')
             }
-            console.log(currProfile)
-            setOriginal(currProfile)
-            setEdited(currProfile)
-            setImagePreview(currProfile.image_url || '')
 
             setLoading(false)
         }
@@ -121,113 +122,113 @@ function EditProfile(){
         setAlertMsg('')
     }
 
-    if (!isAuthenticated) {
+    if (loading) {
         return (
-            <div className="EditProfile">
-                <div className='main-content minimal'>
-                    <p><Link to={'/sign-in'}>Sign in</Link> to edit your profile.</p>
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1>Loading...</h1>
                 </div>
             </div>
         )
     }
 
-    if (loading) {
+    if (!isAuthenticated) {
         return (
-            <div className="EditProfile">
-                <div className='main-content minimal'><h1>Loading...</h1></div>
+            <div className="main-content ">
+                <div className='minimal'>
+                    <h1><Link to={'/sign-in'}>Sign in</Link> to edit your profile.</h1>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="EditProfile">
-            <div className='main-content'>
-                <div className='header-container'>
-                    <div className='header'>
-                        <h2>Edit profile</h2>
-                    </div>
+        <div className="EditProfile main-content">
+            <div className='header-container'>
+                <div className='header'>
+                    <h2>Edit profile</h2>
+                </div>
+            </div>
+
+            <form onSubmit={submitHandler}>
+
+                {/* profile image with pencil overlay */}
+                <div className='avatar-field'>
+                    <img className='user-icon' src={imagePreview} alt="Profile" />
+
+                    <button
+                        type="button"
+                        className='avatar'
+                        onClick={pickImage}
+                        aria-label="Change profile picture"
+                    >
+                        <span className='pencil'>
+                            <img src={PENCIL_ICON} alt="" />
+                        </span>
+                    </button>
+
+                    <input
+                        ref={fileInputRef}
+                        name="image"
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={imageHandler}
+                    />
                 </div>
 
-                <form onSubmit={submitHandler}>
+                {/* username, not editable */}
+                <div className='username'>{user.username}</div>
 
-                    {/* profile image with pencil overlay */}
-                    <div className='avatar-field'>
-                        <img className='user-icon' src={imagePreview} alt="Profile" />
+                {/* currently selected flair */}
+                {selectedFlair && (
+                    <div className='current-flair'>{selectedFlair.name}</div>
+                )}
 
-                        <button
-                            type="button"
-                            className='avatar'
-                            onClick={pickImage}
-                            aria-label="Change profile picture"
-                        >
-                            <span className='pencil'>
-                                <img src={PENCIL_ICON} alt="" />
-                            </span>
-                        </button>
+                {/* flair picker */}
+                <label className='field-label'>Flair</label>
+                <div className='flair-picker'>
+                    {earned.length === 0
+                        ? <p className='empty'>Earn an achievement to flair it here.</p>
+                        : earned.map((a) => (
+                            <label
+                                key={a.achievement_id}
+                                className={'flair-option' + (edited.flair === a.achievement_id ? ' selected' : '')}
+                            >
+                                <input
+                                    type="radio"
+                                    name="flair"
+                                    checked={edited.flair === a.achievement_id}
+                                    onChange={() => flairHandler(a.achievement_id)}
+                                    onClick={() => flairHandler(a.achievement_id)}
+                                />
+                                {a.name}
+                            </label>
+                        ))
+                    }
+                </div>
 
-                        <input
-                            ref={fileInputRef}
-                            name="image"
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={imageHandler}
-                        />
-                    </div>
+                {/* bio */}
+                <label className='field-label' htmlFor="bio">Bio</label>
+                <textarea
+                    id="bio"
+                    className='bio'
+                    name="bio"
+                    value={edited.bio}
+                    maxLength={lengthLimits.bio_max}
+                    onChange={bioHandler}
+                    placeholder="tell the court about yourself..."
+                    rows={5}
+                />
+                <small>{edited.bio.length}/{lengthLimits.bio_max}</small>
 
-                    {/* username, not editable */}
-                    <div className='username'>{user.username}</div>
+                <div className="form-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" onClick={cancelHandler}>Cancel</button>
+                </div>
+            </form>
 
-                    {/* currently selected flair */}
-                    {selectedFlair && (
-                        <div className='current-flair'>{selectedFlair.name}</div>
-                    )}
-
-                    {/* flair picker */}
-                    <label className='field-label'>Flair</label>
-                    <div className='flair-picker'>
-                        {earned.length === 0
-                            ? <p className='empty'>Earn an achievement to flair it here.</p>
-                            : earned.map((a) => (
-                                <label
-                                    key={a.achievement_id}
-                                    className={'flair-option' + (edited.flair === a.achievement_id ? ' selected' : '')}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="flair"
-                                        checked={edited.flair === a.achievement_id}
-                                        onChange={() => flairHandler(a.achievement_id)}
-                                        onClick={() => flairHandler(a.achievement_id)}
-                                    />
-                                    {a.name}
-                                </label>
-                            ))
-                        }
-                    </div>
-
-                    {/* bio */}
-                    <label className='field-label' htmlFor="bio">Bio</label>
-                    <textarea
-                        id="bio"
-                        className='bio'
-                        name="bio"
-                        value={edited.bio}
-                        maxLength={lengthLimits.bio_max}
-                        onChange={bioHandler}
-                        placeholder="tell the court about yourself..."
-                        rows={5}
-                    />
-                    <small>{edited.bio.length}/{lengthLimits.bio_max}</small>
-
-                    <div className="form-actions">
-                        <button type="submit">Save</button>
-                        <button type="button" onClick={cancelHandler}>Cancel</button>
-                    </div>
-                </form>
-
-                {alertMsg && <div className='alert-msg'>{alertMsg}</div>}
-            </div>
+            {alertMsg && <div className='alert-msg'>{alertMsg}</div>}
         </div>
     )
 }

@@ -1,4 +1,4 @@
-.EditProfile .main-content {
+.EditProfile.main-content {
     max-width: 500px;
     position: relative;
 }
@@ -189,7 +189,7 @@
 }
 
 .EditProfile .form-actions button[type="submit"] {
-    border-color: var(--accent-border);
+    border-color: var(--accent);
 }
 
 .EditProfile .form-actions button:not(:disabled):hover {
