@@ -17,6 +17,8 @@ export const LENGTH_LIMITS = {
     username_min: 3,
 
     password_min: 8,
+
+    bio_max: 500,
 }
 
 export const USAGE_LIMITS = {

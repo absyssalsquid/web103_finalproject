@@ -80,4 +80,44 @@ const getUserSubmissions = async (req, res) => {
   }
 }
 
-export default { getUser, getUserStats, getUserAchievements, getUserSubmissions }
+// Shared by PATCH /users/:id and PATCH /me/edit (see server/controllers/me.js).
+// Ownership is already enforced by the calling route (requireOwnUser for
+// :id, or implicitly via the token for /me/edit), and the request body is
+// already validated (validateProfileUpdate) before this runs.
+export const updateUser = async (req, res) => {
+  try {
+    const targetId = req.params.id ?? req.token_payload.user.user_id
+    const body = req.body
+
+    const setClauses = []
+    const values = []
+
+    if (Object.prototype.hasOwnProperty.call(body, 'bio')) {
+      values.push(body.bio === '' ? null : body.bio)
+      setClauses.push(`bio = $${values.length}`)
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, 'image_url')) {
+      values.push(body.image_url === '' ? null : body.image_url)
+      setClauses.push(`image_url = $${values.length}`)
+    }
+
+    values.push(targetId)
+
+    const response = await pool.query(`
+      UPDATE users
+      SET ${setClauses.join(', ')}
+      WHERE user_id = $${values.length}
+      RETURNING user_id, username, email, image_url, bio, total_xp, created_at, flair`,
+      values)
+
+    if (response.rows.length === 0)
+      return res.status(404).json({ error: 'user not found!' })
+
+    res.status(200).json(response.rows[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export default { getUser, getUserStats, getUserAchievements, getUserSubmissions, updateUser }
