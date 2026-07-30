@@ -28,6 +28,8 @@ const updateUser = async (req, res) => {
       WHERE user_id = $3
       RETURNING user_id, username, image_url, bio, flair, created_at`,
       [bio, flair, user_id])
+    if (response.rows.length === 0)
+      return res.status(404).json({ error: 'user not found!' })
 
     res.status(200).json(response.rows[0])
   } catch (error) {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 
 import ProgressBar from '/src/components/ProgressBar'
 import { useAuthContext } from '/src/contexts/auth'
@@ -9,7 +10,8 @@ import { LIMITS } from '/src/api/limits'
 
 import './NewArgument.css'
 
-function NewArgument({ caseId, onSubmitted }){
+function NewArgument({ onSubmitted }){
+    const { id } = useParams()
     const { isAuthenticated } = useAuthContext();
 
     const [argument, setArgument] = useState('');
@@ -42,7 +44,7 @@ function NewArgument({ caseId, onSubmitted }){
         if (alertMsg) setAlertMsg('')
         setSubmitting(true)
 
-        const res = await submitArgument({ caseId, content: argument })
+        const res = await submitArgument({ id, content: argument })
         const data = await res.json()
 
         if (res.ok){
