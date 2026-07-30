@@ -46,6 +46,7 @@
 .UserCard .bio{
     font-size: .9rem;
     max-width: 30rem;
+    white-space: pre-wrap;
 }
 
 .UserCard .joined{

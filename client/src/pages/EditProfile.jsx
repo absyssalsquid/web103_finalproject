@@ -12,30 +12,6 @@ import './EditProfile.css'
 const PENCIL_ICON = '/pencil-xxl.png'
 
 function EditProfile(){
-    // create a form to edit profile pic, flair (highlighted achievement), and bio
-
-    // use a similar form to the NewCase page, text formatting like UserCard
-    // populate form with existing values
-
-    // profile image is central at top, round with 128px pencil icon in bottom right corner
-    // https://www.iconsdb.com/icons/preview/royal-blue/pencil-xxl.png
-    // clicking pencil brings up file dialogue
-    // selected file is displayed in the circle
-
-    // username below the image (not editable)
-
-    // flair below username
-    // scrollable expandable that shows a list of completed achievements that user can pick from to flair (implemented with hidden radio buttons?)
-    // clicking on option causes the flair to update to new text
-
-    // textarea to edit bio (query /api/rules/length-limits for limit)
-
-    // form actions are save (submit) and cancel
-    // cancel restores form to original values
-
-    // do not delete these instruction comments
-    // write in associated css file as well
-
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuthContext();
     const fileInputRef = useRef(null);

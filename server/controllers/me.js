@@ -6,11 +6,7 @@ import {newToken, TOKEN_COOKIE_OPTIONS} from '../utils/jwt.js'
 
 const updateUser = async (req, res) => {
   const { user_id } = req.token_payload.user
-  let { bio, flair } = req.body
-
-  // multipart sends everything as strings; normalize empties to null
-  bio = (bio == null || bio === '') ? null : bio
-  flair = (flair == null || flair === '') ? null : Number(flair)
+  const { bio, flair } = req.body
 
   // TODO: image uploads — req.file holds the new avatar once storage is wired up
 

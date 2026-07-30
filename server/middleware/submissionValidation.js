@@ -48,6 +48,36 @@ export const validateCreateUser = (req, res, next) => {
   next();
 };
 
+export function validateProfileUpdate(req, res, next){
+  let { bio, flair } = req.body
+
+  // multipart sends everything as strings; normalize empties to null
+  bio = (bio == null || bio === '') ? null : bio
+  flair = (flair == null || flair === '') ? null : Number(flair)
+
+  // Validate bio if provided
+  if (bio != null) {
+    // Compress newlines into single space. retain multiple spaces
+    console.log(bio)
+    bio = bio.replace(/[\r\n]+/g, ' ').trim()
+    console.log(bio)
+
+    // Check length
+    const max_v = LENGTH_LIMITS.bio_max
+    if (bio.length > max_v) {
+      return res.status(400).json({
+        error: `Bio must not exceed ${max_v} characters.`
+      });
+    }
+  }
+
+  // Attach normalized values to request for controller to use
+  req.body.bio = bio
+  req.body.flair = flair
+
+  next();
+}
+
 export function validateCaseSubmission(req, res, next) {
   const { object_name, accusation, image} = req.body
 

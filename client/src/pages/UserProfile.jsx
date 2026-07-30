@@ -1,4 +1,4 @@
-import { Navigate, useParams, useRoutes } from 'react-router-dom'
+import { Link, Navigate, useParams, useRoutes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import './UserProfile.css'
@@ -38,26 +38,25 @@ const UserProfile = () => {
     // const [argumentHistory, setArgumentHistory] = useState([]);
 
     useEffect(() => {
-
         console.log('user id', id);
         async function fetchData(){
+            if (id) {
+                const results = await Promise.all([
+                    fetchUserData(id),
+                    fetchUserStats(id),
+                    fetchUserAchievements(id)
+                ])
+                const data = await Promise.all(
+                    results.map((item) => item.json()));
 
-            const results = await Promise.all([
-                fetchUserData(id),
-                fetchUserStats(id),
-                fetchUserAchievements(id)
-            ])
-            const data = await Promise.all(
-                results.map((item) => item.json()));
-
-            setProfileData(data[0])
-            setUserStats(data[1])
-            setAchievements(data[2])
-
+                setProfileData(data[0])
+                setUserStats(data[1])
+                setAchievements(data[2])
+            }
             setLoading(false)
         }
         fetchData();
-    }, []);
+    }, [id]);
 
     const element = useRoutes([
         { path: '/',             element: <Navigate to="achievements" replace /> },
@@ -70,6 +69,16 @@ const UserProfile = () => {
             <div className="main-content">
                 <div className='minimal'>
                     <h1>Loading...</h1>
+                </div>
+            </div>
+        )
+    }
+
+    if (!id){
+        return (
+            <div className="main-content">
+                <div className='minimal'>
+                    <p><Link to={'/sign-in'}>Sign in</Link> to edit your profile.</p>
                 </div>
             </div>
         )
