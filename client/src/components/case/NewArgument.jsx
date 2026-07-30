@@ -7,6 +7,8 @@ import { getUserLimits } from '/src/api/rules'
 import { submitArgument } from '/src/api/cases'
 import { LIMITS } from '/src/api/limits'
 
+import './NewArgument.css'
+
 function NewArgument({ caseId, onSubmitted }){
     const { isAuthenticated } = useAuthContext();
 
@@ -57,32 +59,80 @@ function NewArgument({ caseId, onSubmitted }){
     const limitReached = usage.arguments >= userLimits.arguments;
     const submitDisabled = limitsLoading || limitReached || !isAuthenticated || submitting;
 
+    const remaining = (userLimits.arguments != null && usage.arguments != null)
+        ? Math.max(userLimits.arguments - usage.arguments, 0)
+        : null;
+
+    const charCount = argument.length;
+    const charLimit = LIMITS.ARGUMENT_MAX_LEN;
+    const isOverWarning = charCount >= charLimit * 0.9 && charCount < charLimit;
+    const isAtLimit = charCount >= charLimit;
+    const charStateClass = isAtLimit ? ' is-error' : isOverWarning ? ' is-warning' : '';
+
     return (
-        <div className="NewCase main-content">
-            <form onSubmit={submitHandler}>
-                <div><label htmlFor="argument">Argument</label></div>
-                <textarea
-                    id="argument"
-                    value={argument}
-                    maxLength={LIMITS.ARGUMENT_MAX_LEN}
-                    onChange={(e) => setArgument(e.target.value)}
-                    placeholder="argue the case"
-                    rows={4}
-                    required
-                />
-                <small>{argument.length}/{LIMITS.ARGUMENT_MAX_LEN}</small>
+        <div className="argument-composer">
+            <div className="argument-composer-card">
+                <div className="argument-composer-header">
+                    <h3>Present Your Argument</h3>
+                    <p>Make your case clearly and respectfully.</p>
+                </div>
 
-                <ProgressBar
-                    label="Daily argument submissions"
-                    value={usage.arguments}
-                    limit={userLimits.arguments}
-                    limit_message={"You've reached your daily argument limit."}
-                />
+                <form className="argument-composer-form" onSubmit={submitHandler}>
+                    <label htmlFor="argument" className="argument-composer-label">Argument</label>
+                    <textarea
+                        id="argument"
+                        className={`argument-composer-textarea${charStateClass}`}
+                        value={argument}
+                        maxLength={charLimit}
+                        onChange={(e) => setArgument(e.target.value)}
+                        placeholder="Argue the case…"
+                        rows={5}
+                        required
+                    />
+                    <div className="argument-composer-footer-row">
+                        <span className={`argument-composer-char-count${charStateClass}`}>
+                            {charCount}/{charLimit}
+                        </span>
+                    </div>
 
-                <button className="btn btn-primary" type="submit" disabled={submitDisabled}>+ Submit Argument</button>
-                {!isAuthenticated && <small>Sign in to submit an argument.</small>}
-            </form>
-            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
+                    <div className="argument-composer-limit-section">
+                        <ProgressBar
+                            label="Daily argument submissions"
+                            value={usage.arguments}
+                            limit={userLimits.arguments}
+                            limit_message={"You've reached your daily argument limit."}
+                        />
+                        {remaining !== null && !limitReached && (
+                            <span className="argument-composer-remaining">
+                                {remaining} submission{remaining === 1 ? '' : 's'} remaining today
+                            </span>
+                        )}
+                    </div>
+
+                    <button
+                        className="argument-composer-submit"
+                        type="submit"
+                        disabled={submitDisabled}
+                        aria-busy={submitting}
+                    >
+                        {submitting ? 'Submitting…' : '+ Submit Argument'}
+                    </button>
+
+                    {!isAuthenticated && (
+                        <div className="argument-composer-alert argument-composer-alert-info">
+                            <span className="argument-composer-alert-icon">i</span>
+                            <span>Sign in to submit an argument.</span>
+                        </div>
+                    )}
+                </form>
+
+                {alertMsg && (
+                    <div className="argument-composer-alert argument-composer-alert-error">
+                        <span className="argument-composer-alert-icon">!</span>
+                        <span>{alertMsg}</span>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
