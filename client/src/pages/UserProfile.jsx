@@ -26,6 +26,7 @@ const UserProfile = () => {
     // works for both /users/:id/* and /profile/* mounts
     const base = id ? `/users/${id}` : '/profile';
 
+    const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState({});
     const [userStats, setUserStats] = useState({});
     const [achievements, setAchievements] = useState([]);
@@ -42,15 +43,14 @@ const UserProfile = () => {
                 fetchUserStats(id),
                 fetchUserAchievements(id)
             ])
-            console.log(results)
             const data = await Promise.all(
                 results.map((item) => item.json()));
-            console.log(data)
 
             setProfileData(data[0])
             setUserStats(data[1])
             setAchievements(data[2])
-            console.log(data[0])
+
+            setLoading(false)
         }
         fetchData();
     }, []);
@@ -61,13 +61,15 @@ const UserProfile = () => {
         { path: 'contributions', element: <UserContributions data={[]} /> },
     ]);
 
-    // if (loading){
-    //     return (
-    //         <div className="main-content">
-    //             <h1>Loading...</h1>
-    //         </div>
-    //     )
-    // }
+    if (loading){
+        return (
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1>Loading...</h1>
+                </div>
+            </div>
+        )
+    }
     
     return (
         <div className="UserProfile main-content">
@@ -88,7 +90,7 @@ const UserProfile = () => {
             <SubNav 
                 items={[
                     {text: 'Achievements'    , href: `${base}/achievements` },
-                    {text: 'Contributions'   , href: `${base}/contributions` },
+                    // {text: 'Contributions'   , href: `${base}/contributions` },
                 ]}
             />
 

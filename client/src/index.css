@@ -74,6 +74,8 @@ h1,h2,h3,h4,h5,h6{
   --shadow-small:
     rgba(0, 0, 0, 0.1) 1px 4px 6px -3px,
     rgba(0, 0, 0, 0.05) -1px 3px 3px -2px;
+  --shadow-drop:
+    rgb(0, 0, 0, 0.25) 0 1px 2px;
     
     /* navbar */
   --nav-bg: #141108;
@@ -101,7 +103,6 @@ h1,h2,h3,h4,h5,h6{
   --card-border: var(--border);
   --card-border-dim: var(--card-border);
 
-
   --text: #9ca3af;
   --text-h: #f3f4f6;
   --text-dim: #505c6e;
@@ -121,9 +122,11 @@ h1,h2,h3,h4,h5,h6{
   --shadow-small:
     rgba(0, 0, 0, 0.6) 2px 4px 6px -3px,
     rgba(0, 0, 0, 0.35) -2px 3px 3px -2px;
+  --shadow-drop:
+    rgb(0, 0, 0) 0 2px 5px;
     
     /* navbar */
-  --nav-item-text: var(--text);
+  --nav-item-text: var(--text-dim);
   --nav-item-text-active: var(--text);
   --nav-item-text-via-filter: invert(70%) sepia(18%) saturate(188%) hue-rotate(179deg) brightness(91%) contrast(84%);
   --nav-item-text-hover: #141108;
@@ -162,13 +165,15 @@ h1,h2,h3,h4,h5,h6{
   --shadow-small:
     rgba(0, 0, 0, 0.1) 1px 4px 6px -3px,
     rgba(0, 0, 0, 0.05) -1px 3px 3px -2px;
+  --shadow-drop:
+    rgb(0, 0, 0, 0.3) 0 1px 3px;
 
   /* navbar */
   --nav-bg: rgba(164, 6, 3, 1);
   --nav-logo: #fff6e5;
   --nav-logo-hover: #f0eeeb;
 
-  --nav-item-text: #fff6e5;
+  --nav-item-text: #fff6e58a;
   --nav-item-text-via-filter: invert(82%) sepia(30%) saturate(224%) hue-rotate(329deg) brightness(114%) contrast(101%);
   --nav-item-text-hover: #141108;
   --nav-item-text-hover-via-filter: invert(5%) sepia(15%) saturate(1936%) hue-rotate(8deg) brightness(96%) contrast(95%);

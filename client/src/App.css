@@ -46,7 +46,7 @@ tr.summary td {
   border-top: 1px solid;
 }
 
-.flex-grow {flex-grow: 9999;}
+.flex-grow {flex-grow: 9999; min-width: 0;}
 
 .text-left {text-align: left;}
 .text-right {text-align: right;}
@@ -58,9 +58,10 @@ tr.summary td {
   flex-direction: row;
   align-items: stretch;
   height: 3rem;
-  padding: 0 1rem;
   background-color: var(--nav-bg);
   box-shadow: var(--shadow);
+  position: relative;
+  z-index: 99999;
   @media screen and (min-width: 576px) {
   }
 }
@@ -73,7 +74,7 @@ tr.summary td {
   font-weight: bold;
   font-size: 1.7em;
   letter-spacing: 0.02em;
-  padding: 0 1.5rem 0 0.5rem;
+  margin-left: 1rem;
   text-decoration: none;
   transition: all 0.15s ease-in-out;
 }
@@ -83,14 +84,6 @@ tr.summary td {
   transform: scaleY(1.2);
 }
 
-.Navigation .nav-item .UserTag *{
-  color: var(--nav-item-text);
-  border-color: var(--nav-item-text);
-}
-.Navigation .nav-item:hover .UserTag *{
-  color: var(--nav-item-text-hover);
-  border-color: var(--nav-item-text-hover);
-}
 
 .Navigation .nav-item {
   display: flex;
@@ -108,27 +101,30 @@ tr.summary td {
   background-color: var(--nav-item-bg-hover);
 }
 
-.Navigation .nav-item.qmark {
-  width: 50px;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.Navigation .nav-item:has(> img.user-icon) {
+  border-left: 1px solid var(--nav-item-text);
 }
 
-.Navigation .nav-item.qmark img{
-  width: 20px;
-  filter: var(--nav-item-text-via-filter);
+.Navigation .nav-item img.user-icon {
+  height: 32px;
+  height: 2.4rem;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  object-fit: cover;
+  
+  border: 2px solid var(--nav-item-text);
+  outline: 0px;
+  transition: 
+      outline 0.3s ease,
+      scale 0.3s ease,
+      border 0.3s ease;
+  @media screen and (min-width: 576px) {
+      height: 40px;
+  }
 }
-.Navigation .nav-item:hover.qmark img{
-  filter: var(--nav-item-text-via-filter-hover);
+.Navigation .nav-item:hover img.user-icon {
+  border-color: var(--nav-item-text-hover);
 }
-
-.Navigation .nav-item.active {
-  color: var(--text-h);
-  border-bottom-color: var(--accent);
-}
-
 
 /* -------------------------- button -------------------------- */
 
@@ -156,6 +152,29 @@ button:not(:disabled):active {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+form button {
+  flex: 1;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  font: 600 1rem/1.2 var(--sans);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  
+  color: var(--text-h);
+  background-color: transparent;
+}
+
+/* ------- primary = only form button --------- */
+form button.primary {
+  color: var(--text-on-accent);
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+form button.primary:hover {
+  filter: brightness(110%);
 }
 
 /* -------------------------- forms -------------------------- */

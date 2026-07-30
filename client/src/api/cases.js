@@ -1,6 +1,6 @@
 
-import {SAMPLE_CASE, generateSampleEvidences, generateSampleArguments, SAMPLE_JURY_SUMMARY} from "./test_data"
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+import { generateSampleEvidences, generateSampleArguments, SAMPLE_JURY_SUMMARY} from "./test_data"
+import { DEFAULT_GET_OPTS } from "./utils"
 
 export async function submitCase(params) {
   // params = { object_name, accusation, image }
@@ -13,76 +13,57 @@ export async function submitCase(params) {
     },
     body: JSON.stringify(params),
   }
-  return await fetch(`${API_BASE}/cases`, options);
+  return await fetch(`/api/cases`, options);
 }
 
 export async function fetchCase(case_id){
-    return {
-        ok: true,
-        status: 200,
-        async json() {
-        return SAMPLE_CASE
-        },
-    };
+  return await fetch(`/api/cases/${case_id}`, DEFAULT_GET_OPTS);
 }
 
 export async function fetchCases(params) {
   const q_string = Object.entries(params).map(([key, val])=>(`${key}=${val}`)).join('&')
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }
-  return await fetch(`${API_BASE}/cases?${q_string}`, options);
-
-//   return {
-//     ok: true,
-//     status: 200,
-//     async json() {
-//       return [
-//         {...SAMPLE_CASE, case_id: 1, phase: 'PROVISIONAL',       },
-//         {...SAMPLE_CASE, case_id: 2, phase: 'ARGUMENT',          },
-//         {...SAMPLE_CASE, case_id: 3, phase: 'JURY_DELIBERATION', },
-//         {...SAMPLE_CASE, case_id: 4, phase: 'CLOSED',            },
-//         {...SAMPLE_CASE, case_id: 5, phase: 'DISCOVERY',         },
-//         {...SAMPLE_CASE, case_id: 6, phase: 'RULING',            },
-//       ];
-//     },
-//   };
+  return await fetch(`/api/cases?${q_string}`, DEFAULT_GET_OPTS);
 }
 
-export async function fetchCaseEvidence(case_id, page_num, items_per_page){
+export async function fetchCaseEvidence(params){
+  const q_string = Object.entries(params).map(([key, val])=>(`${key}=${val}`)).join('&')
   return {
     ok: true,
     status: 200,
     async json() {
-      return generateSampleEvidences(20);
+      return {
+        last_page: 2,
+        entries: generateSampleEvidences(20)
+      }
     },
   };
 }
 
-export async function fetchCaseArguments(case_id, page_num, items_per_page){
-    return {
+export async function fetchCaseArguments(params){
+  const q_string = Object.entries(params).map(([key, val])=>(`${key}=${val}`)).join('&')
+  return {
     ok: true,
     status: 200,
     async json() {
-      return generateSampleArguments(20);
+      return {
+        last_page: 2,
+        entries: generateSampleArguments(20)
+      }
     },
   };
 }
 
-export async function fetchJurySummary(case_id, page_num, items_per_page){
+export async function fetchJurySummary(case_id){
+  return {
+    ok: true,
+    status: 200,
+    async json() {
     return {
-        ok: true,
-        status: 200,
-        async json() {
-        return {
-            total: Object.values(SAMPLE_JURY_SUMMARY).reduce((acc, x) => acc + x, 0),
-            breakdown: SAMPLE_JURY_SUMMARY // breakdown is only returned if case is past jury phase
-        }
-        },
-    };
+        total: Object.values(SAMPLE_JURY_SUMMARY).reduce((acc, x) => acc + x, 0),
+        breakdown: SAMPLE_JURY_SUMMARY // breakdown is only returned if case is past jury phase
+    }
+    },
+  };
 }
 
 export async function voteProvisional(data){

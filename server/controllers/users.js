@@ -7,7 +7,7 @@ const getUser = async (req, res) => {
 
     const response = await pool.query(`
       SELECT 
-        users.username, users.image_url, users.bio, users.created_at,
+        users.user_id, users.username, users.image_url, users.bio, users.created_at,
         ach.name AS flair_name
       FROM users
       LEFT JOIN achievements AS ach
@@ -51,10 +51,19 @@ const getUserStats = async (req, res) => {
 }
 
 const getUserAchievements = async (req, res) => {
+  // Get user's earned and in-progress achievements
   try {
-    const { id } = req.params
-    // Get user's earned and in-progress achievements
-    res.json({ /* achievements data */ })
+    const { user_id } = req.params
+    const response = await pool.query(`
+      SELECT 
+        u_ach.*,
+        ach.*
+      FROM user_achievements AS u_ach
+      JOIN achievements AS ach
+        ON u_ach.achievement_id = ach.achievement_id
+      WHERE u_ach.user_id = $1
+      `, [user_id])
+    res.status(200).json(response.rows)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -62,7 +71,7 @@ const getUserAchievements = async (req, res) => {
 
 const getUserSubmissions = async (req, res) => {
   try {
-    const { id } = req.params
+    const { user_id } = req.params
     const { type, limit, offset } = req.query
     // Get user submissions (?limit=20&offset=0&type=cases|evidence|arguments|all)
     res.json({ /* submissions data */ })

@@ -1,3 +1,6 @@
+import { DateTime } from "luxon";
+import { REFRESH_TIME } from '../config/userRules.js'
+
 export function getRandomInt(min, max) {
   // inclusive of max
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -10,4 +13,16 @@ export function dateWithDelta(delta, date=null) {
   if (delta.minutes) new_date.setMinutes(new_date.getMinutes() + delta.minutes);
   if (delta.seconds) new_date.setSeconds(new_date.getSeconds() + delta.seconds);
   return new_date
+}
+
+export function getNextRefresh() {
+  let refresh = DateTime.now()
+    .setZone(REFRESH_TIME.tz)
+    .set({ hour: REFRESH_TIME.hour, minute: 0, second: 0, millisecond: 0 });
+
+  if (refresh <= DateTime.now().setZone(REFRESH_TIME.time_zone)) {
+    refresh = refresh.plus({ days: 1 });
+  }
+
+  return refresh.toUTC();
 }

@@ -19,14 +19,17 @@ const TAG_COLORS = {
 function ColorPillTag({phase, phase_end}){
     return (
         <div className={`ColorPillTag ${(phase_end!=null) ? 'timer' : ''}`} >
-            <span className='name' style={{backgroundColor: TAG_COLORS[phase]}}>
-                {toTitleCase(phase.replace('_', ' '))}
-            </span>
-            <Countdown className='countdown' 
-                date={phase_end} 
-                daysInHours={true}
-                style={{border: `1px solid ${TAG_COLORS[phase]}`}}
-            />
+            <div className='name' style={{backgroundColor: TAG_COLORS[phase]}}>
+                <div>{toTitleCase(phase.replace('_', ' '))}</div>
+            </div>
+            <div className='right'>
+                <div>
+                    <Countdown className='countdown' 
+                        date={phase_end} 
+                        daysInHours={true}
+                        />
+                </div>
+            </div>
         </div>
     )
 }

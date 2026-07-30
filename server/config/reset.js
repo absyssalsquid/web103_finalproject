@@ -1,5 +1,6 @@
 import { pool } from './database.js'
 import './dotenv.js'
+import { LENGTH_LIMITS } from '../config/userRules.js'
 
 // enums shared across tables, created before any table that uses them
 const ENUMS = {
@@ -38,7 +39,7 @@ const TABLES = {
     users: `
         CREATE TABLE IF NOT EXISTS users (
             user_id     SERIAL PRIMARY KEY,
-            username    VARCHAR(40) NOT NULL,
+            username    VARCHAR(${LENGTH_LIMITS.username_max}) NOT NULL,
             email       VARCHAR(500),
             pw_hash     VARCHAR(255) NOT NULL,
             image_url   VARCHAR(500),
@@ -48,7 +49,7 @@ const TABLES = {
             flair       INT REFERENCES achievements(achievement_id),
             UNIQUE(username),
             UNIQUE(email),
-            CONSTRAINT chk_min_length CHECK (length(username) >= 3)
+            CONSTRAINT chk_min_length CHECK (length(username) >= ${LENGTH_LIMITS.username_min})
         )
     `,
 
@@ -57,8 +58,8 @@ const TABLES = {
             case_id         SERIAL PRIMARY KEY,
             user_id         INT REFERENCES users(user_id),
             created_at      TIMESTAMPTZ DEFAULT NOW(),
-            object_name     VARCHAR(60),
-            accusation      VARCHAR(250),
+            object_name     VARCHAR(${LENGTH_LIMITS.object_name_max}),
+            accusation      VARCHAR(${LENGTH_LIMITS.accusation_max}),
             image_url       VARCHAR(500),
             verdict         verdict,
             judge_id        INT REFERENCES users(user_id),
@@ -68,8 +69,8 @@ const TABLES = {
             phase_end       TIMESTAMPTZ,
             up_votes        INT DEFAULT 0,
             down_votes      INT DEFAULT 0,
-            CONSTRAINT chk_min_length_obj CHECK (length(object_name) >= 3),
-            CONSTRAINT chk_min_length_acc CHECK (length(accusation) >= 20) 
+            CONSTRAINT chk_min_length_obj CHECK (length(object_name) >= ${LENGTH_LIMITS.object_name_min}),
+            CONSTRAINT chk_min_length_acc CHECK (length(accusation) >= ${LENGTH_LIMITS.accusation_min}) 
         )
     `,
 
@@ -79,13 +80,13 @@ const TABLES = {
             case_id         INT REFERENCES cases(case_id),
             user_id         INT REFERENCES users(user_id),
             evidence_num    INT,
-            text            VARCHAR(200),
+            text            VARCHAR(${LENGTH_LIMITS.evidence_max}),
             image_url       VARCHAR(500),
             created_at      TIMESTAMPTZ DEFAULT NOW(),
             up_votes        INT,
             down_votes      INT,
             UNIQUE(case_id, evidence_num),
-            CONSTRAINT chk_min_length_ev CHECK (length(text) >= 10) 
+            CONSTRAINT chk_min_length_ev CHECK (length(text) >= ${LENGTH_LIMITS.evidence_min}) 
         )
     `,
 
@@ -95,13 +96,13 @@ const TABLES = {
             case_id         INT REFERENCES cases(case_id),
             user_id         INT REFERENCES users(user_id),
             arg_num         INT,
-            text            VARCHAR(600),
+            text            VARCHAR(${LENGTH_LIMITS.argument_max}),
             argument_tag    argument_tag,
             created_at      TIMESTAMPTZ DEFAULT NOW(),
             up_votes        INT,
             down_votes      INT,
             UNIQUE(case_id, arg_num),
-            CONSTRAINT chk_min_length_ev CHECK (length(text) >= 10) 
+            CONSTRAINT chk_min_length_arg CHECK (length(text) >= ${LENGTH_LIMITS.argument_min}) 
         )
     `,
 
@@ -171,7 +172,7 @@ const TABLES = {
             user_id         INT REFERENCES users(user_id),
             achievement_id  INT REFERENCES achievements(achievement_id),
             progress        INT DEFAULT 0,
-            earned_at       TIMESTAMPTZ,
+            earned_at       TIMESTAMPTZ DEFAULT NULL,
             PRIMARY KEY(user_id, achievement_id)
         )
     `,

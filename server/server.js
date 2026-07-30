@@ -11,6 +11,7 @@ import caseRouter from './routes/cases.js'
 import evidenceRouter from './routes/evidence.js'
 import argumentsRouter from './routes/arguments.js'
 import juryRouter from './routes/jury.js'
+import rulesRouter from './routes/rules.js'
 
 const corsOptions = {
     origin: 'http://localhost:5173',                      // Restrict to this origin
@@ -36,6 +37,7 @@ app.use('/cases', caseRouter)
 app.use('/evidence', evidenceRouter)
 app.use('/arguments', argumentsRouter)
 app.use('/jury', juryRouter)
+app.use('/rules', rulesRouter)
 
 
 const PORT = process.env.PORT || 3001

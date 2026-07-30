@@ -1,4 +1,4 @@
-const PHASES = ['PROVISIONAL', 'DISCOVERY', 'ARGUMENT', 'JURY_DELIBERATION', 'RULING', 'CLOSED'];
+const PHASES = ['PROVISIONAL', 'DISMISSED', 'DISCOVERY', 'ARGUMENT', 'JURY_DELIBERATION', 'RULING', 'CLOSED'];
 
 
 export function toTitleCase(str) {
@@ -21,23 +21,6 @@ export function nextPhase(currPhase){
   let idx = PHASES.indexOf(currPhase);
   if (idx + 1 < PHASES.length) idx ++;
   return PHASES[idx];
-}
-
-export function getNextOccurrence(Time){
-  const now = new Date();
-
-  const nextRefresh = new Date(now);
-  nextRefresh.setHours(
-      Time.getHours(),
-      Time.getMinutes(),
-      Time.getSeconds(),
-      Time.getMilliseconds()
-  );
-
-  if (nextRefresh <= now) {
-      nextRefresh.setDate(nextRefresh.getDate() + 1);
-  }
-  return nextRefresh;
 }
 
 export function getTimeString(date){

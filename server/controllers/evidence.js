@@ -1,9 +1,11 @@
 import { pool } from '../config/database.js'
 
 const createEvidence = async (req, res) => {
+  // Create evidence submission
   try {
     const { caseId, content } = req.body
-    // Create evidence submission
+    // TODO: limit verification
+
     res.json({ /* evidence data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -11,9 +13,9 @@ const createEvidence = async (req, res) => {
 }
 
 const getEvidence = async (req, res) => {
+  // Get specific evidence by ID
   try {
     const { id } = req.params
-    // Get specific evidence by ID
     res.json({ /* evidence data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -21,9 +23,9 @@ const getEvidence = async (req, res) => {
 }
 
 const deleteEvidence = async (req, res) => {
+  // Delete evidence (restricted by phase)
   try {
     const { id } = req.params
-    // Delete evidence (restricted by phase)
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -31,10 +33,10 @@ const deleteEvidence = async (req, res) => {
 }
 
 const voteEvidence = async (req, res) => {
+  // Vote on evidence (restricted to evidence phase)
   try {
     const { id } = req.params
     const { evidence_id, user_id, value } = req.body
-    // Vote on evidence (restricted to evidence phase)
     res.json({ /* vote data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -42,9 +44,9 @@ const voteEvidence = async (req, res) => {
 }
 
 const voteCountEvidence = async (req, res) => {
+  // Get vote count for evidence
   try {
     const { id } = req.params
-    // Get vote count for evidence
     res.json({ upvotes: 0, downvotes: 0 })
   } catch (error) {
     res.status(500).json({ error: error.message })
