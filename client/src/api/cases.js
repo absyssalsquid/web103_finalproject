@@ -81,6 +81,19 @@ export async function voteArgument(argument_id, vote_state){
 
 }
 
+export async function submitArgument(params) {
+  // params = { caseId, content }
+  const options = {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  }
+  return await fetch(`/api/arguments`, options);
+}
+
 export async function voteJury(jury_assignment_id, vote){
     console.log('voted jury' , jury_assignment_id, vote)
     // on server side
