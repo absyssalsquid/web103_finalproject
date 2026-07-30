@@ -6,6 +6,7 @@ import SubNav from '../components/SubNav'
 import Achievements from '../components/user/Achievements'
 import UserCard from '../components/user/UserCard'
 import UserContributions from '../components/Contributions'
+import { useAuthContext } from '/src/contexts/auth'
 
 import { fetchUserData, fetchUserStats, fetchUserAchievements } from "/src/api/users.js"
 
@@ -22,9 +23,11 @@ const STAT_NAMES = {
 
 const UserProfile = () => {
     var { id } = useParams();
+    const { user, isAuthenticated } = useAuthContext();
+    const base = id ? `/users/${id}` : '/profile';
+    if (!id && isAuthenticated) id = user.user_id; 
 
     // works for both /users/:id/* and /profile/* mounts
-    const base = id ? `/users/${id}` : '/profile';
 
     const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState({});
@@ -35,6 +38,7 @@ const UserProfile = () => {
     // const [argumentHistory, setArgumentHistory] = useState([]);
 
     useEffect(() => {
+
         console.log('user id', id);
         async function fetchData(){
 

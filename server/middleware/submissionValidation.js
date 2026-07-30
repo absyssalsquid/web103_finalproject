@@ -1,4 +1,6 @@
-import { FILTER_MODES, SORT_MODES } from '../config/queryOptions.js'
+import { pool } from '../config/database.js'
+import { DateTime } from "luxon";
+
 import { USAGE_LIMITS, REFRESH_TIME, LENGTH_LIMITS } from '../config/userRules.js'
 
 export const validateCreateUser = (req, res, next) => {
@@ -67,33 +69,42 @@ export function validateCaseSubmission(req, res, next) {
   next();
 }
 
-export function validateCaseQuery(req, res, next) {
-  let { filterBy, sortBy, limit, page } = req.query
-  limit = Number(limit)
-  if (!Number.isInteger(limit))
-    return {status: 422, message: 'Invalid limit (number of results)'}
-  else if (limit < 5 || limit > 50)
-    return {status: 422, message: 'Limit (number of results) must be between 5 and 50.'}
-  
-  page = Number(page)
-  if (!Number.isInteger(page))
-    return {status: 422, message: 'Invalid page num'}
-  else if (page < 1 )
-    return {status: 422, message: 'Invalid page num'}
+export async function validateEvidenceSubmission(req, res, next) {
+  try{
+    const { case_id, text } = req.body
+
+    let min_v = LENGTH_LIMITS.evidence_min
+    let max_v = LENGTH_LIMITS.evidence_max
+    if (text.length < min_v || text.length > max_v) {
+      return res.status(400).json({
+        error: `Evidence must be between ${min_v} and ${max_v} characters.`
+      });
+    }
+
+    const q_response = await pool.query(`
+      SELECT phase, phase_end
+      FROM cases
+      WHERE case_id = $1`,
+      [case_id])
 
 
-  // check filter
-  if (!(filterBy in FILTER_MODES)){
-    return res.status(422).json({
-      error: "Invalid status filter",
-    })
+    if (q_response.rows.length != 1) {
+      return res.status(400).json({
+        error: `Case not found.`
+      });
+    }
+
+    const {phase, phase_end} = q_response.rows[0]
+    if (phase != 'DISCOVERY' || DateTime.now() > new DateTime(phase_end)) {
+      return res.status(400).json({
+        error: `Evidence can only be submitted during discovery phase.`
+      });
+    }
+
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ error: error.message })
   }
-  
-  // check sort
-  if (!(sortBy in SORT_MODES)){
-    return res.status(422).json({
-      error: "Invalid sort method",
-    })  
-  }
-  next()
+
+  next();
 }

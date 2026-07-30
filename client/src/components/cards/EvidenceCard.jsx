@@ -13,7 +13,7 @@ function EvidenceCard({data, isActivePhase}){
             <UserTag 
                 user_id={data.user_id} 
                 username={data.username} 
-                flair={data.user_flair} 
+                flair={data.flair_name} 
                 image_url={data.user_image_url}/>
 
             <div className="content">{data.text}</div>
@@ -22,16 +22,14 @@ function EvidenceCard({data, isActivePhase}){
                 <VotingArrows 
                     data={data}
                     arrowVals={{
-                        up: '👍', 
                         up_tooltip: 'credible',
-                        down: '👎',
                         down_tooltip: 'questionable'
                     }}
                     voteFn={voteEvidence}
                     isActive={isActivePhase}
                 />
                 <div className="flex-grow"></div>
-                <div className="date">{formatDateTime(data.created_at)}</div>
+                <div className="date">{formatDateTime(new Date(data.created_at))}</div>
             </div>
 
 

@@ -19,13 +19,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 0.35rem;
 }
 
 .UserCard .main{
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
 }
 
 .UserCard .username{
@@ -44,6 +45,7 @@
 
 .UserCard .bio{
     font-size: .9rem;
+    max-width: 30rem;
 }
 
 .UserCard .joined{
@@ -51,11 +53,23 @@
     font-size: 0.8rem;
 }
 
-.UserCard button.edit-profile {
+.UserCard .edit-profile {
+    display: inline-block;
+    width: fit-content;
     font-size: 0.8em;
     /* transform: scaleX(-1); */
     padding: 3px 0.8em;
     margin: 0.4rem 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-h);
+    text-decoration: none;
+}
+
+.UserCard .edit-profile:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--text-on-accent);
 }
 
 @media screen and (min-width:576px){
@@ -71,6 +85,7 @@
     }
     .UserCard .main{
         flex-direction: row;
+        align-items: center;
         flex-wrap: wrap;
         gap: 0.7rem;
     }

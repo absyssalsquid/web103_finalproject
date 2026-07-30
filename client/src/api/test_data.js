@@ -146,32 +146,32 @@ export const SAMPLE_JURY_SUMMARY = {
     'INSUFFICIENT_EVIDENCE': getRandomInt(2, 12)
 }
 
-export const SAMPLE_ACHIEVEMENTS = [
-    {   achievement_id: 1,
-        name: 'First Chirp',
-        requirements: 'Submit your first accusation.',
-        threshold: 1,
-        progress: 1,
-        earned_at: dateWithDelta({days: -79})},
-    {   achievement_id: 2,
-        name: 'Opening Statement',
-        requirements: 'Make your first argument. ',
-        threshold: 1,
-        progress: 1,
-        earned_at: dateWithDelta({days: -79})},
-    {   achievement_id: 45,
-        name: 'Birdbrain',
-        requirements: 'Submit 20 arguments without citing a single piece of evidence or precedent',
-        threshold: 20,
-        progress: 20,
-        earned_at: dateWithDelta({days: -42})},
-    {   achievement_id: 0,
-        name: 'Lorem ipsum',
-        requirements: 'Lorem ipsum dolor sit amet',
-        threshold: 20,
-        progress: 2,
-        earned_at: null,},
-]
+// export const SAMPLE_ACHIEVEMENTS = [
+//     {   achievement_id: 1,
+//         name: 'First Chirp',
+//         requirements: 'Submit your first accusation.',
+//         threshold: 1,
+//         progress: 1,
+//         earned_at: dateWithDelta({days: -79})},
+//     {   achievement_id: 2,
+//         name: 'Opening Statement',
+//         requirements: 'Make your first argument. ',
+//         threshold: 1,
+//         progress: 1,
+//         earned_at: dateWithDelta({days: -79})},
+//     {   achievement_id: 45,
+//         name: 'Birdbrain',
+//         requirements: 'Submit 20 arguments without citing a single piece of evidence or precedent',
+//         threshold: 20,
+//         progress: 20,
+//         earned_at: dateWithDelta({days: -42})},
+//     {   achievement_id: 0,
+//         name: 'Lorem ipsum',
+//         requirements: 'Lorem ipsum dolor sit amet',
+//         threshold: 20,
+//         progress: 2,
+//         earned_at: null,},
+// ]
 
 // export function randomJuryAssignment(recent=false){
 //     const VOTES = ["GUILTY", "NOT_GUILTY", "INSUFFICIENT_EVIDENCE", null]

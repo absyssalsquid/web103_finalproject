@@ -1,19 +1,11 @@
 .Docket.main-content {
     max-width: 650px;
-    --search-bar-height: 2rem;
-}
-
-.Docket .search-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1rem;
 }
 
 /* "Submit a case" button */
 .Docket .submit-case {
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 500;
     text-decoration: none;
     color: white;
 
@@ -39,28 +31,6 @@
     color: #fff;
 }
 
-/* search input takes the leftover space */
-.Docket .search-bar .search-input {
-    display: none;
-    flex: 1 1 200px;
-    height: var(--search-bar-height);
-    padding: 0.3rem 0.85rem;
-}
-
-
-/* labelled select controls */
-.Docket .search-bar .control {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    color: var(--text);
-}
-
-.Docket .search-bar .control select {
-    height: var(--search-bar-height);
-}
-
 .Docket .case-container {
     display: flex;
     flex-direction: column;
@@ -73,10 +43,3 @@
     color: var(--text);
 }
 
-@media (max-width: 400px) {
-    .Docket .search-bar .control {
-    }
-    .Docket .search-bar .control select {
-        flex: 1;
-    }
-}

@@ -7,7 +7,7 @@ const getUser = async (req, res) => {
 
     const response = await pool.query(`
       SELECT 
-        users.user_id, users.username, users.image_url, users.bio, users.created_at,
+        users.user_id, users.username, users.image_url, users.bio, users.created_at, users.flair,
         ach.name AS flair_name
       FROM users
       LEFT JOIN achievements AS ach

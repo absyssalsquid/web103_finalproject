@@ -11,6 +11,8 @@ export const LENGTH_LIMITS = {
     argument_max: 600,
     argument_min: 20,
 
+    bio_max: 250,
+
     username_max: 40,
     username_min: 3,
 

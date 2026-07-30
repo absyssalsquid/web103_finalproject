@@ -2,13 +2,14 @@ import express from 'express'
 import controller from '../controllers/cases.js'
 import multer from "multer";
 
-import { validateJWT } from '../utils/jwt.js'
-import { validateCaseSubmission, validateCaseQuery } from '../utils/validation.js'
+import { validateJWT } from '../middleware/jwt.js'
+import { validateCaseSubmission} from '../middleware/submissionValidation.js'
+import { validateQueryPageLimit, validateCaseQuery, validateEvidenceQuery, validateArgumentQuery } from '../middleware/queryValidation.js'
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router()
-router.get('/', validateCaseQuery, controller.getCases) // with query phase filters and sort
+router.get('/', validateQueryPageLimit, validateCaseQuery, controller.getCases) // with query phase filters and sort
 // ?phase=provisional|evidence|arguments|verdict|ruling
 // ?sort=newest|oldest|popular|prosecute|defend|countdown
 // ?search=...
@@ -23,8 +24,8 @@ router.get('/:id', controller.getCase) // get basic data for card
 router.put('/:id/vote', validateJWT, controller.voteCase)
 router.get('/:id/votes', controller.voteCountCase)
 
-router.get('/:id/evidence', controller.getCaseEvidence) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted
-router.get('/:id/arguments', controller.getCaseArguments) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted
+router.get('/:id/evidence', validateQueryPageLimit, validateEvidenceQuery, controller.getCaseEvidence) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted
+router.get('/:id/arguments', validateQueryPageLimit, controller.getCaseArguments) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted
 
 // if jury phase has not ended, only return jury count
 // if jury phase has ended, also return vote breakdown

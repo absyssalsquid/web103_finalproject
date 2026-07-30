@@ -31,8 +31,8 @@ const Case = () => {
     const [loading, setLoading] = useState(true);
 
     const [caseData, setCaseData] = useState({}); 
-    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
-    const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [], sortBy: 'best' })
+    const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [], sortBy: 'best' })
     const [jurySummary, setJurySummary] = useState({}); // contains count of current votes
 
     useEffect(() => {
@@ -80,7 +80,7 @@ const Case = () => {
         { path: '/',            element: <></> },
         { path: 'provisional',  element: <Provisional   phaseDelta={phaseDelta(caseData.phase, 'PROVISIONAL')} /> },
         { path: 'evidence',     element: <CaseEvidence  phaseDelta={phaseDelta(caseData.phase, 'DISCOVERY')}         history={evidenceHistoryData} setHistory={setEvidenceHistoryData} /> },
-        { path: 'arguments',    element: <CaseArguments phaseDelta={phaseDelta(caseData.phase, 'ARGUMENT')}          history={argumentHistoryData} setHistory={setArgumentHistoryData} /> },
+        { path: 'arguments',    element: <CaseArguments phaseDelta={phaseDelta(caseData.phase, 'ARGUMENT')}          caseData={caseData} history={argumentHistoryData} setHistory={setArgumentHistoryData} /> },
         { path: 'verdict',      element: <CaseVerdict   phaseDelta={phaseDelta(caseData.phase, 'JURY_DELIBERATION')} caseData={caseData} data={jurySummary} /> },
         { path: 'ruling',       element: <CaseRuling    phaseDelta={phaseDelta(caseData.phase, 'RULING')}            caseData={caseData} /> },
     ]);

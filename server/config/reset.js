@@ -24,6 +24,32 @@ const SINGLE_INDEXES = {
     reactions: ['user_id'],
 }
 
+const WILSON_FN = `
+    CREATE OR REPLACE FUNCTION wilson_score(up_votes INT, down_votes INT)
+    RETURNS DOUBLE PRECISION
+    LANGUAGE sql
+    IMMUTABLE
+    AS $$
+    SELECT
+    CASE
+    WHEN up_votes + down_votes = 0 THEN 0
+    ELSE (
+        (
+        (up_votes::float / (up_votes + down_votes))
+        + 3.8416 / (2 * (up_votes + down_votes))
+        - 1.96 * sqrt(
+            (
+                (up_votes::float / (up_votes + down_votes))
+                * (1 - up_votes::float / (up_votes + down_votes))
+                + 3.8416 / (4 * (up_votes + down_votes))
+            ) / (up_votes + down_votes)
+            )
+        ) / (1 + 3.8416 / (up_votes + down_votes))
+    )
+    END;
+    $$;
+`
+
 // in create order (accounts for FK dependencies).
 const TABLES = {
     achievements: `
@@ -43,7 +69,7 @@ const TABLES = {
             email       VARCHAR(500),
             pw_hash     VARCHAR(255) NOT NULL,
             image_url   VARCHAR(500),
-            bio         VARCHAR(500),
+            bio         VARCHAR(${LENGTH_LIMITS.bio_max}),
             total_xp    INT DEFAULT 0,
             created_at  TIMESTAMPTZ DEFAULT NOW(),
             flair       INT REFERENCES achievements(achievement_id),
@@ -257,6 +283,13 @@ async function doAll(){
         for (const field of fields) {
             await createIndex(table_name, field)
         }
+    }
+
+    try {
+        await pool.query(WILSON_FN)
+        console.log(`🎉 created wilson_score`)
+    } catch (err) {
+        console.error(`⚠️ error creating wilson_score`, err)
     }
 
     await pool.end(); 

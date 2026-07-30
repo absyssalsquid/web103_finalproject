@@ -2,7 +2,7 @@ import { pool } from '../config/database.js'
 import { updateReaction } from '../utils/reactionService.js'
 import { DateTime } from "luxon";
 
-import { FILTER_MODES, SORT_MODES } from '../config/queryOptions.js'
+import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_MODES } from '../config/queryOptions.js'
 
 const getCases = async (req, res) => {
   let { filterBy, sortBy, limit, page } = req.query
@@ -13,7 +13,7 @@ const getCases = async (req, res) => {
     const count_response = await pool.query(`
       SELECT COUNT(*)
       FROM cases
-      WHERE ${FILTER_MODES[filterBy]}`)
+      WHERE ${CASE_FILTER_MODES[filterBy]}`)
     const count = Number(count_response.rows[0].count)
     const last_page = Math.ceil(count / limit)
 
@@ -29,8 +29,8 @@ const getCases = async (req, res) => {
         ON cases.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE ${FILTER_MODES[filterBy]}
-      ORDER BY ${SORT_MODES[sortBy]}
+      WHERE ${CASE_FILTER_MODES[filterBy]}
+      ORDER BY ${CASE_SORT_MODES[sortBy]}
       LIMIT $1
       OFFSET $2
       `, [limit, offset])
@@ -41,7 +41,8 @@ const getCases = async (req, res) => {
       entries
     })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -64,8 +65,8 @@ const createCase = async (req, res) => {
 
     res.status(201).json({ case_id: response.rows[0].case_id})
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -85,7 +86,7 @@ const withdrawCase = async (req, res) => {
     res.status(204)
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -114,7 +115,7 @@ const getCase = async (req, res) => {
     res.json(response.rows[0])
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -130,7 +131,7 @@ const voteCase = async (req, res) => {
     const { status, message, data } = updateReaction(params)
     res.status(status).json(data || message)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -140,7 +141,7 @@ const voteCountCase = async (req, res) => {
     const { id } = req.params
     res.json({ upvotes: 0, downvotes: 0 })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -148,7 +149,7 @@ const getCaseEvidence = async (req, res) => {
   // Get all evidence for case (?limit=20&offset=0&sort=oldest|newest|most-voted)
   try {
     const { id } = req.params
-    const { filterBy, sortBy, limit, page } = req.query
+    const { sortBy, limit, page } = req.query
     const offset = (page-1) * limit;
 
     // calcualate last page
@@ -173,18 +174,20 @@ const getCaseEvidence = async (req, res) => {
         ON evidence.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE case_id = $1 AND ${CASE_FILTER_MODES[filterBy]}
-      ORDER BY ${CASE_SORT_MODES[sortBy]}
+      WHERE case_id = $1
+      ORDER BY ${EV_ARG_SORT_MODES[sortBy]}
       LIMIT $2
       OFFSET $3
       `, [id, limit, offset])
+
+    const entries = response.rows
 
     res.status(200).json({
       last_page,
       entries
     })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -195,7 +198,7 @@ const getCaseArguments = async (req, res) => {
     const { limit, offset, sort } = req.query
     res.json({ /* arguments list */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -205,7 +208,7 @@ const getJurySummary = async (req, res) => {
     const { id } = req.params
     res.json({ /* jury summary */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -216,7 +219,7 @@ const submitRuling = async (req, res) => {
     const { ruling } = req.body
     res.json({ /* ruling data */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -238,7 +241,7 @@ const changePhase = async (req, res) => {
     // Update case phase (for rollback or manual advance, only presiding judge can do)
     res.json({ /* updated case */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
