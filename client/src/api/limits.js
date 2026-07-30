@@ -6,10 +6,10 @@
 // the schema and the UI don't drift.
 
 export const LIMITS = {
-    OBJECT_NAME: 60,            // cases.object_name  VARCHAR(60)
-    ACCUSATION_LENGTH: 250,     // cases.accusation   VARCHAR(250)
-    EVIDENCE_LENGTH: 200, 
-    ARGUMENT_LENGTH: 600, 
+    OBJECT_NAME_MAX_LEN: 60,            // cases.object_name  VARCHAR(60)
+    ACCUSATION_MAX_LEN: 250,     // cases.accusation   VARCHAR(250)
+    EVIDENCE_MAX_LEN: 200, 
+    ARGUMENT_MAX_LEN: 600, 
     
     // business rules — the real count comes from the API
     JURY_ASSIGNMENTS: 5,

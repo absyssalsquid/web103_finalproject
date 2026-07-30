@@ -3,12 +3,12 @@ import controller from '../controllers/cases.js'
 import multer from "multer";
 
 import { validateJWT } from '../utils/jwt.js'
-import { validateCaseSubmission } from '../utils/validation.js'
+import { validateCaseSubmission, validateCaseQuery } from '../utils/validation.js'
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router()
-router.get('/', controller.getCases) // with query phase filters and sort
+router.get('/', validateCaseQuery, controller.getCases) // with query phase filters and sort
 // ?phase=provisional|evidence|arguments|verdict|ruling
 // ?sort=newest|oldest|popular|prosecute|defend|countdown
 // ?search=...
@@ -19,12 +19,6 @@ router.get('/', controller.getCases) // with query phase filters and sort
 router.post('/', validateJWT, upload.single('image'), validateCaseSubmission, controller.createCase)
 router.patch('/:id/withdraw', validateJWT, controller.withdrawCase) // users CANNOT delete, only withdraw
 router.get('/:id', controller.getCase) // get basic data for card
-router.get('/:id/complete', controller.getCompleteCase) // get full data for case detail page: 
-// general details
-// evidence
-// args
-// jury summary
-// judge ruling
 
 router.put('/:id/vote', validateJWT, controller.voteCase)
 router.get('/:id/votes', controller.voteCountCase)

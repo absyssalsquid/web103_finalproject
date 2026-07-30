@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
 import { login as loginApi, logout as logoutApi, register as registerApi, decodeToken} from '/src/api/auth';
+import { fetchUserData } from "/src/api/users.js"
 
 // Initialize context
 const AuthContext = createContext(undefined);
@@ -14,13 +15,27 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const res = await decodeToken();
+      let authd_user = {}
 
+      // fetch initial
       if (res.ok) {
         const data = await res.json();
-        setUser(data.user);
-      } else {
+        authd_user = data.user
+      } 
+      
+      // fetch image
+      const res2 = await fetchUserData(authd_user.user_id)
+      if (res2.ok) {
+        const data2 = await res2.json();
+        authd_user['image_url'] = data2.image_url
+      }
+
+      if (Object.keys(authd_user).length > 0)
+        setUser(authd_user);
+      else {
         setUser(null);
       }
+
     };
 
     checkAuth();

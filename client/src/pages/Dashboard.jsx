@@ -7,9 +7,9 @@ import JuryAssignments from '../components/user/JuryAssignments'
 import { useTheme } from '/src/contexts/theme'
 import { useAuthContext } from '/src/contexts/auth'
 
+import { getUserLimits, getRefreshTime } from '/src/api/rules'
 import { getUsage } from '/src/api/me'
-
-import {LIMITS} from "/src/api/limits"
+import {getTimeString} from "/src/utils"
 
 import "./Dashboard.css"
 
@@ -20,22 +20,17 @@ const CARD_TITLES = {
     arguments: 'arguments made'
 }
 
-const SUBMISSION_LIMITS = {
-    jury_assignments: LIMITS.JURY_ASSIGNMENTS,
-    cases: LIMITS.CASE_SUBMISSIONS,
-    evidence: LIMITS.EVIDENCE_SUBMISSIONS,
-    arguments: LIMITS.ARGUMENT_SUBMISSIONS,
-}
-
 const LINKS = {
-    jury_assignments: (<Link to='/new-case'> start a case </Link>),
-    cases: (<Link to='/jury-duty'> serve on a jury </Link>),
+    cases: (<Link to='/new-case'> start a case </Link>),
+    jury_assignments: (<Link to='/jury-duty'> serve on a jury </Link>),
 }
 
 const Dashboard = () => {
     const { theme, setTheme, themes } = useTheme()
     const { isAuthenticated } = useAuthContext()
 
+    const [userLimits, setUserLimits] = useState({})
+    const [refreshTime, setRefreshTime] = useState(null)
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
 
     const [caseHistoryData    , setCaseHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
@@ -43,13 +38,23 @@ const Dashboard = () => {
     const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
     const [juryHistoryData    , setJuryHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
 
+
     useEffect(() => {
         async function fetchData(){
-            const res = await getUsage();
-            if (res.ok) {
-                const data = await res.json()
-                setUsage(data)
-            }
+
+            const res = await Promise.all([
+                getRefreshTime(),
+                getUserLimits(),
+                getUsage()
+            ])
+
+            const data = await Promise.all(
+                res.map((item) => item.json()))
+
+            setRefreshTime(new Date(data[0]))
+            setUserLimits(data[1])
+            setUsage(data[2])
+            console.log(data)
         }
         fetchData();
     }, []);
@@ -78,16 +83,13 @@ const Dashboard = () => {
                 {Object.entries(CARD_TITLES).map(([key, val])=>(
                     <div className='stat-card'>
                         <div className='desc'>{val}</div>
-                        <div className='count'>{usage[key]}/{SUBMISSION_LIMITS[key]}</div>
+                        <div className='count'>{usage[key]}/{userLimits[key]}</div>
                         {(key in LINKS) && LINKS[key]}
                     </div>
                 ))}
             </div>
 
-            <div>New day starts at {LIMITS.REFRESH_TIME.toLocaleTimeString(undefined, {
-                hour: 'numeric',
-                minute: '2-digit'
-            })}</div>
+            <div>New day starts at {refreshTime && getTimeString(refreshTime)}</div>
 
             {/* ---------------------- all history ---------------------- */}
             <h2>Activity</h2>

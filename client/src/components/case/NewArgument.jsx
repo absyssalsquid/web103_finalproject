@@ -11,13 +11,13 @@ function NewCase(){
                 <textarea
                     id="argument"
                     value={argument}
-                    maxLength={LIMITS.ARGUMENT_LENGTH}
+                    maxLength={LIMITS.ARGUMENT_MAX_LEN}
                     onChange={(e) => setAccusation(e.target.value)}
                     placeholder="argue the case"
                     rows={4}
                     required
                 />
-                <small>{argument.length}/{LIMITS.ACCUSATION_LENGTH}</small>
+                <small>{argument.length}/{LIMITS.ACCUSATION_MAX_LEN}</small>
                 <button className="btn btn-primary" disabled={false}>+ Submit Argument</button>
                 
             </form>

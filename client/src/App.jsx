@@ -47,20 +47,15 @@ function App() {
         <nav className='Navigation'>
           <Link    className='nav-logo' to="/">Bird Court</Link>
           <div className='flex-grow'></div>
-            <Link className="nav-item qmark" to="/guidelines">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/archive/d/d9/20110302085513%21Icon-round-Question_mark.svg"/>
-            </Link>
+          <Link className="nav-item" to="/guidelines">???</Link>
           { (isAuthenticated) && (<Link className="nav-item" to="/dashboard">Dashboard </Link>) }
           { (!isAuthenticated) && (<Link className='nav-item' to="/sign-in">Sign&nbsp;in</Link>) } 
           { (isAuthenticated) && (<div className="nav-item" onClick={()=>handleLogout()}>Sign&nbsp;out </div>) }
           { (isAuthenticated && user) && (
-            <div className="nav-item">
-              <UserTag 
-                user_id={user.user_id}
-                username={user.username}
-                isReversed={true}
-                /> 
-            </div>) }
+            <Link className="nav-item" to={`/users/${user.user_id}`}>
+              <img src={user.image_url}  className='user-icon'/>
+            </Link>
+          ) }
           {/* all conditions set to userID for testing, to see all tabs */}
         </nav>
 

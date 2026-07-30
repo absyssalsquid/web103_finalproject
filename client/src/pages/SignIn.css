@@ -52,24 +52,3 @@
     gap: 0.75rem;
     margin-top: 0.25rem;
 }
-
-.sign-in button {
-    flex: 1;
-    margin: 0;
-    padding: 0.65rem 1rem;
-    font: 600 1rem/1.2 var(--sans);
-    color: var(--text-h);
-    background: var(--dim-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-}
-
-.sign-in button.primary {
-    color: var(--text-on-accent);
-    background-color: var(--accent);
-    border-color: var(--accent);
-}
-
-.sign-in form button.primary:hover {
-    filter: brightness(110%);
-}

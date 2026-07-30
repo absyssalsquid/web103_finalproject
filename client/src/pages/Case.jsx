@@ -8,13 +8,13 @@ import CaseVerdict from '../components/case/CaseVerdict'
 import CaseRuling from '../components/case/CaseRuling'
 import UserTag from '../components/UserTag'
 import ColorPillTag from '../components/ColorPillTag'
+import SubNav from '../components/SubNav'
 
+import {fetchCase, fetchJurySummary} from "/src/api/cases"
 import {phaseDelta, formatDateTime } from '/src/utils'
-import {fetchCase, fetchCaseArguments, fetchCaseEvidence, fetchJurySummary} from "/src/api/cases"
 import {incrementCase} from "/src/api/cron"
 
 import './Case.css'
-import SubNav from '../components/SubNav'
 
 const redirects = {
     'PROVISIONAL':       'provisional',
@@ -31,38 +31,34 @@ const Case = () => {
     const [loading, setLoading] = useState(true);
 
     const [caseData, setCaseData] = useState({}); 
-    const [cArguments, setArguments] = useState([]);
-    const [evidence, setEvidence] = useState([]);
+    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
     const [jurySummary, setJurySummary] = useState({}); // contains count of current votes
 
     useEffect(() => {
         async function fetchData() {
-            console.log('fetching data')
-
-            const completeCaseResponse = await Promise.all([
+            const responses = await Promise.all([
                 fetchCase(id),
-                fetchCaseEvidence(id),
-                fetchCaseArguments(id),
                 fetchJurySummary(id)
             ])
 
-            const completeCaseData = await Promise.all(
-                completeCaseResponse.map((item) => item.json()));
+            const data = await Promise.all(
+                responses.map((item) => item.json()));
             
             // cron testing
             const newCaseData = (Object.keys(caseData).length === 0) 
-                ? completeCaseData[0] 
+                ? data[0] 
                 : incrementCase(caseData, jurySummary);
             // console.log(newCaseData)
             
+            console.log(data[1])
+            
             setCaseData(newCaseData)
-            setEvidence(completeCaseData[1]);
-            setArguments(completeCaseData[2]);
-            setJurySummary(completeCaseData[3]);
-
+            setJurySummary(data[1]);
             setLoading(false);
 
-            nav(`/cases/${id}/${redirects[newCaseData.phase]}`) // immediately redirect to current active case phase (evidence, arguments, jury, verdict) based on case data
+            // immediately redirect to current active case phase (evidence, arguments, jury, verdict) based on case data
+            nav(`/cases/${id}/${redirects[newCaseData.phase]}`) 
         }
 
         if (loading) fetchData(); 
@@ -83,18 +79,18 @@ const Case = () => {
     const child_element = useRoutes([
         { path: '/',            element: <></> },
         { path: 'provisional',  element: <Provisional   phaseDelta={phaseDelta(caseData.phase, 'PROVISIONAL')} /> },
-        { path: 'evidence',     element: <CaseEvidence  phaseDelta={phaseDelta(caseData.phase, 'DISCOVERY')}           caseData={caseData} data={evidence} /> },
-        { path: 'arguments',    element: <CaseArguments phaseDelta={phaseDelta(caseData.phase, 'ARGUMENT')}            caseData={caseData} data={cArguments} /> },
-        { path: 'verdict',      element: <CaseVerdict   phaseDelta={phaseDelta(caseData.phase, 'JURY_DELIBERATION')}   caseData={caseData} data={jurySummary} /> },
-        { path: 'ruling',       element: <CaseRuling    phaseDelta={phaseDelta(caseData.phase, 'RULING')}              caseData={caseData} /> },
+        { path: 'evidence',     element: <CaseEvidence  phaseDelta={phaseDelta(caseData.phase, 'DISCOVERY')}         history={evidenceHistoryData} setHistory={setEvidenceHistoryData} /> },
+        { path: 'arguments',    element: <CaseArguments phaseDelta={phaseDelta(caseData.phase, 'ARGUMENT')}          history={argumentHistoryData} setHistory={setArgumentHistoryData} /> },
+        { path: 'verdict',      element: <CaseVerdict   phaseDelta={phaseDelta(caseData.phase, 'JURY_DELIBERATION')} caseData={caseData} data={jurySummary} /> },
+        { path: 'ruling',       element: <CaseRuling    phaseDelta={phaseDelta(caseData.phase, 'RULING')}            caseData={caseData} /> },
     ]);
 
     if (loading) {
-        return (
-            <div className="Case">
-               <div className='minimal'>Loading...</div>
+        <div className="main-content">
+            <div className='minimal'>
+                <h1>Loading case...</h1>
             </div>
-        )
+        </div>
     }
     else if (Object.keys(caseData).length === 0) {
         return (
@@ -113,7 +109,7 @@ const Case = () => {
                         <UserTag 
                             user_id={caseData.user_id} 
                             username={caseData.username}
-                            flair={caseData.user_flair} 
+                            flair={caseData.flair_name} 
                             image_url={caseData.user_image_url}
                         />
                         <div>
@@ -121,7 +117,7 @@ const Case = () => {
                             <div className='accused'>{caseData.object_name}</div>
                         </div>
                         <div className='accusation'>{caseData.accusation}</div>
-                        <div className='date'>{formatDateTime(caseData.created_at)}</div>
+                        <div className='date'>{formatDateTime(new Date(caseData.created_at))}</div>
 
                         <div>
                             <ColorPillTag phase={caseData.phase} phase_end={caseData.phase_end}/>

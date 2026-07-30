@@ -1,27 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+import { CRED_GET_OPTS } from "./utils"
 
 export async function getMyJuryAssignments(params) {
   const q_string = Object.entries(params).map(([key, val])=>(`${key}=${val}`)).join('&')
   console.log('GET user jury assingments', )
-  const options = {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  }
-  return await fetch(`${API_BASE}/me/jury-assignments?${q_string}`, options);
+  return await fetch(`/api/me/jury-assignments?${q_string}`, CRED_GET_OPTS);
 }
-
 
 export async function getUsage() {
   console.log('GET daily usage', )
-  const options = {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  }
-  return await fetch(`${API_BASE}/me/usage`, options);
+  return await fetch(`/api/me/usage`, CRED_GET_OPTS);
 }

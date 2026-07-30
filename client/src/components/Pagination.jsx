@@ -36,7 +36,7 @@ function Pagination({history, setHistory}){
     const isFirstPage = history.page === 1;
     const isLastPage = history.page === history.last_page;
 
-    if (history.last_page===1) return(<></>)
+    if (history.last_page === 1) return(<></>)
 
     return (
         <div className="Pagination">

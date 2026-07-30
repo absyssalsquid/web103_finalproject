@@ -26,7 +26,7 @@
 .Case .overview img.case-img{
     aspect-ratio: 1/1;
     object-fit: cover;
-    background-color: white;
+    border: 1px solid var(--border);
     width: 250px;
     align-self: center;
 }

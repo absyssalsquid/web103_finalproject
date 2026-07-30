@@ -39,6 +39,7 @@ const Docket = () => {
         sortBy: 'newest',
         limit: 10,
         page: 1,
+        last_page: 1,
         entries: []
     });
 
@@ -68,8 +69,10 @@ const Docket = () => {
 
     if (loading) {
         return (
-            <div className="Docket main-content">
-                <div className='minimal'>Loading docket...</div>
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1>Loading docket...</h1>
+                </div>
             </div>
         )
     }
@@ -117,7 +120,7 @@ const Docket = () => {
                 }
             </div>
 
-            {caseHistory.entries.length > 0 && <Pagination history={caseHistory} setHistory={setCaseHistory} />}
+            <Pagination history={caseHistory} setHistory={setCaseHistory} />
 
             <Link to='/new-case' className='submit-case'>
                 + submit case

@@ -34,7 +34,6 @@ export const SAMPLE_USER = {
     total_xp: getRandomInt(100, 1500),
     created_at: dateWithDelta({days: -79}),
     flair_name: 'One Wing to Rule Them All',
-    // flair_name: 'Egg',
 }
 
 export const SAMPLE_CASE = {
@@ -71,7 +70,6 @@ function generateSampleEvidence(){
         up_votes: getRandomInt(1, 100),
         down_votes: getRandomInt(1, 100),
     }
-
 }
 
 export function generateSampleEvidences(count){
@@ -175,33 +173,33 @@ export const SAMPLE_ACHIEVEMENTS = [
         earned_at: null,},
 ]
 
-export function randomJuryAssignment(recent=false){
-    const VOTES = ["GUILTY", "NOT_GUILTY", "INSUFFICIENT_EVIDENCE", null]
-    const vote = VOTES[getRandomInt(0,3)]
+// export function randomJuryAssignment(recent=false){
+//     const VOTES = ["GUILTY", "NOT_GUILTY", "INSUFFICIENT_EVIDENCE", null]
+//     const vote = VOTES[getRandomInt(0,3)]
 
-    const msBack = getRandomInt((recent?1:180)*MS_PER_DAY, 0);
-    const date_start = new Date(Date.now() - msBack);
+//     const msBack = getRandomInt((recent?1:180)*MS_PER_DAY, 0);
+//     const date_start = new Date(Date.now() - msBack);
     
-    const expiration_date = new Date(date_start.getTime() + getRandomInt(MS_PER_DAY/24,MS_PER_DAY)); // corresponds to when the jury phase of the case closes
-    const completed_at = ! vote ? null : new Date(getRandomInt(
-        date_start.getTime() + MS_PER_DAY/24/2, // at least half hour after assignment
-        expiration_date.getTime()
-    ))
-    const status = completed_at ? 'COMPLETED' : (Date.now() >= expiration_date ? 'EXPIRED' : 'OPEN')
-    return {
-        id: getRandomInt(0, 10000), 
-        case_id: getRandomInt(0, 1000),
-        user_id: SAMPLE_USER.user_id,
-        expiration_date: expiration_date,
-        vote: vote, 
-        created_at: date_start,
-        completed_at: completed_at ,
-        status: status
-    }
-} 
+//     const expiration_date = new Date(date_start.getTime() + getRandomInt(MS_PER_DAY/24,MS_PER_DAY)); // corresponds to when the jury phase of the case closes
+//     const completed_at = ! vote ? null : new Date(getRandomInt(
+//         date_start.getTime() + MS_PER_DAY/24/2, // at least half hour after assignment
+//         expiration_date.getTime()
+//     ))
+//     const status = completed_at ? 'COMPLETED' : (Date.now() >= expiration_date ? 'EXPIRED' : 'OPEN')
+//     return {
+//         id: getRandomInt(0, 10000), 
+//         case_id: getRandomInt(0, 1000),
+//         user_id: SAMPLE_USER.user_id,
+//         expiration_date: expiration_date,
+//         vote: vote, 
+//         created_at: date_start,
+//         completed_at: completed_at ,
+//         status: status
+//     }
+// } 
 
-export function generateJuryAssignments(old_count, recent_count){
-  const oldJA = Array(   old_count).fill(null).map(()=>randomJuryAssignment())
-  const newJA = Array(recent_count).fill(null).map(()=>randomJuryAssignment(true))
-  return [...oldJA, ...newJA].toSorted((a, b) => b.created_at - a.created_at);
-}
+// export function generateJuryAssignments(old_count, recent_count){
+//   const oldJA = Array(   old_count).fill(null).map(()=>randomJuryAssignment())
+//   const newJA = Array(recent_count).fill(null).map(()=>randomJuryAssignment(true))
+//   return [...oldJA, ...newJA].toSorted((a, b) => b.created_at - a.created_at);
+// }

@@ -1,12 +1,36 @@
-import {LIMITS} from "/src/api/limits"
+import {useState, useEffect} from 'react'
+
 import {getTimeString} from "/src/utils"
+import { getUserLimits, getRefreshTime } from '/src/api/rules'
 
 import "./Guidelines.css"
 
 function Guidelines(){
+    const [userLimits, setUserLimits] = useState({})
+    const [refreshTime, setRefreshTime] = useState(null)
+
+    useEffect(() => {
+        async function fetchData(){
+
+            const res = await Promise.all([
+                getRefreshTime(),
+                getUserLimits()
+            ])
+
+            const data = await Promise.all(
+                res.map((item) => item.json()))
+
+            setRefreshTime(new Date(data[0]))
+            setUserLimits(data[1])
+            console.log(data)
+        }
+        fetchData();
+    }, []);
+
+
     return (
         <div className="Guidelines main-content">
-
+            <h1>Rulebook</h1>
             <h2>Case Phases</h2>
             Cases pass through several phases. Each phase (except for closed) lasts 24 hours.
             <ol>
@@ -35,13 +59,13 @@ function Guidelines(){
             <p>Once assigned to a case, you can vote Guilty, Not Guilty, or Insufficient Evidence. Vote based only on evidence and arguments presented within the case. You can choose up to three arguments that you find the most persuasive.</p>
 
             <h3>Ruling</h3>
-            <p>Based on the verdict, the assigned judge designates the very</p>
+            <p>Based on the verdict, the assigned judge designates the object with __.</p>
 
             <h3>Closed</h3>
             <p></p>
             
             <h2>Daily limits</h2>
-            <p>Limits reset at {getTimeString(LIMITS.REFRESH_TIME)}.</p>
+            <p>Limits reset daily. Next reset at {refreshTime && getTimeString(refreshTime)}.</p>
             <table>
                 <thead>
                     <tr>
@@ -52,19 +76,19 @@ function Guidelines(){
                 <tbody>
                     <tr>
                         <td>Submit case</td>
-                        <td className="text-right">{LIMITS.CASE_SUBMISSIONS}</td>
+                        <td className="text-right">{userLimits.cases}</td>
                     </tr>
                     <tr>
                         <td>Submit evidence</td>
-                        <td className="text-right">{LIMITS.EVIDENCE_SUBMISSIONS}</td>
+                        <td className="text-right">{userLimits.evidence}</td>
                     </tr>
                     <tr>
                         <td>Submit argument</td>
-                        <td className="text-right">{LIMITS.ARGUMENT_SUBMISSIONS}</td>
+                        <td className="text-right">{userLimits.arguments}</td>
                     </tr>
                     <tr>
                         <td>Serve jury duty</td>
-                        <td className="text-right">{LIMITS.JURY_ASSIGNMENTS}</td>
+                        <td className="text-right">{userLimits.jury_assignments}</td>
                     </tr>
                     <tr>
                         <td></td>

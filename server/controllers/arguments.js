@@ -1,9 +1,9 @@
 import { pool } from '../config/database.js'
 
 const createArgument = async (req, res) => {
+  // Create argument submission
   try {
     const { caseId, content } = req.body
-    // Create argument submission
     res.json({ /* argument data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -11,9 +11,9 @@ const createArgument = async (req, res) => {
 }
 
 const getArgument = async (req, res) => {
+  // Get specific argument by ID
   try {
     const { id } = req.params
-    // Get specific argument by ID
     res.json({ /* argument data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -21,9 +21,9 @@ const getArgument = async (req, res) => {
 }
 
 const deleteArgument = async (req, res) => {
+  // Delete argument (restricted by phase)
   try {
     const { id } = req.params
-    // Delete argument (restricted by phase)
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -32,9 +32,9 @@ const deleteArgument = async (req, res) => {
 
 const voteArgument = async (req, res) => {
   try {
+    // Vote on argument (restricted to argument phase)
     const { id } = req.params
     const { value } = req.body
-    // Vote on argument (restricted to argument phase)
     res.json({ /* vote data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -42,9 +42,9 @@ const voteArgument = async (req, res) => {
 }
 
 const voteCountArgument = async (req, res) => {
+  // Get vote count for argument
   try {
     const { id } = req.params
-    // Get vote count for argument
     res.json({ upvotes: 0, downvotes: 0 })
   } catch (error) {
     res.status(500).json({ error: error.message })

@@ -6,17 +6,18 @@ import ProgressBar from "/src/components/ProgressBar"
 import { useAuthContext } from '/src/contexts/auth'
 
 import { getUsage } from '/src/api/me'
-import { LIMITS } from '/src/api/limits'
+import { getUserLimits, getLengthLimits } from '/src/api/rules'
 
 
 import './NewCase.css'
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const NewCase = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuthContext();
     const fileInputRef = useRef(null);
     
+    const [userLimits, setUserLimits] = useState({})
+    const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
     const [caseParams, setCaseParams] = useState({object_name: '', accusation: '', image: null})
     const [alertMsg, setAlertMsg] = useState('')
@@ -25,11 +26,19 @@ const NewCase = () => {
 
     useEffect(() => {
         async function fetchData(){
-            const res = await getUsage();
-            if (res.ok) {
-                const data = await res.json()
-                setUsage(data)
-            }
+
+            const res = await Promise.all([
+                getUserLimits(),
+                getLengthLimits(),
+                getUsage()
+            ])
+
+            const data = await Promise.all(
+                res.map((item) => item.json()))
+
+            setUserLimits(data[0])
+            setLengthLimits(data[1])
+            setUsage(data[2])
         }
         fetchData();
     }, []);
@@ -75,12 +84,14 @@ const NewCase = () => {
             credentials: "include",
             body: formData,
         }
-        const res = await fetch(`${API_BASE}/cases`, options);
+        const res = await fetch(`/api/cases`, options);
         const data = await res.json()
 
         if (res.ok){
-            setAlertMsg(`Case ${data.case_id} created`)
-            navigate('/');
+            setAlertMsg(`Case #${data.case_id} successfully created.`)
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
         }
         else {
             setAlertMsg(data.error)
@@ -93,7 +104,7 @@ const NewCase = () => {
         navigate('/');
     }
 
-    const limitReached = usage.cases >= LIMITS.CASE_SUBMISSIONS;
+    const limitReached = usage.cases >= userLimits.cases;
 
     return (
         <div className="NewCase">
@@ -106,9 +117,11 @@ const NewCase = () => {
 
             <div className='main-content'>
 
+                <div className='header-container'>
                 <div className='header'>
                     <h2>Submit a case</h2>
                     <p>This object has offended birdkind!</p>
+                </div>
                 </div>
 
                 <form onSubmit={submitHandler}>
@@ -119,26 +132,26 @@ const NewCase = () => {
                         name="object_name"
                         type="text"
                         value={caseParams.object_name}
-                        maxLength={LIMITS.OBJECT_NAME}
+                        maxLength={lengthLimits.object_name_max}
                         onChange={handleChange}
                         placeholder="e.g. the satellite dish"
                         rows={2}
                         required
                     />
-                    <small>{caseParams.object_name.length}/{LIMITS.OBJECT_NAME}</small>
+                    <small>{caseParams.object_name.length}/{lengthLimits.object_name_max}</small>
 
                     <div><label htmlFor="accusation">Accusation</label></div>
                     <textarea
                         className='accusation'
                         name="accusation"
                         value={caseParams.accusation}
-                        maxLength={LIMITS.ACCUSATION_LENGTH}
+                        maxLength={lengthLimits.accusation_max}
                         onChange={handleChange}
                         placeholder="describe the crime and alleged harm..."
                         rows={8}
                         required
                     />
-                    <small>{caseParams.accusation.length}/{LIMITS.ACCUSATION_LENGTH}</small>
+                    <small>{caseParams.accusation.length}/{lengthLimits.accusation_max}</small>
 
                     <div><label htmlFor="image">Object image (optional)</label></div>
                     <input
@@ -161,7 +174,8 @@ const NewCase = () => {
                     <ProgressBar
                         label="Daily case submissions"
                         value={usage.cases}
-                        limit={LIMITS.CASE_SUBMISSIONS}
+                        limit={userLimits.cases}
+                        limit_message={"You've reached your daily submission limit."}
                     />
 
                     <div className="form-actions">

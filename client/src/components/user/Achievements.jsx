@@ -16,7 +16,7 @@ function Achievements({items}){
                     <p className='requirements'>{item.requirements}</p>
                     <div className='earned-at'>
                         { earned
-                            ? `earned ${item.earned_at.toLocaleDateString()}`
+                            ? `earned ${(new Date(item.earned_at)).toLocaleDateString()}`
                             : <>{item.progress} / {item.threshold}</>
                         }
                     </div>

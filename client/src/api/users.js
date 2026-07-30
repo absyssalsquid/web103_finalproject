@@ -1,37 +1,19 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-import { SAMPLE_ACHIEVEMENTS} from "./test_data"
+
+import { DEFAULT_GET_OPTS } from "./utils"
 
 export async function fetchUserData(user_id){
   console.log('GET user', user_id)
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  }
-  return await fetch(`${API_BASE}/users/${user_id}`, options);
+  return await fetch(`/api/users/${user_id}`, DEFAULT_GET_OPTS);
 }
 
 export async function fetchUserStats(user_id) {
   console.log('GET user stats', user_id)
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  }
-  return await fetch(`${API_BASE}/users/${user_id}/stats`, options);
+  return await fetch(`/api/users/${user_id}/stats`, DEFAULT_GET_OPTS);
 }
 
-
 export async function fetchUserAchievements(user_id){
-    return {
-        ok: true,
-        status: 200,
-        async json() {
-          return SAMPLE_ACHIEVEMENTS
-        },
-    };
+  console.log('GET user achievements', user_id)
+  return await fetch(`/api/users/${user_id}/achievements`, DEFAULT_GET_OPTS);
 }
 
 
