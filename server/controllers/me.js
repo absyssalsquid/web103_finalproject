@@ -2,16 +2,7 @@ import { pool } from '../config/database.js'
 import jwt from 'jsonwebtoken'
 
 import {newToken, TOKEN_COOKIE_OPTIONS} from '../utils/jwt.js'
-
-
-const updateUser = async (req, res) => {
-  try {
-    // Update current user profile
-    res.json({ /* updated user data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
+import { updateUser } from './users.js'
 
 const getUsage = async (req, res) => {
   const {user_id} = req.token_payload.user
