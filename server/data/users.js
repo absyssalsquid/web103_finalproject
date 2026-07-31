@@ -5,13 +5,16 @@ const users = [
         email: 'test2@gmail.com',
         pw: 'aweapontosurpass',
         created_at: DateTime.local(2025, 2, 7, 15),
+        image_url: "https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w",
         flair: 24,
         },
+        
 
     {   username: 'hardboileddetective',
         email: 'test3@gmail.com',
         pw: 'gutsygumshoe',
         created_at: DateTime.local(2025, 12, 2, 11),
+        image_url: "https://play-lh.googleusercontent.com/LMJHiS55RN82NDFjKOkymuZkIg0d2QmnhnTgZgk1d5H-EyvmOZNx98UlEi9zrMtQwdbmOJuyxuThkMuKUbHW8Q",
         flair: 61,
         },
 
@@ -19,6 +22,7 @@ const users = [
         email: 'test4@gmail.com',
         pw: 'einszweidrei',
         created_at: DateTime.local(2026, 1, 3, 11, 23),
+        image_url: 'https://bunny-wp-pullzone-ycwxiuzyik.b-cdn.net/wp-content/uploads/2021/09/NOCA_Mick-Thompson.jpg',
         flair: 9
         },
 

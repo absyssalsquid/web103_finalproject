@@ -6,7 +6,8 @@ const createArgument = async (req, res) => {
     const { caseId, content } = req.body
     res.json({ /* argument data */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: "Internal server error." })
   }
 }
 
@@ -16,7 +17,8 @@ const getArgument = async (req, res) => {
     const { id } = req.params
     res.json({ /* argument data */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: "Internal server error." })
   }
 }
 
@@ -26,7 +28,8 @@ const deleteArgument = async (req, res) => {
     const { id } = req.params
     res.json({ success: true })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: "Internal server error." })
   }
 }
 
@@ -37,7 +40,8 @@ const voteArgument = async (req, res) => {
     const { value } = req.body
     res.json({ /* vote data */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: "Internal server error." })
   }
 }
 
@@ -47,7 +51,8 @@ const voteCountArgument = async (req, res) => {
     const { id } = req.params
     res.json({ upvotes: 0, downvotes: 0 })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: "Internal server error." })
   }
 }
 

@@ -7,7 +7,7 @@ const getUser = async (req, res) => {
 
     const response = await pool.query(`
       SELECT 
-        users.user_id, users.username, users.image_url, users.bio, users.created_at,
+        users.user_id, users.username, users.image_url, users.bio, users.created_at, users.flair,
         ach.name AS flair_name
       FROM users
       LEFT JOIN achievements AS ach
@@ -73,7 +73,7 @@ const getUserSubmissions = async (req, res) => {
   try {
     const { user_id } = req.params
     const { type, limit, offset } = req.query
-    // Get user submissions (?limit=20&offset=0&type=cases|evidence|arguments|all)
+    // Get user submissions (?limit=20&page=1&type=cases|evidence|arguments|all)
     res.json({ /* submissions data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })

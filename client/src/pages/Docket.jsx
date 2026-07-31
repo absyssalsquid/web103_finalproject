@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import CaseCard from '../components/cards/CaseCard'
 import Pagination from '../components/Pagination'
+import SearchBar from '../components/SearchBar'
 import { fetchCases } from "/src/api/cases"
 
 import './Docket.css'
@@ -79,41 +80,17 @@ const Docket = () => {
 
     return (
         <div className="Docket main-content">
-            <div className='search-bar'>
-                <input
-                    type='search'
-                    className='search-input'
-                    placeholder='Search cases...'
-                    value={caseHistory.search}
-                    onChange={(e) => setCaseHistory((prev)=>({...prev, search: e.target.value}))}
-                />
-
-                <label className='control'>
-                    <select 
-                        value={caseHistory.filterBy} 
-                        onChange={(e) => setCaseHistory((prev)=>({...prev, filterBy: e.target.value}))}
-                    >
-                        {PHASE_OPTIONS.map((o) => (
-                            <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                    </select>
-                </label>
-
-                <label className='control'>
-                    <select 
-                        value={caseHistory.sortBy}
-                        onChange={(e) => setCaseHistory((prev)=>({...prev, sortBy: e.target.value}))}
-                    >
-                        {SORT_OPTIONS.map((o) => (
-                            <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
+            <SearchBar
+                state={caseHistory}
+                setState={setCaseHistory}
+                searchPlaceholder="Search cases..."
+                filterOptions={PHASE_OPTIONS}
+                sortOptions={SORT_OPTIONS}
+            />
 
             <div className='case-container'>
                 {caseHistory.entries.length === 0
-                    ? (<p className='minimal'>No cases match your search.</p>)
+                    ? (<div className='minimal'><h2>No cases match your search.</h2></div>)
                     : (caseHistory.entries.map((el) => (
                         <CaseCard key={el.case_id} data={el} />
                        )))

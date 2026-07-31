@@ -138,7 +138,7 @@ const NewCase = () => {
                         rows={2}
                         required
                     />
-                    <small>{caseParams.object_name.length}/{lengthLimits.object_name_max}</small>
+                    <small className="char-limit">{caseParams.object_name.length}/{lengthLimits.object_name_max}</small>
 
                     <div><label htmlFor="accusation">Accusation</label></div>
                     <textarea
@@ -151,7 +151,7 @@ const NewCase = () => {
                         rows={8}
                         required
                     />
-                    <small>{caseParams.accusation.length}/{lengthLimits.accusation_max}</small>
+                    <small className="char-limit">{caseParams.accusation.length}/{lengthLimits.accusation_max}</small>
 
                     <div><label htmlFor="image">Object image (optional)</label></div>
                     <input

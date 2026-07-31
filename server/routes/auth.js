@@ -1,8 +1,8 @@
 import express from 'express'
 import controller from '../controllers/auth.js'
 
-import { validateCreateUser } from '../utils/validation.js'
-import { validateJWT } from '../utils/jwt.js'
+import { validateCreateUser } from '../middleware/submissionValidation.js'
+import { validateJWT } from '../middleware/jwt.js'
 
 const router = express.Router()
 

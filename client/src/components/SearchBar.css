@@ -1,0 +1,28 @@
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  --search-bar-height: 2.25rem;
+}
+
+.search-bar * {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.search-bar .search-input {
+  display: none;
+  flex: 1 1 200px;
+  height: var(--search-bar-height);
+}
+
+.search-bar select {
+  height: var(--search-bar-height);
+}
+
+@media (max-width: 400px) {
+  .search-bar .search-input { flex: 2}
+  .search-bar select { flex: 1; }
+}

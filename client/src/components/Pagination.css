@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 3rem;
 }
 
 .Pagination .arrows {
@@ -54,6 +55,7 @@
     background-color: var(--text-on-accent);
     background-color: transparent;
     border: 1px solid var(--text-accent);
+    border-radius: 99999px;
 }
 
 .Pagination button[type="submit"]:hover{

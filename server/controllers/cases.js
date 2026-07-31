@@ -1,8 +1,9 @@
 import { pool } from '../config/database.js'
 import { updateReaction } from '../utils/reactionService.js'
 import { DateTime } from "luxon";
+import { uploadCaseImage, deleteCaseImage } from '../utils/imageUpload.js'
 
-import { FILTER_MODES, SORT_MODES } from '../config/queryOptions.js'
+import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_MODES } from '../config/queryOptions.js'
 
 const getCases = async (req, res) => {
   let { filterBy, sortBy, limit, page } = req.query
@@ -13,7 +14,7 @@ const getCases = async (req, res) => {
     const count_response = await pool.query(`
       SELECT COUNT(*)
       FROM cases
-      WHERE ${FILTER_MODES[filterBy]}`)
+      WHERE ${CASE_FILTER_MODES[filterBy]}`)
     const count = Number(count_response.rows[0].count)
     const last_page = Math.ceil(count / limit)
 
@@ -29,8 +30,8 @@ const getCases = async (req, res) => {
         ON cases.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE ${FILTER_MODES[filterBy]}
-      ORDER BY ${SORT_MODES[sortBy]}
+      WHERE ${CASE_FILTER_MODES[filterBy]}
+      ORDER BY ${CASE_SORT_MODES[sortBy]}
       LIMIT $1
       OFFSET $2
       `, [limit, offset])
@@ -41,31 +42,57 @@ const getCases = async (req, res) => {
       entries
     })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
 const createCase = async (req, res) => {
+  let uploadedPublicId = null
+
   try {
-    const { object_name, accusation, image } = req.body
+    const { object_name, accusation } = req.body
     const { user_id } = req.token_payload.user
     const now = DateTime.now();
     const tomorrow = now.plus({days: 1})
 
-    // TODO: image uploads
     // TODO: limit verification
 
-    const response = await pool.query(`
-      INSERT INTO cases (user_id, created_at, object_name, accusation, image_url, phase_start, phase_end)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING case_id`,
-      [user_id, now, object_name, accusation, null, now.toISO(), tomorrow.toISO()]
-    )
+    let imageUrl = null
+    if (req.file) {
+      try {
+        const uploaded = await uploadCaseImage(req.file.buffer)
+        imageUrl = uploaded.url
+        uploadedPublicId = uploaded.publicId
+      } catch (uploadError) {
+        console.log('Case image upload failed:', uploadError.message)
+        return res.status(500).json({ error: 'Image upload failed.' })
+      }
+    }
 
-    res.status(201).json({ case_id: response.rows[0].case_id})
+    try {
+      const response = await pool.query(`
+        INSERT INTO cases (user_id, created_at, object_name, accusation, image_url, phase_start, phase_end)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING case_id, image_url`,
+        [user_id, now, object_name, accusation, imageUrl, now.toISO(), tomorrow.toISO()]
+      )
+
+      res.status(201).json({ case_id: response.rows[0].case_id, image_url: response.rows[0].image_url })
+    } catch (dbError) {
+      // the case row was never created, so an uploaded image would be orphaned — clean it up
+      if (uploadedPublicId) {
+        try {
+          await deleteCaseImage(uploadedPublicId)
+        } catch (cleanupError) {
+          console.log('Cleanup failed for orphaned Cloudinary asset:', uploadedPublicId, cleanupError.message)
+        }
+      }
+      throw dbError
+    }
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -85,7 +112,7 @@ const withdrawCase = async (req, res) => {
     res.status(204)
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -96,7 +123,6 @@ const getCase = async (req, res) => {
     const response = await pool.query(`
       SELECT
         cases.*,
-        (down_votes + up_votes) AS total_votes,
         users.username,
         users.image_url AS user_image_url,
         ach.name AS flair_name
@@ -114,7 +140,7 @@ const getCase = async (req, res) => {
     res.json(response.rows[0])
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -130,7 +156,7 @@ const voteCase = async (req, res) => {
     const { status, message, data } = updateReaction(params)
     res.status(status).json(data || message)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -140,15 +166,16 @@ const voteCountCase = async (req, res) => {
     const { id } = req.params
     res.json({ upvotes: 0, downvotes: 0 })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
 const getCaseEvidence = async (req, res) => {
-  // Get all evidence for case (?limit=20&offset=0&sort=oldest|newest|most-voted)
+  // Get all evidence for case (?limit=20&page=1&sort=oldest|newest|most-voted)
+  console.log('getCaseEvidence')
   try {
     const { id } = req.params
-    const { filterBy, sortBy, limit, page } = req.query
+    const { sortBy, limit, page } = req.query
     const offset = (page-1) * limit;
 
     // calcualate last page
@@ -159,12 +186,11 @@ const getCaseEvidence = async (req, res) => {
       `, [id])
     const count = Number(count_response.rows[0].count)
     const last_page = Math.ceil(count / limit)
-
+    
     // entries
     const response = await pool.query(`
       SELECT
         evidence.*,
-        (down_votes + up_votes) AS total_votes,
         users.username,
         users.image_url AS user_image_url,
         ach.name AS flair_name
@@ -173,29 +199,122 @@ const getCaseEvidence = async (req, res) => {
         ON evidence.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE case_id = $1 AND ${CASE_FILTER_MODES[filterBy]}
-      ORDER BY ${CASE_SORT_MODES[sortBy]}
+      WHERE case_id = $1
+      ORDER BY ${EV_ARG_SORT_MODES[sortBy]}
       LIMIT $2
       OFFSET $3
       `, [id, limit, offset])
+
+    const entries = response.rows
 
     res.status(200).json({
       last_page,
       entries
     })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
 const getCaseArguments = async (req, res) => {
-  // Get all arguments for case (?limit=20&offset=0&sort=oldest|newest|most-voted)
+  // Get all arguments for case (?limit=20&page=1&sort=all|prosecution|defense)
   try {
     const { id } = req.params
-    const { limit, offset, sort } = req.query
-    res.json({ /* arguments list */ })
+    const { sortBy, filterBy, limit, page } = req.query
+    const offset = (page-1) * limit;
+
+    // calcualate last page
+    const count_response = await pool.query(`
+      SELECT COUNT(*)
+      FROM arguments
+      WHERE case_id = $1
+      `, [id])
+    const count = Number(count_response.rows[0].count)
+    const last_page = Math.ceil(count / limit)
+
+    const response = await pool.query(`
+      SELECT
+        arguments.*,
+        users.username,
+        users.image_url AS user_image_url,
+        ach.name AS flair_name
+      FROM arguments
+      JOIN users
+        ON arguments.user_id = users.user_id
+      LEFT JOIN achievements AS ach
+        ON users.flair = ach.achievement_id
+      WHERE case_id = $1 AND ${ARGUMENT_FILTER_MODES[filterBy]}
+      ORDER BY ${EV_ARG_SORT_MODES[sortBy]}
+      LIMIT $2
+      OFFSET $3
+    `, [id, limit, offset])
+
+    let entries = response.rows
+    const argIds = entries.map(e => e.arg_id);
+
+    // add evidence citations to arguments
+    const evResponse = await pool.query(`
+      SELECT
+          aef.arg_id,
+          COALESCE(
+              json_agg(
+                  json_build_object(
+                      'evidence_num', ev.evidence_num,
+                      'text', ev.text
+                  )
+                  ORDER BY ev.evidence_num
+              ),
+              '[]'::json
+          ) AS ev_citations
+      FROM argument_evidence_refs AS aef
+      JOIN evidence AS ev
+          ON aef.evidence_id = ev.evidence_id
+      WHERE aef.arg_id = ANY($1)
+      GROUP BY aef.arg_id
+    `, [any])
+    const evidenceMap = new Map(
+      evResponse.rows.map(row => [row.arg_id, row.ev_citations])
+    );
+
+    for (const entry of entries) {
+      entry.evidence_citations = evidenceMap.get(entry.arg_id) ?? [];
+    }
+
+    // add case citations to arguments
+    const caseResponse = await pool.query(`
+      SELECT
+        acr.arg_id,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'case_id', c.case_id,
+              'judge_ruling', c.judge_ruling
+            )
+            ORDER BY c.case_id
+          ),
+          '[]'::json
+        ) AS case_citations
+      FROM argument_case_refs AS acr
+      JOIN cases AS c
+        ON acr.refd_case_id = c.case_id
+      WHERE acr.arg_id = ANY($1)
+      GROUP BY acr.arg_id
+    `, [argIds]);
+
+    const caseMap = new Map(
+      caseResponse.rows.map(row => [row.arg_id, row.case_citations])
+    );
+
+    for (const entry of entries) {
+      entry.case_citations = caseMap.get(entry.arg_id) ?? [];
+    }
+
+    res.status(200).json({
+      last_page,
+      entries
+    })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -205,7 +324,7 @@ const getJurySummary = async (req, res) => {
     const { id } = req.params
     res.json({ /* jury summary */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -216,7 +335,7 @@ const submitRuling = async (req, res) => {
     const { ruling } = req.body
     res.json({ /* ruling data */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -238,7 +357,7 @@ const changePhase = async (req, res) => {
     // Update case phase (for rollback or manual advance, only presiding judge can do)
     res.json({ /* updated case */ })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 

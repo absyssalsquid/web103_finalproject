@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 import { useAuthContext } from '/src/contexts/auth'
 
 import "./UserCard.css"
@@ -22,7 +24,7 @@ function UserCard({profileData}){
                 <div className='bio'>{profileData.bio}</div>
                 <div className='joined'>Member since {(new Date(profileData.created_at)).toLocaleDateString()}</div>
 
-                { isAuthenticated && user.user_id === profileData.user_id && (<button className='edit-profile'>edit</button>)}
+                { isAuthenticated && user.user_id === profileData.user_id && (<Link to={'/profile/edit'} className='edit-profile'>edit</Link>)}
             </div>
         </div>
     )

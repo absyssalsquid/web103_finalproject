@@ -33,14 +33,14 @@ function VotingArrows({data, arrowVals, voteFn, currPhase}){
         <div className={"VotingArrows" + (votingActive ? ' active' : '')}>
             <div className='pair'>
                 <div className={'tooltip arrow up' + (voteState.UP ? ' selected' : '')} onClick={() => handleClick('UP')}>
-                    {arrowVals.up}
+                    {'▲'}
                     <span className='tooltiptext'>{arrowVals.up_tooltip}</span>
                 </div>
                 <div className="count">{data.up_votes}</div>
             </div>
             <div className='pair'>
                 <div className={'tooltip arrow down' + (voteState.DOWN ? ' selected' : '')} onClick={() => handleClick('DOWN')}>
-                    {arrowVals.down}
+                    {'▼'}
                     <span className='tooltiptext'>{arrowVals.down_tooltip}</span>
                     
                 </div>

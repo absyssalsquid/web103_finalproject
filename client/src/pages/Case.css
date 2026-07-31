@@ -44,7 +44,7 @@
 }
 
 .Case .UserTag:hover img.user-icon {
-    outline: 10px solid var(--accent-bg);
+    /* outline: 10px solid var(--accent-bg); */
     scale: 1.2;
 }
 

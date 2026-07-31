@@ -38,9 +38,7 @@ function ArgumentCard({data, isActivePhase}){
                 <VotingArrows 
                     data={data}
                     arrowVals={{
-                        up: '👍', 
                         up_tooltip: 'sound',
-                        down: '👎',
                         down_tooltip: 'fallacious'
                     }}
                     voteFn={voteArgument}

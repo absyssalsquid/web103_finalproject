@@ -5,11 +5,36 @@ import {newToken, TOKEN_COOKIE_OPTIONS} from '../utils/jwt.js'
 
 
 const updateUser = async (req, res) => {
+  const { user_id } = req.token_payload.user
+  const { bio, flair } = req.body
+
+  // TODO: image uploads — req.file holds the new avatar once storage is wired up
+
   try {
-    // Update current user profile
-    res.json({ /* updated user data */ })
+    // a user may only flair an achievement they've actually earned
+    if (flair != null) {
+      const owned = await pool.query(`
+        SELECT 1 FROM user_achievements
+        WHERE user_id = $1 AND achievement_id = $2 AND earned_at IS NOT NULL`,
+        [user_id, flair])
+
+      if (owned.rows.length === 0)
+        return res.status(400).json({ error: 'You have not earned that achievement.' })
+    }
+
+    const response = await pool.query(`
+      UPDATE users
+      SET bio = $1, flair = $2
+      WHERE user_id = $3
+      RETURNING user_id, username, image_url, bio, flair, created_at`,
+      [bio, flair, user_id])
+    if (response.rows.length === 0)
+      return res.status(404).json({ error: 'user not found!' })
+
+    res.status(200).json(response.rows[0])
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
@@ -49,7 +74,7 @@ const getUserActivity = async (req, res) => {
 
 const getUserLikes = async (req, res) => {
   try {
-    // Get user's votes (?limit=20&offset=0)
+    // Get user's votes (?limit=20&page=1)
     res.json({ /* likes data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -65,7 +90,7 @@ const getUserJuryAssignments = async (req, res) => {
   // console.log(`page: ${page}, limit: ${limit}, offset: ${offset}`)
 
   try {
-    // Get user's jury assignments (?limit=20&offset=0)
+    // Get user's jury assignments (?limit=20&page=1)
 
     const count_response = await pool.query(`
       SELECT COUNT(*) FROM jury_assignments
@@ -89,8 +114,8 @@ const getUserJuryAssignments = async (req, res) => {
       entries: response.rows 
     })
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ error: error.message })
+    console.log(error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 

@@ -22,7 +22,7 @@ const CARD_TITLES = {
 
 const LINKS = {
     cases: (<Link to='/new-case'> start a case </Link>),
-    jury_assignments: (<Link to='/jury-duty'> serve on a jury </Link>),
+    jury_assignments: (<Link to='/jury/serve'> serve on a jury </Link>),
 }
 
 const Dashboard = () => {
@@ -69,7 +69,7 @@ const Dashboard = () => {
     if (!isAuthenticated){
         return (
             <div className='main-content minimal'>
-                <h2><Link to="/sign-in">Sign in</Link> to view your dashboard</h2>
+                <h1><Link to="/sign-in">Sign in</Link> to view your dashboard</h1>
             </div>
         )
     }

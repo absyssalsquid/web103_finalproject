@@ -21,7 +21,7 @@ function JuryDuty(){
         vote: null,
         persuasive_args: []
     })
-    const [vote, setVote] = useState(null)
+    const [vote, setVote] = useState({vote: null, args: []})
     const [alertMsg, setAlertMsg] = useState('')
     // fetch info about jury assignment
     // ensure the user currently logged in matches the user assigned 

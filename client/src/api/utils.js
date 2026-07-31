@@ -13,6 +13,18 @@ export const CRED_GET_OPTS = {
   }
 }
 
+export function defaultPostOpts(params){
+  return {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  }
+}
+
+
 export function sampleResponse(ret_val){
   return {
       ok: true,

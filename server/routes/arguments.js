@@ -1,10 +1,11 @@
 import express from 'express'
 import controller from '../controllers/arguments.js'
-import { validateJWT } from '../utils/jwt.js'
+import { validateJWT } from '../middleware/jwt.js'
+import { validateArgumentSubmission } from '../middleware/submissionValidation.js'
 
 const router = express.Router()
 
-router.post('/', validateJWT, controller.createArgument)  // body: { caseId, content, ... }
+router.post('/', validateJWT, validateArgumentSubmission, controller.createArgument)  // body: { caseId, content, ... }
 router.get('/:id', controller.getArgument)
 router.delete('/:id', validateJWT, controller.deleteArgument) // Users CANNOT delete once argument phase has passed
 

@@ -1,16 +1,67 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom';
+
 import EvidenceCard from "../cards/EvidenceCard";
 import Pagination from '../Pagination';
-import { fetchCaseEvidence } from "/src/api/cases"
+import ProgressBar from '/src/components/ProgressBar'
+import UserTag from '../UserTag';
+import SearchBar from '../SearchBar';
+
+import { getUsage } from '/src/api/me'
+import { getUserLimits, getLengthLimits } from '/src/api/rules'
+import { fetchCaseEvidence, submitEvidence } from "/src/api/cases"
 
 import "./CaseEvidence.css"
 
+import { useAuthContext } from '/src/contexts/auth'
+
+const EV_ARG_SORT_MODES = [ 
+    { value: 'newest', label: 'newest' }, 
+    { value: 'oldest', label: 'oldest' }, 
+    { value: 'best', label: 'best' }, 
+    { value: 'worst', label: 'worst' }, 
+]
 
 const CaseEvidence = ({phaseDelta, history, setHistory}) => {
+    const {id: case_id} = useParams()
+    const { user, isAuthenticated} = useAuthContext()
+    const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(true);
+
+    const [formActive, setFormActive] = useState(false)
+    const [evidenceSubmission, setEvidenceSubmission] = useState({case_id: case_id, text: ''})
+    const [alertMsg, setAlertMsg] = useState('')
+
+    const [userLimits, setUserLimits] = useState({})
+    const [lengthLimits, setLengthLimits] = useState({})
+    const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
+
+    useEffect(() => {
+        async function fetchData(){
+
+            const res = await Promise.all([
+                getUserLimits(),
+                getLengthLimits(),
+                getUsage()
+            ])
+
+            const data = await Promise.all(
+                res.map((item) => item.json()))
+
+            setUserLimits(data[0])
+            setLengthLimits(data[1])
+            setUsage(data[2])
+
+            setLoading(false)
+        }
+        fetchData();
+    }, [case_id]);
 
     useEffect(()=>{
         (async ()=>{
-            const res = await fetchCaseEvidence({page: history.page, limit: history.limit} )
+            setLoading(true)
+            const res = await fetchCaseEvidence(case_id, {page: history.page, limit: history.limit, sortBy: history.sortBy} )
             const data = await res.json()
             if (res.ok){
                 setHistory((prev)=>({
@@ -18,12 +69,37 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                     last_page: data.last_page,
                     entries: data.entries
                 }))
+                console.log(data)
             }
             else {
                 console.log(data.error)
             }
+            setLoading(false)
         })()
-    }, [history.page, history.limit, setHistory])
+    }, [history.page, history.limit, history.sortBy, setHistory, case_id])
+
+    function handleChange(e){
+        if (alertMsg) setAlertMsg('')
+        setEvidenceSubmission((prev) => ({...prev, text: e.target.value}))
+    }
+
+    async function handleSubmit(e){
+        e.preventDefault()
+        const res = await submitEvidence(evidenceSubmission)
+        const data = await res.json()
+        if (res.ok){
+            setAlertMsg("Evidence sucessfully submitted.")
+            setTimeout(() => navigate(0), 1500);
+        }
+        else {
+            setAlertMsg(data.error)
+        }
+    }
+
+    async function handleCancel(e){
+        e.preventDefault()
+        setFormActive(false)
+    }
 
     if (phaseDelta > 0)
         return (
@@ -32,11 +108,26 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
             </div>
         )
 
+    if (loading)
+        return (
+            <div className="sub-content">
+                <div className='minimal'>Loading evidence...</div>
+            </div>
+        )
+
     const isActivePhase = phaseDelta == 0;
 
     return (
         <div className="CaseEvidence sub-content">
             <div className="evidence-container">
+            <SearchBar
+                state={history}
+                setState={setHistory}
+                searchPlaceholder="Search evidence..."
+                filterOptions={null}
+                sortOptions={EV_ARG_SORT_MODES}
+            />
+
                 {history.entries.length === 0 
                     ? <div className="minimal">No evidence submitted{isActivePhase && ' yet'}.</div> 
                     : history.entries.map((item) => 
@@ -46,6 +137,55 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                       )}
             </div>
             <Pagination history={history} setHistory={setHistory}/>
+
+            <button 
+              className={`submit-evidence ${(formActive || phaseDelta!=0)?'hidden':''}`} 
+              disabled={phaseDelta!=0}
+              onClick={()=>{setFormActive(true)}}>
+                + submit evidence
+            </button>
+            
+
+            {/* ------------------------- submission form  ------------------------- */}
+
+            <form className={`pullup-panel ${(!formActive || phaseDelta!=0) ?'hidden':''}`}>
+                <button className='close' onClick={handleCancel}>✖</button>
+
+                <div className='title'>Submit evidence</div>
+                    
+                <div className='head-row'>
+                    {isAuthenticated && (<UserTag 
+                        username={user.username} 
+                        flair={user.flair_name} 
+                        image_url={user.image_url}
+                        linkDisabled={true}/>)}
+                    <div className='flex-grow'></div>
+                    <button type='submit' onClick={handleSubmit}>submit</button>
+                </div>
+
+                <textarea
+                    className='evidence'
+                    name="evidence"
+                    type="text"
+                    value={evidenceSubmission.text}
+                    maxLength={lengthLimits.evidence_max}
+                    onChange={handleChange}
+                    placeholder="what did you see..."
+                    rows={4}
+                    required
+                />
+                <small className="char-limit">{evidenceSubmission.text.length}/{lengthLimits.evidence_max}</small>
+                    
+                <ProgressBar
+                    label="Daily evidence submissions"
+                    value={usage.evidence}
+                    limit={userLimits.evidence}
+                    limit_message={"You've reached your daily evidence submission limit."}
+                />
+
+                {alertMsg && <div className='error-msg'>{alertMsg}</div>}
+
+            </form>
         </div>
     )
 }

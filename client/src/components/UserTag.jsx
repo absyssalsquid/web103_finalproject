@@ -1,11 +1,15 @@
 import './UserTag.css'
 
-function UserTag({user_id, username, flair, image_url, isReversed=false}) {
+function UserTag({user_id, username, flair, image_url, isReversed=false, linkDisabled=false}) {
     return (
         <div className={`UserTag ${!isReversed||'reversed'}`}>
             <img className='user-icon' src={image_url}/>
             <div className='text'>
-                <a href={`/users/${user_id}`} className='name'>{username}</a>
+                { linkDisabled
+                    ? (<div className='name'>{username}</div>)
+                    : (<a href={`/users/${user_id}`} className='name'>{username}</a>)
+                }
+                
                 <div className='flair'>{flair}</div>
             </div>
         </div>

@@ -228,6 +228,15 @@ select option {
   font-size: inherit;
 }
 
+
+/* character counter */
+small.char-limit {
+    align-self: flex-end;
+    width: auto;
+    font-size: 0.8rem;
+    color: var(--text);
+}
+
 /* -------------------------- summary stats -------------------------- */
 .summary-stat-container {
     display: grid;
