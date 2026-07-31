@@ -54,11 +54,13 @@ function JuryDuty(){
 
     return (
         <div className="JuryDuty main-content">
-            <form>
-                <h2>Do you want to serve on a jury?</h2>
-                <p>You have {userLimits.jury_assignments - usage.jury_assignments} jury summons remaining. Today's jury summons expire in <Countdown date={new Date(refreshTime)}/></p>
-                <button type="submit" className="primary" onClick={handleNew}>Respond to jury summons</button>
-            </form>
+            <div className="card">
+                <form onSubmit={handleNew}>
+                    <h2>Do you want to serve on a jury?</h2>
+                    <p>You have {userLimits.jury_assignments - usage.jury_assignments} jury summons remaining. Today's jury summons expire in <Countdown date={new Date(refreshTime)}/></p>
+                    <button type="submit" className="primary" >Respond to jury summons</button>
+                </form>
+            </div>
             {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )

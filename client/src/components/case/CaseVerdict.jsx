@@ -3,7 +3,6 @@ import "./CaseVerdict.css"
 const VT_MAP = {
     'GUILTY': 'Guilty', 
     'NOT_GUILTY': 'Not Guilty',
-    'INSUFFICIENT_EVIDENCE': 'To Be Pecked At Later...',
     'TB_PECKED_AT': 'To Be Pecked At Later...',
     null: '???'
 }
@@ -24,15 +23,22 @@ const CaseVerdict = ({phaseDelta, caseData, data}) => {
         <div className="sub-content">
             <div className="minimal">
                 <h2>Jury still in session</h2>
-                <div>{data.total} jurors have voted.</div>
+                {data.total === 1
+                    ? (<div>{data.total} juror has voted</div>)
+                    : (<div>{data.total} jurors have voted</div>)
+                }
             </div>
         </div>
     )
 
+    
     // show jury votes breakdown (not showing individual juror votes) and final verdict
     return(
         <div className="CaseVerdict sub-content">
-            <div className="table-container">
+
+            {(data.total > 0) || (<div className="header">No jurors showed up for this case...</div>)}
+            
+            <div className="card">
                 <table>
                     <thead>
                         <tr>
@@ -43,15 +49,11 @@ const CaseVerdict = ({phaseDelta, caseData, data}) => {
                     <tbody>
                         <tr>
                             <td>Guilty</td>
-                            <td className="text-right">{data.breakdown['GUILTY']}</td>
+                            <td className="text-right">{data.breakdown.GUILTY}</td>
                         </tr>
                         <tr>
                             <td>Not Guilty</td>
-                            <td className="text-right">{data.breakdown['NOT_GUILTY']}</td>
-                        </tr>
-                        <tr>
-                            <td>Insufficient Evidence</td>
-                            <td className="text-right">{data.breakdown['INSUFFICIENT_EVIDENCE']}</td>
+                            <td className="text-right">{data.breakdown.NOT_GUILTY}</td>
                         </tr>
                         <tr className='summary'>
                             <td>Total</td>
@@ -60,6 +62,7 @@ const CaseVerdict = ({phaseDelta, caseData, data}) => {
                     </tbody>
                 </table>
             </div>
+
             <div className="conclusion">
                 <div>Verdict</div>
                 <div className="verdict">{VT_MAP[caseData.verdict]}</div>

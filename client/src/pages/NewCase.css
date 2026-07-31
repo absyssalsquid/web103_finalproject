@@ -167,7 +167,7 @@
 }
 
 .NewCase .form-actions button[type="submit"] {
-    border-color: var(--accent-border);
+    border-color: var(--accent);
 }
 
 .NewCase .form-actions button:not(:disabled):hover {

@@ -54,7 +54,6 @@ const Dashboard = () => {
             setRefreshTime(new Date(data[0]))
             setUserLimits(data[1])
             setUsage(data[2])
-            console.log(data)
         }
         fetchData();
     }, []);

@@ -10,6 +10,7 @@ const SignIn = () =>{
     const { isAuthenticated, login} = useAuthContext()
 
     const [signInParams, setSignInParams] = useState({username: '', password: ''})
+    const [lengthLimits, setLengthLimits] = useState({})
     const [alertMsg, setAlertMsg] = useState('')
 
     useEffect(()=>{
@@ -53,11 +54,13 @@ const SignIn = () =>{
                 <p>or <Link to={"/register"}>register</Link> for an account</p>
             </div>
             
-            <form className='form'>
+            <form onSubmit={handleSignIn}>
                 <input
                     name='username'
                     placeholder='username'
                     onChange={handleChange}
+                    minLength={lengthLimits.username_min}
+                    maxLength={lengthLimits.username_max}
                 />
 
                 <input
@@ -65,9 +68,10 @@ const SignIn = () =>{
                     type="password"
                     placeholder='password'
                     onChange={handleChange}
+                    minLength={lengthLimits.password_min}
                 />
                 <div className='form-actions'>
-                    <button className='primary' onClick={handleSignIn}>Sign in</button>
+                    <button className='primary' type="submit">Sign in</button>
                 </div>
             </form>
 

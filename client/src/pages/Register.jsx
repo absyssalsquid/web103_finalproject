@@ -48,7 +48,7 @@ const SignIn = () =>{
                 <p>or <Link to={"/register"}>sign in</Link></p>
             </div>
 
-            <form className='form'>
+            <form onSubmit={handleRegister} className='form'>
                 <input
                     name='email'
                     placeholder='email'
@@ -74,7 +74,7 @@ const SignIn = () =>{
                     onChange={handleChange}
                 />
                 <div className='form-actions'>
-                    <button className='primary' onClick={handleRegister}>Register</button>
+                    <button className='primary'>Register</button>
                 </div>
             </form>
 

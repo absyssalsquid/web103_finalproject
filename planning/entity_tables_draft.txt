@@ -3,7 +3,7 @@ submission_type         CASE, EVIDENCE, ARGUMENT
 submission_rxn          UP, DOWN
 
 case_phase              PROVISIONAL, DISCOVERY, ARGUMENT, JURY_DELIBERATION, RULING, CLOSED
-juror_vote              GUILTY, NOT_GUILTY, INSUFFICIENT_EVIDENCE
+juror_vote              GUILTY, NOT_GUILTY
 verdict                 GUILTY, NOT_GUILTY, TB_PECKED_AT
 argument_tag            PROSECUTION, DEFENSE
 xp_event_reason         SUBMISSION, JURY_VOTE, CASE_ADVANCED_TO_TRIAL, SUBMISSION_VOTE, SUBMISSION_CITED
@@ -101,7 +101,7 @@ jury_assignments
 id                  PK
 case_id             FK -> cases
 user_id             FK -> users
-vote                ENUM                -- GUILTY, NOT_GUILTY, INSUFFICIENT_EVIDENCE
+vote                ENUM                -- GUILTY, NOT_GUILTY
 created_at          TIMESTAMPTZ         -- submission time
 completed_at        TIMESTAMPTZ         -- submission time
 UNIQUE(case_id, user_id)

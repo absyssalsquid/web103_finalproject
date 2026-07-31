@@ -148,7 +148,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
             {/* ------------------------- submission form  ------------------------- */}
 
-            <form className={`pullup-panel ${(!formActive || phaseDelta!=0) ?'hidden':''}`}>
+            <form onSubmit={handleSubmit} className={`pullup-panel ${(!formActive || phaseDelta!=0) ?'hidden':''}`}>
                 <button className='close' onClick={handleCancel}>✖</button>
 
                 <div className='title'>Submit evidence</div>
@@ -160,7 +160,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                         image_url={user.image_url}
                         linkDisabled={true}/>)}
                     <div className='flex-grow'></div>
-                    <button type='submit' onClick={handleSubmit}>submit</button>
+                    <button type='submit'>submit</button>
                 </div>
 
                 <textarea
@@ -168,6 +168,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                     name="evidence"
                     type="text"
                     value={evidenceSubmission.text}
+                    minLength={lengthLimits.evidence_min}
                     maxLength={lengthLimits.evidence_max}
                     onChange={handleChange}
                     placeholder="what did you see..."

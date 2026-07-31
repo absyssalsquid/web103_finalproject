@@ -1,9 +1,11 @@
 import { pool } from '../config/database.js'
 import { updateReaction } from '../utils/reactionService.js'
 import { DateTime } from "luxon";
-import { uploadCaseImage, deleteCaseImage } from '../utils/imageUpload.js'
 
+import { uploadCaseImage, deleteCaseImage } from '../utils/imageUpload.js'
+import { phaseDelta } from '../utils/phaseMath.js'
 import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_MODES } from '../config/queryOptions.js'
+
 
 const getCases = async (req, res) => {
   let { filterBy, sortBy, limit, page } = req.query
@@ -172,7 +174,7 @@ const voteCountCase = async (req, res) => {
 
 const getCaseEvidence = async (req, res) => {
   // Get all evidence for case (?limit=20&page=1&sort=oldest|newest|most-voted)
-  console.log('getCaseEvidence')
+  // console.log('getCaseEvidence')
   try {
     const { id } = req.params
     const { sortBy, limit, page } = req.query
@@ -319,11 +321,58 @@ const getCaseArguments = async (req, res) => {
 }
 
 const getJurySummary = async (req, res) => {
+  const { id } = req.params
   // Get jury summary (count during phase, breakdown after phase ends)
   try {
-    const { id } = req.params
-    res.json({ /* jury summary */ })
+    const phase_response = await pool.query(`
+      SELECT phase
+      FROM cases
+      WHERE case_id = $1
+    `, [id])
+
+    if (phase_response.rows.length === 0)
+      return res.status(404).json({ error: 'Case not found.' })
+
+    const {phase} = phase_response.rows[0]
+    const phDelta = phaseDelta(phase, 'JURY_DELIBERATION')
+    if (phDelta > 0)
+      return res.status(400).json({ error: 'Jury deliberation has not begun yet.' })
+
+    const summary_response = await pool.query(`
+      SELECT vote, COUNT(*)
+      FROM jury_assignments
+      WHERE case_id = $1
+        AND vote IS NOT NULL
+      GROUP BY vote
+    `, [id])
+
+    const breakdown = {};
+    for (const row of summary_response.rows) {
+      breakdown[row.vote] = Number(row.count);
+    }
+    const total = Object.values(breakdown).reduce((acc, x) => acc + x, 0);
+    const ret = { total };
+
+    // if phase has passed, return breakdown and verdict
+    if (phDelta < 0) {
+      breakdown.GUILTY ??= 0;
+      breakdown.NOT_GUILTY ??= 0;
+
+      let verdict = null;
+      if (breakdown.GUILTY > breakdown.NOT_GUILTY)
+        verdict = 'GUILTY';
+      else if (breakdown.GUILTY < breakdown.NOT_GUILTY)
+        verdict = 'NOT_GUILTY';
+      else
+        verdict = 'TB_PECKED_AT';
+
+      ret.verdict = verdict;
+      ret.breakdown = breakdown;
+    }
+
+    res.status(200).json(ret);
   } catch (error) {
+    console.log("getJurySummary", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }

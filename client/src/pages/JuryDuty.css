@@ -3,13 +3,10 @@
     margin: 1rem auto;
 }
 
-.JuryDuty form {
-    /* display: flex;
-    flex-direction: column;
-    align-items: center; */
+.JuryDuty .card {
     gap: 0.35rem;
     padding: 1.5rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     background: var(--card-bg);
     box-shadow: var(--shadow);
@@ -30,7 +27,7 @@
 }
 
 @media (max-width: 400px) {
-    .JuryDuty form {
+    .JuryDuty .card {
         padding: 1.5rem 1rem;
     }
 
@@ -46,7 +43,6 @@
     margin-top: 1rem;
 }
 
-
 /* ----------- VOTE FORM ----------- */
 .JuryDuty .case-num {
     font-size: 1.6rem;
@@ -57,19 +53,30 @@
     }
 }
 
-.JuryDuty .options{
+.JuryDuty .options-container{
     display: grid;
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: 0.5rem;
+    padding: 1rem 0;
     
     width: 100%;
-    aspect-ratio: 5/3.5;
+    aspect-ratio: 5/2;
+
+        --guilty: #A85353;
+    --not-guilty: #5B8C6F;
+
+        --guilty: #E63946;
+    --not-guilty: #06A77D;
+
+        /* --guilty: #FF6B6B;
+    --not-guilty: #51CF66; */
 }
 
 .JuryDuty .option{
     text-align: center;
     color: var(--text-h);
     border-radius: 12px;
+    border: 1px solid var(--border);
     font-size: 1.4rem;
     line-height: 1.3;
     font-weight: 800;
@@ -77,11 +84,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     cursor: pointer;
     position: relative;
 }
-.JuryDuty .option:hover{transform: scaleX(1.05); }
 
 /* visually hide the native radio, keep it focusable */
 .JuryDuty .option input {
@@ -93,33 +99,38 @@
     pointer-events: none;
 }
 
-.JuryDuty .option       .option-text {transition: all 0.1s ease;}
-.JuryDuty .option:hover .option-text {transform: scale(1.15); transition: all 0.2s ease;}
+.JuryDuty .option        .option-text {transition: all 0.1s ease;}
 .JuryDuty .option:active .option-text{transform: scale(1.1);}
 
+.JuryDuty .option:hover,
+.JuryDuty .option:has(input:focus-visible){transform: scaleX(1.05); }
+
+.JuryDuty .option:hover                     .option-text,
+.JuryDuty .option:has(input:focus-visible) .option-text{transform: scale(1.15); transition: all 0.2s ease;}
+
 /* selected / keyboard-focused state */
-.JuryDuty .option:has(input:checked) {
-    outline: 4px solid var(--text-h);
-    outline-offset: 2px;
-}
 .JuryDuty .option:has(input:focus-visible) {
-    outline: 4px solid var(--text-h);
-    outline-offset: 2px;
-}
-/* dim the options that aren't selected once a choice is made */
-.JuryDuty .options:has(input:checked) .option:not(:has(input:checked)) {
-    opacity: 0.55;
+    outline: 3px solid var(--text-h);
+    outline-offset: 0px;
 }
 
-.JuryDuty .option.guilty{background-color: #A85353;}
-.JuryDuty .option.not-guilty{background-color: #5B8C6F;}
-.JuryDuty .option.insuff-ev{background-color: #9B8B7E;}
 
+.JuryDuty .option:has(input:checked).guilty     {background-color: var(--guilty);    border-color: var(--guilty);     }
+.JuryDuty .option:has(input:checked).not-guilty {background-color: var(--not-guilty); border-color: var(--not-guilty);}
 
-.JuryDuty .option.guilty{background-color: #E63946;}
-.JuryDuty .option.not-guilty{background-color: #06A77D;}
-.JuryDuty .option.insuff-ev{background-color: #e2a472;}
+/* actions */
+.JuryDuty .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
 
-.JuryDuty .option.guilty{background-color: #FF6B6B;}
-.JuryDuty .option.not-guilty{background-color: #51CF66;}
-.JuryDuty .option.insuff-ev{background-color: #A6ADBA;}
+.JuryDuty .form-actions button[type="submit"] {
+    border-color: var(--accent);
+}
+
+.JuryDuty .form-actions button:not(:disabled):hover {
+    color: var(--text-on-accent);
+    background: var(--accent);
+    border-color: var(--accent);
+}

@@ -2,29 +2,23 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
-import { voteJury} from "/src/api/cases.js"
-import { getJuryAssignmentDetails } from "/src/api/jury.js"
+import { getJuryAssignmentDetails, voteJury } from "/src/api/jury.js"
 
 import "./JuryDuty.css"
 
 const VOTE_OPTIONS = [
-    { value: 'GUILTY',                className: 'guilty',     label: 'Guilty' },
-    { value: 'NOT_GUILTY',            className: 'not-guilty', label: 'Not Guilty' },
-    { value: 'INSUFFICIENT_EVIDENCE', className: 'insuff-ev',  label: <>Insufficient<br/>Evidence</> },
+    { value: 'GUILTY',      className: 'guilty',     label: 'Guilty' },
+    { value: 'NOT_GUILTY',  className: 'not-guilty', label: 'Not Guilty' },
 ]
 
 function JuryDuty(){
     const nav = useNavigate();
     const {id} = useParams();
-    const [assignmentDetails, setAssignmentDetails] = useState({
-        case_id: null,
-        vote: null,
-        persuasive_args: []
-    })
-    const [vote, setVote] = useState({vote: null, args: []})
+
+    const [loading, setLoading] = useState(true);
     const [alertMsg, setAlertMsg] = useState('')
-    // fetch info about jury assignment
-    // ensure the user currently logged in matches the user assigned 
+
+    const [assignmentDetails, setAssignmentDetails] = useState({ case_id: null, vote: null, fav_args: [] })
 
     useEffect(()=>{
         async function init(){
@@ -38,59 +32,98 @@ function JuryDuty(){
                     setAlertMsg(data.error);
                 }
             }
+            setLoading(false)
         }
         init()
     },[id])
 
-    async function handleVoteChange(e) {
-        const newVote = e.target.value
-        setVote(newVote)
-        // TODO: persist the vote to the backend for this jury assignment
-        console.log('vote changed', newVote)
-        voteJury(id, newVote)
+
+    async function handleSubmit (e) {
+        e.preventDefault();
+        const req_body = {...assignmentDetails}
+        delete req_body.case_id
+
+        const res = await voteJury(id, assignmentDetails)
+        const data = await res.json()
+        if (res.ok){
+            setAlertMsg('Ballot received successfully.')
+            setTimeout(() => nav("/dashboard/jury-assignments"), 1000)
+        }
+        else{
+            setAlertMsg(data.error)
+        }
+    }
+
+    function handleChange(e){
+        if (alertMsg) setAlertMsg('')
+        const currVote = e.target.value
+        setAssignmentDetails((prev)=>({
+            ...prev, 
+            vote: currVote === prev.vote ? null : currVote
+        }))
+    }
+
+    const handleCancel = (e) => {
+        e.preventDefault();
         nav("/dashboard/jury-assignments")
     }
 
-    let inner_content = null;
-
-    if (!assignmentDetails.case_id){
-        inner_content = (
-            <div>Nice try, but this is not your jury assignment</div>
+    if (loading){
+        return (
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1>Loading ballot...</h1>
+                </div>
+            </div>
         )
     }
 
-    else {
-        inner_content = (
-            <>
-                <p>You have been assigned to</p>
-                <div className="case-num"><Link to={`/cases/${assignmentDetails.case_id}`}>Case #{assignmentDetails.case_id}</Link></div>
-                <p>Please review the case before making your decision.</p>
-
-                <div className="options">
-                    {VOTE_OPTIONS.map((opt) => (
-                        <label key={opt.value} className={`option ${opt.className}`}>
-                            <input
-                                type="radio"
-                                name="vote"
-                                value={opt.value}
-                                checked={vote === opt.value}
-                                onChange={handleVoteChange}
-                            />
-                            <span className="option-text">{opt.label}</span>
-                        </label>
-                    ))}
+    if (!assignmentDetails.case_id){
+        return (
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1>You are not part of this jury pool.</h1>
                 </div>
-
-                <p className="dim">You do not have to complete this form at this time. You can return to this page at any time to cast or change your vote, as long as the jury is still in session.</p>
-            </>
+            </div>
         )
     }
 
     return (
         <div className="JuryDuty main-content">
-            <form>
-                {inner_content}
-            </form>
+            <div className="card">
+                <p>You have been assigned to</p>
+                <div className="case-num"><Link to={`/cases/${assignmentDetails.case_id}`}>Case #{assignmentDetails.case_id}</Link></div>
+                <p>Please review the case before making your decision.</p>
+
+                <form onSubmit={handleSubmit}>
+                    <div className="options-container">
+                        {VOTE_OPTIONS.map((opt) => (
+                            <label key={opt.value} className={`option ${opt.className}`}>
+                                <input
+                                    type="radio"
+                                    name="vote"
+                                    value={opt.value}
+                                    checked={assignmentDetails.vote === opt.value}
+                                    onClick={handleChange}
+                                    onChange={(e)=>(e)}
+                                />
+                                <span className="option-text">{opt.label}</span>
+                            </label>
+                        ))}
+                    </div>
+
+                    <div className="form-actions">
+                        <button type="submit" >
+                            Save
+                        </button>
+                        <button type="button" onClick={handleCancel}>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+
+                <p className="dim">You do not have to complete your ballot at this time. You can return to this page at any time to cast or change your vote, as long as the jury is still in session.</p>
+            </div>
             {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )

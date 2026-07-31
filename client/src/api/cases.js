@@ -51,22 +51,11 @@ export async function fetchCaseArguments(params){
 }
 
 export async function fetchJurySummary(case_id){
-  return {
-    ok: true,
-    status: 200,
-    async json() {
-    return {
-        total: Object.values(SAMPLE_JURY_SUMMARY).reduce((acc, x) => acc + x, 0),
-        breakdown: SAMPLE_JURY_SUMMARY // breakdown is only returned if case is past jury phase
-    }
-    },
-  };
+  return await fetch(`/api/cases/${case_id}/jury-summary`, DEFAULT_GET_OPTS);
 }
 
 export async function voteProvisional(data){
     console.log('voted provisional' , data.post_id, data.vote)
-    // on server side
-    // ensure actually in in provisional phase
 }
 
 export async function voteEvidence(evidence_id, vote_state){
@@ -91,8 +80,3 @@ export async function submitArgument(params) {
   return await fetch(`/api/arguments`, options);
 }
 
-export async function voteJury(jury_assignment_id, vote){
-    console.log('voted jury' , jury_assignment_id, vote)
-    // on server side
-    // ensure actually in in jury phase
-}

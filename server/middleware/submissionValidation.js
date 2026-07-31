@@ -1,6 +1,7 @@
 import { pool } from '../config/database.js'
 import { DateTime } from "luxon";
 
+import {getRefreshTime} from '../utils/time.js'
 import { USAGE_LIMITS, REFRESH_TIME, LENGTH_LIMITS } from '../config/userRules.js'
 
 export const validateCreateUser = (req, res, next) => {
@@ -227,7 +228,7 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
       }
 
       const { phase, phase_end, argument_deadline_active } = response.rows[0]
-      if (INELIGIBLE_ARGUMENT_PHASES.has(phase)) {
+      if (INELIGIBLE_ARGUMENT_PHASES.has(phase) || phase_end == null) {
         return res.status(400).json({
           error: 'Case is not eligible for argument submissions.'
         });
@@ -235,11 +236,6 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
       if (phase !== 'ARGUMENT') {
         return res.status(400).json({
           error: 'Arguments can only be submitted during the argument phase.'
-        });
-      }
-      if (phase_end == null) {
-        return res.status(400).json({
-          error: 'Case is not eligible for argument submissions.'
         });
       }
       if (!argument_deadline_active) {
@@ -261,41 +257,150 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
 export const validateArgumentSubmission = createArgumentSubmissionValidator()
 
 export async function validateEvidenceSubmission(req, res, next) {
-  try{
-    const { case_id, text } = req.body
+  const { user_id } = req.token_payload.user
+  let { case_id, text } = req.body
 
+  try{
+
+    // validate case id
+    case_id = Number(case_id)
+    if (!Number.isSafeInteger(case_id))
+      return res.status(400).json({error: 'Invalid case ID.'});
+
+    if (case_id < 1)
+      return res.status(400).json({error: 'Invalid case ID.'});
+
+    if (typeof text !== 'string') 
+      return res.status(400).json({error: 'Evidence must be a string.'});
+
+    // valiate text
+    text = text.replace(/[\r\n]+/g, ' ').trim()
+    
     let min_v = LENGTH_LIMITS.evidence_min
     let max_v = LENGTH_LIMITS.evidence_max
-    if (text.length < min_v || text.length > max_v) {
-      return res.status(400).json({
-        error: `Evidence must be between ${min_v} and ${max_v} characters.`
-      });
-    }
-
+    if (text.length < min_v || text.length > max_v) 
+      return res.status(400).json({error: `Evidence must be between ${min_v} and ${max_v} characters.`});
+    
+    // validate phase
     const q_response = await pool.query(`
       SELECT phase, phase_end
       FROM cases
       WHERE case_id = $1`,
       [case_id])
 
-
-    if (q_response.rows.length != 1) {
-      return res.status(400).json({
-        error: `Case not found.`
-      });
-    }
+    if (q_response.rows.length != 1) 
+      return res.status(404).json({error: `Case not found.`});
 
     const {phase, phase_end} = q_response.rows[0]
-    if (phase != 'DISCOVERY' || DateTime.now() > new DateTime(phase_end)) {
-      return res.status(400).json({
-        error: `Evidence can only be submitted during discovery phase.`
-      });
-    }
+    if (phase != 'DISCOVERY' || DateTime.now() > new DateTime(phase_end))
+      return res.status(401).json({error: `Evidence can only be submitted during discovery phase.`});
+
+    // validate participation limits
+    const last_refresh = getRefreshTime(false)
+    const count_response = await pool.query(`
+      SELECT COUNT(*)
+      FROM evidence
+      WHERE user_id = $1
+        AND created_at > $2
+    `, [user_id, last_refresh])
+    const count = count_response.rows[0].count
+    
+    if (count > USAGE_LIMITS.evidence)
+      return res.status(401).json({error: `You have used all of your evidence submissions for today.`});
 
   } catch (error) {
-    console.log(error.message)
+    console.log("validateEvidenceSubmission", error.message)
     res.status(500).json({ error: error.message })
+  }
+
+  req.body.text = text
+
+  next();
+}
+
+export async function validateBallotSubmission(req, res, next) {
+  try{
+    const { user_id } = req.token_payload.user
+    let { assignment_id } = req.params
+    let { vote, fav_args } = req.body
+
+    // validate assignment id
+    assignment_id = Number(assignment_id)
+    if (!Number.isSafeInteger(assignment_id) || assignment_id <= 0)
+      return res.status(400).json({error: 'Invalid assignment.'});
+
+    // validate vote
+    if (!['GUILTY','NOT_GUILTY'].includes(vote))
+      return res.status(400).json({error: 'Invalid vote.'});
+
+    // validate fav args
+    for (let i = 0; i < fav_args.length; i++) {
+      const num = Number(fav_args[i])
+      if (!Number.isSafeInteger(num) || num <= 0)
+        return res.status(400).json({error: 'Selected arguments not recognized.'});
+      fav_args[i] = num
+    }
+
+    const response = await pool.query(`
+      SELECT * FROM jury_assignments
+      WHERE (id, user_id) = ($1, $2)`,
+      [assignment_id, user_id])
+
+    // validate assignment to user
+    if (response.rows.length === 0) 
+      return res.status(400).json({error: "You are not part of this jury pool."})
+    
+    // validate phase
+    const {expires_at} = response.rows[0]
+    if (DateTime.now() > new DateTime(expires_at)) 
+      return res.status(400).json({error: `Jury is no longer in session.`});
+
+    // check that fav_args exist and belong to case
+    const { case_id } = response.rows[0]
+    const arg_response = await pool.query(`
+      SELECT COUNT(*)
+      FROM arguments
+      WHERE arg_id = ANY($1) AND case_id = $2
+    `, [fav_args, case_id])
+    const count = arg_response.rows[0].count
+    if (count != fav_args.length)
+      return res.status(400).json({error: `Selected arguments do not exist, or do not belong to this case.`});
+
+  } catch (error) {
+    console.log("validateBallotSubmission", error.message)
+    return res.status(500).json({error: `Internal server error.`});
   }
 
   next();
 }
+
+
+export async function validateJurorAssignment(req, res, next) {
+  try{
+    const { user_id } = req.token_payload.user
+
+    // validate participation limits
+    const last_refresh = getRefreshTime(false)
+    const count_response = await pool.query(`
+      SELECT COUNT(*)
+      FROM jury_assignments
+      WHERE user_id = $1
+        AND created_at > $2
+    `, [user_id, last_refresh])
+    const count = count_response.rows[0].count
+    
+    if (count => USAGE_LIMITS.jury_assignments)
+      return res.status(401).json({error: `You have used all of your jury summons for today.`});
+
+  } catch (error) {
+    console.log("validateJurorAssignment", error.message)
+    return res.status(500).json({error: `Internal server error.`});
+  }
+
+  next();
+}
+
+
+
+
+    

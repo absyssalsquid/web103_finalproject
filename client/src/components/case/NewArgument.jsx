@@ -79,7 +79,7 @@ function NewArgument({ onSubmitted }){
                     <p>Make your case clearly and respectfully.</p>
                 </div>
 
-                <form className="argument-composer-form" onSubmit={submitHandler}>
+                <form onSubmit={submitHandler} className="argument-composer-form">
                     <label htmlFor="argument" className="argument-composer-label">Argument</label>
                     <textarea
                         id="argument"

@@ -6,10 +6,6 @@ const createEvidence = async (req, res) => {
     const { case_id, text } = req.body
     const { user_id } = req.token_payload.user
 
-    console.log(case_id, text, user_id)
-
-    // TODO: limit verification
-
     // get ev num
     const count_response = await pool.query(`
       SELECT COUNT(*) 
@@ -17,7 +13,6 @@ const createEvidence = async (req, res) => {
       WHERE case_id = $1`,
       [case_id])
     const ev_num = Number(count_response.rows[0].count) + 1
-    console.log("ev#", ev_num)
 
     // insert
     const response = await pool.query(`
@@ -26,7 +21,6 @@ const createEvidence = async (req, res) => {
       RETURNING *`,
       [case_id, user_id, ev_num, text])
     const data = response.rows[0]
-    console.log(data)
 
     res.status(201).json(data)
   } catch (error) {

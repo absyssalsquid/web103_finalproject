@@ -1,6 +1,7 @@
 import { pool } from '../config/database.js'
 import jwt from 'jsonwebtoken'
 
+import {getRefreshTime} from '../utils/time.js'
 import {newToken, TOKEN_COOKIE_OPTIONS} from '../utils/jwt.js'
 
 
@@ -43,14 +44,15 @@ const getUsage = async (req, res) => {
   try {
     // Get current user's usage for today
     // count number of each done since 8am pst
-    const conditions = `user_id = $1 AND created_at >= NOW() AT TIME ZONE 'PST8PDT' - INTERVAL '1 day' + INTERVAL '8 hours'`
+    const last_refresh = getRefreshTime(false)
+    const conditions = `user_id = $1 AND created_at >= $2`
     const response = await pool.query(`
       SELECT
         (SELECT COUNT(*) FROM cases            WHERE ${conditions}) as cases,
         (SELECT COUNT(*) FROM jury_assignments WHERE ${conditions}) as jury_assignments,
         (SELECT COUNT(*) FROM evidence         WHERE ${conditions}) as evidence,
         (SELECT COUNT(*) FROM arguments        WHERE ${conditions}) as arguments
-    `, [user_id])
+    `, [user_id, last_refresh])
 
     let usage = response.rows[0]
     for (const [key, val] of Object.entries(usage) ){
