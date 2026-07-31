@@ -139,6 +139,127 @@ export function validateCaseSubmission(req, res, next) {
   next();
 }
 
+const INELIGIBLE_ARGUMENT_PHASES = new Set(['WITHDRAWN', 'DISMISSED', 'CLOSED'])
+
+export function createArgumentSubmissionValidator(query = pool.query.bind(pool)) {
+  return async function validateArgumentSubmission(req, res, next) {
+    const body = req.body
+
+    if (body == null || typeof body !== 'object' || Array.isArray(body)) {
+      return res.status(400).json({
+        error: 'Request body must be a JSON object.'
+      });
+    }
+
+    const suppliedCaseId = body.caseId ?? body.id
+    if (suppliedCaseId == null || suppliedCaseId === '') {
+      return res.status(400).json({
+        error: 'Case ID is required.'
+      });
+    }
+
+    let caseId = suppliedCaseId
+    if (typeof suppliedCaseId === 'string') {
+      const trimmedCaseId = suppliedCaseId.trim()
+      if (trimmedCaseId.length === 0) {
+        return res.status(400).json({
+          error: 'Case ID is required.'
+        });
+      }
+      if (!/^\d+$/.test(trimmedCaseId)) {
+        return res.status(400).json({
+          error: 'Case ID must be a positive integer.'
+        });
+      }
+      caseId = Number(trimmedCaseId)
+    }
+
+    if (!Number.isSafeInteger(caseId) || caseId <= 0) {
+      return res.status(400).json({
+        error: 'Case ID must be a positive integer.'
+      });
+    }
+
+    const { content } = body
+    if (content == null || content === '') {
+      return res.status(400).json({
+        error: 'Argument content is required.'
+      });
+    }
+    if (typeof content !== 'string') {
+      return res.status(400).json({
+        error: 'Argument content must be a string.'
+      });
+    }
+
+    const trimmedContent = content.trim()
+    if (trimmedContent.length === 0) {
+      return res.status(400).json({
+        error: 'Argument content is required.'
+      });
+    }
+
+    const argumentMin = LENGTH_LIMITS.argument_min
+    const argumentMax = LENGTH_LIMITS.argument_max
+    if (trimmedContent.length < argumentMin || trimmedContent.length > argumentMax) {
+      return res.status(400).json({
+        error: `Argument must be between ${argumentMin} and ${argumentMax} characters.`
+      });
+    }
+
+    body.caseId = caseId
+    body.content = trimmedContent
+
+    try {
+      const response = await query(`
+        SELECT
+          phase,
+          phase_end,
+          (phase_end IS NOT NULL AND phase_end > NOW()) AS argument_deadline_active
+        FROM cases
+        WHERE case_id = $1`,
+        [caseId])
+
+      if (response.rows.length === 0) {
+        return res.status(404).json({
+          error: 'Case not found.'
+        });
+      }
+
+      const { phase, phase_end, argument_deadline_active } = response.rows[0]
+      if (INELIGIBLE_ARGUMENT_PHASES.has(phase)) {
+        return res.status(400).json({
+          error: 'Case is not eligible for argument submissions.'
+        });
+      }
+      if (phase !== 'ARGUMENT') {
+        return res.status(400).json({
+          error: 'Arguments can only be submitted during the argument phase.'
+        });
+      }
+      if (phase_end == null) {
+        return res.status(400).json({
+          error: 'Case is not eligible for argument submissions.'
+        });
+      }
+      if (!argument_deadline_active) {
+        return res.status(400).json({
+          error: 'Argument phase has ended.'
+        });
+      }
+    } catch (error) {
+      console.log(error.message)
+      return res.status(500).json({
+        error: 'Internal server error.'
+      });
+    }
+
+    next();
+  }
+}
+
+export const validateArgumentSubmission = createArgumentSubmissionValidator()
+
 export async function validateEvidenceSubmission(req, res, next) {
   try{
     const { case_id, text } = req.body
