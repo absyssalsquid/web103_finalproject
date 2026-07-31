@@ -329,8 +329,8 @@ export async function validateBallotSubmission(req, res, next) {
     if (!Number.isSafeInteger(assignment_id) || assignment_id <= 0)
       return res.status(400).json({error: 'Invalid assignment.'});
 
-    // validate vote
-    if (!['GUILTY','NOT_GUILTY'].includes(vote))
+    // validate vote, allow retracting vote
+    if (!['GUILTY','NOT_GUILTY', null].includes(vote))
       return res.status(400).json({error: 'Invalid vote.'});
 
     // validate fav args
