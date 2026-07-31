@@ -12,7 +12,7 @@ function ArgumentCard({data, isActivePhase}){
         <div className={`ArgumentCard`}>
             <div className="header">
                 <ColorPillTag phase={data.argument_tag}/>
-                <div className="ev-number">#{data.evidence_num}</div>
+                <div className="ev-number">#{data.arg_num}</div>
             </div>
             <UserTag 
                 user_id={data.user_id} 
@@ -45,7 +45,7 @@ function ArgumentCard({data, isActivePhase}){
                     isActive={isActivePhase}
                 />
                 <div className="flex-grow"></div>
-                <div className="date">{formatDateTime(data.created_at)}</div>
+                <div className="date">{formatDateTime(new Date(data.created_at))}</div>
             </div>
         </div>
     )

@@ -4,6 +4,10 @@
     align-items: center;
 }
 
+.CaseArguments .search-bar{
+    align-self: flex-start;
+}
+
 .CaseArguments .arguments-container{
     display: flex;
     flex-direction: column;

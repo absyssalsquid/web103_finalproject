@@ -31,8 +31,8 @@ const Case = () => {
     const [loading, setLoading] = useState(true);
 
     const [caseData, setCaseData] = useState({}); 
-    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [], sortBy: 'best' })
-    const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [], sortBy: 'best' })
+    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ hasFetched: false, page: 1, last_page: 1, limit: 20, entries: [], sortBy: 'best' })
+    const [argumentHistoryData, setArgumentHistoryData] = useState({ hasFetched: false, page: 1, last_page: 1, limit: 20, entries: [], sortBy: 'best', filterBy: 'all'})
     const [jurySummary, setJurySummary] = useState({}); // contains count of current votes
 
     useEffect(() => {

@@ -36,18 +36,9 @@ export async function fetchCaseEvidence(case_id, q_params){
   return await fetch(`/api/cases/${case_id}/evidence?${q_string}`, DEFAULT_GET_OPTS);
 }
 
-export async function fetchCaseArguments(params){
-  const q_string = Object.entries(params).map(([key, val])=>(`${key}=${val}`)).join('&')
-  return {
-    ok: true,
-    status: 200,
-    async json() {
-      return {
-        last_page: 2,
-        entries: generateSampleArguments(20)
-      }
-    },
-  };
+export async function fetchCaseArguments(case_id, q_params){
+  const q_string = Object.entries(q_params).map(([key, val])=>(`${key}=${val}`)).join('&')
+  return await fetch(`/api/cases/${case_id}/arguments?${q_string}`, DEFAULT_GET_OPTS);
 }
 
 export async function fetchJurySummary(case_id){

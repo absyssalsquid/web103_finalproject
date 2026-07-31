@@ -31,7 +31,7 @@ export function generateArguments(count){
     return [...Array(count).keys()].map((i) => {
         return {
             user_id: getRandomInt(1, users.length),
-            argument_num: i+1,
+            arg_num: i+1,
             argument_tag: getRandomInt(0, 1) == 0 ? 'PROSECUTION' : 'DEFENSE', 
             text: generateLoremIpsum(
                 LENGTH_LIMITS.argument_min + 5, // acount for end backtracking
@@ -41,3 +41,5 @@ export function generateArguments(count){
         }
     })
 }
+
+// console.log(generateArguments(5)) // this produces correct arg_num

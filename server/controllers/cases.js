@@ -273,7 +273,7 @@ const getCaseArguments = async (req, res) => {
           ON aef.evidence_id = ev.evidence_id
       WHERE aef.arg_id = ANY($1)
       GROUP BY aef.arg_id
-    `, [any])
+    `, [argIds])
     const evidenceMap = new Map(
       evResponse.rows.map(row => [row.arg_id, row.ev_citations])
     );
@@ -316,6 +316,7 @@ const getCaseArguments = async (req, res) => {
       entries
     })
   } catch (error) {
+    console.log("getCaseArguments", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }

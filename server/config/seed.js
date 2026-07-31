@@ -154,7 +154,15 @@ async function insertEvidence(case_id, ev){
 }
 
 async function insertArgument(case_id, arg) {
-    return
+    try {
+        const result = await pool.query(`
+            INSERT INTO arguments (case_id, user_id, arg_num, text, argument_tag, up_votes, down_votes)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [case_id, arg.user_id, arg.arg_num, arg.text, arg.argument_tag, arg.up_votes, arg.down_votes]
+        );
+    } catch (err) {
+        console.error(`    XXX error creating argument: #${arg.arg_num}`, err)
+    }
 }
 
 async function seedAll(){
