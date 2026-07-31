@@ -118,6 +118,8 @@ function generateSampleArgument(){
         arg_num: getRandomInt(1, 50),
         text: generateLoremIpsum(220, 600),
         argument_tag: getRandomInt(0, 1) == 0 ? 'PROSECUTION' : 'DEFENSE', 
+        created_at: dateWithDelta({days: -4}),
+        
         case_citations: generateSampleCaseCitations(n_case_citations),
         evidence_citations: generateSampleEvidenceCitations(n_evidence_citations),
     
@@ -125,7 +127,6 @@ function generateSampleArgument(){
         username: 'GuiltyGoose',
         user_image_url: 'https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w',
         user_flair: 'One Wing to Rule Them All',
-        created_at: dateWithDelta({days: -4}),
         
         up_votes: getRandomInt(1, 100),
         down_votes: getRandomInt(1, 100),

@@ -23,10 +23,11 @@ const EV_ARG_SORT_MODES = [
 ]
 
 const CaseEvidence = ({phaseDelta, history, setHistory}) => {
-
     const {id: case_id} = useParams()
     const { user, isAuthenticated} = useAuthContext()
     const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(true);
 
     const [formActive, setFormActive] = useState(false)
     const [evidenceSubmission, setEvidenceSubmission] = useState({case_id: case_id, text: ''})
@@ -51,12 +52,15 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
             setUserLimits(data[0])
             setLengthLimits(data[1])
             setUsage(data[2])
+
+            setLoading(false)
         }
         fetchData();
-    }, []);
+    }, [case_id]);
 
     useEffect(()=>{
         (async ()=>{
+            setLoading(true)
             const res = await fetchCaseEvidence(case_id, {page: history.page, limit: history.limit, sortBy: history.sortBy} )
             const data = await res.json()
             if (res.ok){
@@ -65,12 +69,14 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                     last_page: data.last_page,
                     entries: data.entries
                 }))
+                console.log(data)
             }
             else {
                 console.log(data.error)
             }
+            setLoading(false)
         })()
-    }, [history.page, history.limit, history.sortBy, setHistory])
+    }, [history.page, history.limit, history.sortBy, setHistory, case_id])
 
     function handleChange(e){
         if (alertMsg) setAlertMsg('')
@@ -83,12 +89,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         const data = await res.json()
         if (res.ok){
             setAlertMsg("Evidence sucessfully submitted.")
-            setTimeout(() => {
-                // setFormActive(false)
-                // setEvidenceSubmission((prev) => ({...prev, text: ''}))
-                // setAlertMsg('')
-                navigate(0);
-            }, 2000);
+            setTimeout(() => navigate(0), 1500);
         }
         else {
             setAlertMsg(data.error)
@@ -104,6 +105,13 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         return (
             <div className="sub-content">
                 <div className='minimal'>Phase not started yet.</div>
+            </div>
+        )
+
+    if (loading)
+        return (
+            <div className="sub-content">
+                <div className='minimal'>Loading evidence...</div>
             </div>
         )
 
@@ -136,6 +144,9 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
               onClick={()=>{setFormActive(true)}}>
                 + submit evidence
             </button>
+            
+
+            {/* ------------------------- submission form  ------------------------- */}
 
             <form className={`pullup-panel ${(!formActive || phaseDelta!=0) ?'hidden':''}`}>
                 <button className='close' onClick={handleCancel}>✖</button>
@@ -163,7 +174,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                     rows={4}
                     required
                 />
-                <small>{evidenceSubmission.text.length}/{lengthLimits.evidence_max}</small>
+                <small className="char-limit">{evidenceSubmission.text.length}/{lengthLimits.evidence_max}</small>
                     
                 <ProgressBar
                     label="Daily evidence submissions"

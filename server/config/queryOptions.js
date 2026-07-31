@@ -25,7 +25,7 @@ export const EV_ARG_SORT_MODES = {
   newest: 'created_at DESC',
   oldest: 'created_at ASC',
   best:   `wilson_score(up_votes, down_votes) DESC`,
-  worst:  `wilson_score(up_votes, down_votes) DESC`,
+  worst:  `wilson_score(up_votes, down_votes) ASC`,
 }
 
 export const ARGUMENT_FILTER_MODES = {

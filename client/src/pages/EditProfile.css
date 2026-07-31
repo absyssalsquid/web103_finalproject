@@ -175,12 +175,6 @@
     box-sizing: border-box;
 }
 
-.EditProfile small {
-    align-self: flex-end;
-    font-size: 0.8rem;
-    color: var(--text);
-}
-
 /* actions, matching NewCase */
 .EditProfile .form-actions {
     display: flex;

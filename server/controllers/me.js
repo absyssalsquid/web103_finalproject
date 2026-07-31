@@ -74,7 +74,7 @@ const getUserActivity = async (req, res) => {
 
 const getUserLikes = async (req, res) => {
   try {
-    // Get user's votes (?limit=20&offset=0)
+    // Get user's votes (?limit=20&page=1)
     res.json({ /* likes data */ })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -90,7 +90,7 @@ const getUserJuryAssignments = async (req, res) => {
   // console.log(`page: ${page}, limit: ${limit}, offset: ${offset}`)
 
   try {
-    // Get user's jury assignments (?limit=20&offset=0)
+    // Get user's jury assignments (?limit=20&page=1)
 
     const count_response = await pool.query(`
       SELECT COUNT(*) FROM jury_assignments

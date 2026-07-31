@@ -13,7 +13,7 @@ router.get('/', validateQueryPageLimit, validateCaseQuery, controller.getCases) 
 // ?phase=provisional|evidence|arguments|verdict|ruling
 // ?sort=newest|oldest|popular|prosecute|defend|countdown
 // ?search=...
-// ?limit=20&offset=0
+// ?limit=20&page=1
 
 // NOTE: due to case fact dependencies, users CANNOT edit case details, evidence, or arguments
 
@@ -24,8 +24,8 @@ router.get('/:id', controller.getCase) // get basic data for card
 router.put('/:id/vote', validateJWT, controller.voteCase)
 router.get('/:id/votes', controller.voteCountCase)
 
-router.get('/:id/evidence', validateQueryPageLimit, validateEvidenceQuery, controller.getCaseEvidence) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted
-router.get('/:id/arguments', validateQueryPageLimit, controller.getCaseArguments) // query params ?limit=20&offset=0&sort=oldest|newest|most-voted
+router.get('/:id/evidence', validateQueryPageLimit, validateEvidenceQuery, controller.getCaseEvidence) // query params ?limit=20&page=1&sort=oldest|newest|most-voted
+router.get('/:id/arguments', validateQueryPageLimit, controller.getCaseArguments) // query params ?limit=20&page=1&sort=oldest|newest|most-voted
 
 // if jury phase has not ended, only return jury count
 // if jury phase has ended, also return vote breakdown

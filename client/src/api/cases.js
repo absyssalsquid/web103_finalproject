@@ -1,5 +1,5 @@
 
-import { generateSampleEvidences, generateSampleArguments, SAMPLE_JURY_SUMMARY} from "./test_data"
+import { generateSampleArguments, SAMPLE_JURY_SUMMARY} from "./test_data"
 import { DEFAULT_GET_OPTS, defaultPostOpts } from "./utils"
 
 export async function submitCase(params) {

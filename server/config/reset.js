@@ -103,8 +103,8 @@ const TABLES = {
     evidence: `
         CREATE TABLE IF NOT EXISTS evidence (
             evidence_id     SERIAL PRIMARY KEY,
-            case_id         INT REFERENCES cases(case_id),
-            user_id         INT REFERENCES users(user_id),
+            case_id         INT REFERENCES cases(case_id) NOT NULL,
+            user_id         INT REFERENCES users(user_id) NOT NULL,
             evidence_num    INT,
             text            VARCHAR(${LENGTH_LIMITS.evidence_max}),
             image_url       VARCHAR(500),
@@ -119,8 +119,8 @@ const TABLES = {
     arguments: `
         CREATE TABLE IF NOT EXISTS arguments (
             arg_id          SERIAL PRIMARY KEY,
-            case_id         INT REFERENCES cases(case_id),
-            user_id         INT REFERENCES users(user_id),
+            case_id         INT REFERENCES cases(case_id) NOT NULL,
+            user_id         INT REFERENCES users(user_id) NOT NULL,
             arg_num         INT,
             text            VARCHAR(${LENGTH_LIMITS.argument_max}),
             argument_tag    argument_tag,
@@ -152,7 +152,7 @@ const TABLES = {
         CREATE TABLE IF NOT EXISTS reactions (
             submission_type     submission_type,
             submission_id       INT,
-            user_id             INT REFERENCES users(user_id),
+            user_id             INT REFERENCES users(user_id) NOT NULL,
             reaction            submission_rxn,
             PRIMARY KEY(submission_type, submission_id, user_id),
             CONSTRAINT chk_rxn_valid CHECK ( reaction in ('UP', 'DOWN', NULL) )
@@ -162,8 +162,8 @@ const TABLES = {
     jury_assignments: `
         CREATE TABLE IF NOT EXISTS jury_assignments (
             id                  SERIAL PRIMARY KEY,
-            case_id             INT REFERENCES cases(case_id),
-            user_id             INT REFERENCES users(user_id),
+            case_id             INT REFERENCES cases(case_id) NOT NULL,
+            user_id             INT REFERENCES users(user_id) NOT NULL,
             vote                juror_vote,
             created_at          TIMESTAMPTZ DEFAULT NOW(),
             expires_at          TIMESTAMPTZ,

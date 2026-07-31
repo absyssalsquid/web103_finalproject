@@ -1,6 +1,23 @@
 import './SearchBar.css'
 
 const SearchBar = ({ state, setState, searchPlaceholder, filterOptions, sortOptions }) => {
+
+  function handleFilterChange(e){
+    setState((prev) => ({ 
+      ...prev, 
+      page: 1,
+      filterBy: e.target.value 
+    }))
+  }
+
+  function handleSortChange(e){
+    setState((prev) => ({ 
+      ...prev, 
+      page: 1,
+      sortBy: e.target.value 
+    }))
+  }
+
   return (
     <div className='search-bar'>
       <input
@@ -14,7 +31,7 @@ const SearchBar = ({ state, setState, searchPlaceholder, filterOptions, sortOpti
       {filterOptions && (
           <select
             value={state.filterBy}
-            onChange={(e) => setState((prev) => ({ ...prev, filterBy: e.target.value }))}
+            onChange={handleFilterChange}
           >
             {filterOptions.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -25,7 +42,7 @@ const SearchBar = ({ state, setState, searchPlaceholder, filterOptions, sortOpti
       {sortOptions && (
           <select
             value={state.sortBy}
-            onChange={(e) => setState((prev) => ({ ...prev, sortBy: e.target.value }))}
+            onChange={handleSortChange}
           >
             {sortOptions.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>

@@ -99,13 +99,6 @@
 .NewCase textarea { resize: vertical; }
 .NewCase textarea.obj-name{ min-height: 5rem; }
 
-/* character counters */
-.NewCase small {
-    align-self: flex-end;
-    width: auto;
-    font-size: 0.8rem;
-    color: var(--text);
-}
 
 /* file input */
 .NewCase input[type="file"] {

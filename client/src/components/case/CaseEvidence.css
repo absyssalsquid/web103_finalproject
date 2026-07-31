@@ -96,13 +96,6 @@
     min-height: 5rem
 }
 
-/* character counters */
-.CaseEvidence .pullup-panel small {
-    align-self: flex-end;
-    width: auto;
-    font-size: 0.8rem;
-    color: var(--text);
-}
 
 .CaseEvidence .ProgressBar {
     margin-top: 0;

@@ -26,7 +26,7 @@ router.get('/activity', validateJWT, controller.getUserActivity)
 //    users/[user_id]/submissions?type=evidence
 //    users/[user_id]/submissions?type=arguments
 
-router.get('/likes', validateJWT, controller.getUserLikes) // query params ?limit=20&offset=0
-router.get('/jury-assignments', validateJWT, controller.getUserJuryAssignments) // query params ?limit=20&offset=0
+router.get('/likes', validateJWT, controller.getUserLikes) // query params ?limit=20&page=1
+router.get('/jury-assignments', validateJWT, controller.getUserJuryAssignments) // query params ?limit=20&page=1
 
 export default router

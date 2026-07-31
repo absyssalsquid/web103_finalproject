@@ -220,7 +220,7 @@ function EditProfile(){
                     placeholder="tell the court about yourself..."
                     rows={5}
                 />
-                <small>{edited.bio.length}/{lengthLimits.bio_max}</small>
+                <small className="char-limit">{edited.bio.length}/{lengthLimits.bio_max}</small>
 
                 <div className="form-actions">
                     <button type="submit">Save</button>
