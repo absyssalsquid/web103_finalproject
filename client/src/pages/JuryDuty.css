@@ -123,3 +123,95 @@
 .JuryDuty .option.guilty{background-color: #FF6B6B;}
 .JuryDuty .option.not-guilty{background-color: #51CF66;}
 .JuryDuty .option.insuff-ev{background-color: #A6ADBA;}
+
+.JuryDuty .cite-toggle {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.JuryDuty .cited-args {
+    margin-top: 0.75rem;
+    text-align: left;
+}
+
+.JuryDuty .citation-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid var(--card-border);
+    background-color: var(--citation-bg);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.JuryDuty .citation-row button {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+}
+
+.JuryDuty .citation-sub {
+    color: var(--text-dim);
+    font-size: 0.85em;
+    margin-top: 0.2em;
+}
+
+.JuryDuty .pullout-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+    display: flex;
+    justify-content: flex-end;
+    z-index: 100000;
+}
+
+.JuryDuty .pullout-pane {
+    width: 22rem;
+    max-width: 90vw;
+    height: 100%;
+    box-sizing: border-box;
+    background-color: var(--card-bg);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 1.2rem;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.JuryDuty .pullout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.JuryDuty .pullout-header button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    cursor: pointer;
+}
+
+.JuryDuty .pullout-list {
+    margin-bottom: 0.75rem;
+}
+
+.JuryDuty .pullout-item {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 0.6rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.JuryDuty .pullout-item:hover {
+    background-color: var(--accent-bg);
+}
