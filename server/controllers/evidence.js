@@ -1,4 +1,5 @@
 import { pool } from '../config/database.js'
+import { updateReaction } from '../utils/reactionService.js'
 
 const createEvidence = async (req, res) => {
   // Create evidence submission
@@ -52,21 +53,31 @@ const deleteEvidence = async (req, res) => {
 }
 
 const voteEvidence = async (req, res) => {
-  // Vote on evidence (restricted to evidence phase)
+  // Vote on evidence (discovery phase)
   try {
-    const { id } = req.params
-    const { evidence_id, user_id, value } = req.body
-    res.json({ /* vote data */ })
+    const params = {
+      submission_type: 'EVIDENCE',
+      submission_id: req.params.id,
+      user_id: req.token_payload.user.user_id,
+      reaction: req.body.reaction,
+      case_id: req.body.case_id,
+    }
+    
+    const response = await updateReaction(params)
+    if (!response.ok)
+      return res.status(response.status).json(response.message)
+    res.status(response.status).json(response.data)
+
   } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: "Internal server error" })
+    console.log("voteEvidence", error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
 const voteCountEvidence = async (req, res) => {
   // Get vote count for evidence
+  const { id } = req.params
   try {
-    const { id } = req.params
     res.json({ upvotes: 0, downvotes: 0 })
   } catch (error) {
     console.log(error.message)

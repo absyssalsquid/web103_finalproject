@@ -7,12 +7,14 @@ export function isNonemptyString(obj){
     return true
 }
 
+export const isPositiveInt = (num) => Number.isSafeInteger(num) && num >= 1
+
 export function toIntArray(arr){
     if (!Array.isArray(arr)) return false
 
     for (let i = 0; i < arr.length; i++) {
         const num = Number(arr[i])
-        if (!Number.isSafeInteger(num) || num < 1)
+        if (!isPositiveInt(num))
             return false
         arr[i] = num
     }

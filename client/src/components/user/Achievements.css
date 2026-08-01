@@ -19,6 +19,7 @@
 .AchievementTile:not(.earned){
     border: 1px dashed var(--card-border-dim);
     background-color: var(--card-bg-dim);
+    color: var(--text-dim);
 }
 
 .AchievementTile .head {

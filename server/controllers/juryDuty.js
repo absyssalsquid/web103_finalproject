@@ -78,10 +78,11 @@ const getAssignment = async (req, res) => {
 }
 
 const castBallot = async (req, res) => {
+  const { assignment_id } = req.params
+  let { vote, fav_args } = req.body
+  
   const client = await pool.connect();
   try {
-    const { assignment_id } = req.params
-    let { vote, fav_args } = req.body
 
     await client.query('BEGIN');
     

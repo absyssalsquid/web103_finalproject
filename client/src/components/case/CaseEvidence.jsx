@@ -94,6 +94,21 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         })()
     }, [history.page, history.limit, history.sortBy, history.filterBy, history.hasFetched, queryDB])
 
+    function patchVoteCounts(idx, newVoteCounts){
+        setHistory((prev) => {
+            const newEntry = {
+                ...prev.entries[idx],
+                ...newVoteCounts
+            }
+            const newEntries = prev.entries.with(idx, newEntry)
+
+            return{
+                ...prev,
+                entries: newEntries
+            }
+        });
+    }
+
     function handleChange(e){
         if (alertMsg) setAlertMsg('')
         setEvidenceSubmission((prev) => ({...prev, text: e.target.value}))
@@ -147,10 +162,12 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
             {history.entries.length === 0 
                 ? <div className="minimal">No evidence submitted{isActivePhase && ' yet'}.</div> 
-                : history.entries.map((item) => 
-                    <EvidenceCard key={item.evidence_id} 
-                        data={item} 
-                        isActivePhase={isActivePhase}/>
+                : history.entries.map((item, index) =>
+                    <EvidenceCard key={item.evidence_id}
+                        idx={index}
+                        data={item}
+                        isActivePhase={isActivePhase}
+                        patchVoteCounts={patchVoteCounts}/>
                     )}
             </div>
             <Pagination history={history} setHistory={setHistory}/>

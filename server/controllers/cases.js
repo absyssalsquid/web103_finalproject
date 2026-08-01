@@ -8,7 +8,9 @@ import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_
 
 
 const getCases = async (req, res) => {
-  let { filterBy, sortBy, limit, page } = req.query
+  let user_id = req.token_payload?.user.user_id
+  let { limit, page } = req.query
+  let { filterBy, sortBy } = req.validatedQuery
   const offset = (page-1) * limit;
 
   try {
@@ -26,17 +28,22 @@ const getCases = async (req, res) => {
         (down_votes + up_votes) AS total_votes,
         users.username,
         users.image_url AS user_image_url,
-        ach.name AS flair_name
+        ach.name AS flair_name,
+        rxns.reaction
       FROM cases
       JOIN users
         ON cases.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
+      LEFT JOIN reactions AS rxns
+        ON rxns.submission_type = 'CASE'
+          AND rxns.submission_id = cases.case_id
+          AND rxns.user_id = $3
       WHERE ${CASE_FILTER_MODES[filterBy]}
       ORDER BY ${CASE_SORT_MODES[sortBy]}
       LIMIT $1
       OFFSET $2
-      `, [limit, offset])
+    `, [limit, offset, user_id ?? null]);
     const entries = response.rows
 
     res.status(200).json({
@@ -44,7 +51,7 @@ const getCases = async (req, res) => {
       entries
     })
   } catch (error) {
-    console.log(error.message)
+    console.log("getCases", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }
@@ -150,14 +157,20 @@ const voteCase = async (req, res) => {
   // Vote on case (provisional phase)
   try {
     const params = {
-      submission_type: 'case',
+      submission_type: 'CASE',
       submission_id: req.params.id,
-      user_id: req.body.user_id,
+      user_id: req.token_payload.user.user_id,
       reaction: req.body.reaction,
+      case_id: req.body.case_id,
     }
-    const { status, message, data } = updateReaction(params)
-    res.status(status).json(data || message)
+    
+    const response = await updateReaction(params)
+    if (!response.ok)
+      return res.status(response.status).json(response.message)
+    res.status(response.status).json(response.data)
+
   } catch (error) {
+    console.log("voteCase", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }
@@ -175,11 +188,15 @@ const voteCountCase = async (req, res) => {
 const getCaseEvidence = async (req, res) => {
   // Get all evidence for case (?limit=20&page=1&sort=oldest|newest|most-voted)
   // console.log('getCaseEvidence')
-  try {
-    const { id } = req.params
-    const { sortBy, limit, page } = req.query
-    const offset = (page-1) * limit;
+  let user_id = req.token_payload?.user.user_id
+  console.log(user_id)
 
+  const { id } = req.params
+  const { limit, page } = req.query
+  let { sortBy } = req.validatedQuery
+  const offset = (page-1) * limit;
+
+  try {
     // calcualate last page
     const count_response = await pool.query(`
       SELECT COUNT(*)
@@ -195,17 +212,22 @@ const getCaseEvidence = async (req, res) => {
         evidence.*,
         users.username,
         users.image_url AS user_image_url,
-        ach.name AS flair_name
+        ach.name AS flair_name,
+        rxns.reaction
       FROM evidence
       JOIN users
         ON evidence.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE case_id = $1
+      LEFT JOIN reactions AS rxns
+        ON rxns.submission_type = 'EVIDENCE'
+          AND rxns.submission_id = evidence.evidence_id
+          AND rxns.user_id = $4
+      WHERE evidence.case_id = $1
       ORDER BY ${EV_ARG_SORT_MODES[sortBy]}
       LIMIT $2
       OFFSET $3
-      `, [id, limit, offset])
+    `, [id, limit, offset, user_id ?? null]);
 
     const entries = response.rows
 
@@ -214,17 +236,20 @@ const getCaseEvidence = async (req, res) => {
       entries
     })
   } catch (error) {
+    console.log("getCaseEvidence", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }
 
 const getCaseArguments = async (req, res) => {
   // Get all arguments for case (?limit=20&page=1&sort=all|prosecution|defense)
+  let user_id = req.token_payload?.user.user_id
+  const { id } = req.params
+  const { limit, page } = req.query
+  let { filterBy, sortBy } = req.validatedQuery
+  const offset = (page-1) * limit;
+  
   try {
-    const { id } = req.params
-    const { sortBy, filterBy, limit, page } = req.query
-    const offset = (page-1) * limit;
-
     // calcualate last page
     const count_response = await pool.query(`
       SELECT COUNT(*)
@@ -239,20 +264,26 @@ const getCaseArguments = async (req, res) => {
         arguments.*,
         users.username,
         users.image_url AS user_image_url,
-        ach.name AS flair_name
+        ach.name AS flair_name,
+        rxns.reaction
       FROM arguments
       JOIN users
         ON arguments.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE case_id = $1 AND ${ARGUMENT_FILTER_MODES[filterBy]}
+      LEFT JOIN reactions AS rxns
+        ON rxns.submission_type = 'ARGUMENT'
+          AND rxns.submission_id = arguments.arg_id
+          AND rxns.user_id = $4
+      WHERE arguments.case_id = $1
+        AND ${ARGUMENT_FILTER_MODES[filterBy]}
       ORDER BY ${EV_ARG_SORT_MODES[sortBy]}
       LIMIT $2
       OFFSET $3
-    `, [id, limit, offset])
+    `, [id, limit, offset, user_id ?? null]);
 
     let entries = response.rows
-    const argIds = entries.map(e => e.arg_id);
+    const arg_ids = entries.map(e => e.arg_id);
 
     // add evidence citations to arguments
     const evResponse = await pool.query(`
@@ -273,7 +304,7 @@ const getCaseArguments = async (req, res) => {
           ON aef.evidence_id = ev.evidence_id
       WHERE aef.arg_id = ANY($1)
       GROUP BY aef.arg_id
-    `, [argIds])
+    `, [arg_ids])
     const evidenceMap = new Map(
       evResponse.rows.map(row => [row.arg_id, row.ev_citations])
     );
@@ -301,7 +332,7 @@ const getCaseArguments = async (req, res) => {
         ON acr.refd_case_id = c.case_id
       WHERE acr.arg_id = ANY($1)
       GROUP BY acr.arg_id
-    `, [argIds]);
+    `, [arg_ids]);
 
     const caseMap = new Map(
       caseResponse.rows.map(row => [row.arg_id, row.case_citations])

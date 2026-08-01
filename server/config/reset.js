@@ -9,7 +9,7 @@ const ENUMS = {
     juror_vote:        `juror_vote AS ENUM ('GUILTY', 'NOT_GUILTY')`,
     verdict:           `verdict AS ENUM ('GUILTY', 'NOT_GUILTY', 'TB_PECKED_AT')`,
     argument_tag:      `argument_tag AS ENUM('DEFENSE', 'PROSECUTION')`,
-    submission_type:   `submission_type AS ENUM('CASE, EVIDENCE, ARGUMENT')`,
+    submission_type:   `submission_type AS ENUM('CASE', 'EVIDENCE', 'ARGUMENT')`,
     
     xp_event_reason:   `xp_event_reason AS ENUM ('SUBMISSION', 'JURY_VOTE', 'CASE_ADVANCED_TO_TRIAL', 'SUBMISSION_RXN', 'SUBMISSION_CITED')`,
     xp_event_ref_type: `xp_event_ref_type AS ENUM ('CASE', 'EVIDENCE', 'ARGUMENT', 'VOTE')`,

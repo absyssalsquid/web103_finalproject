@@ -1,8 +1,11 @@
 import './CaseProvisional.css'
 import { useState } from 'react'
-import { voteProvisional } from '/src/api/cases'
+import { useParams } from 'react-router-dom'
+import { reactProvisional } from '/src/api/reactions.js'
 
-function Provisional({data, phaseDelta}){
+function Provisional({phaseDelta}){
+    const {id} = useParams()
+
     const [voteState, setVoteState] = useState({
         UP: false,
         DOWN: false,
@@ -12,22 +15,26 @@ function Provisional({data, phaseDelta}){
 
     async function handleClick(val) {
         if (!isActivePhase) return;
+
         // toggle the clicked direction, clearing the other
         const new_voteState = {}
         for (const [k, v] of Object.entries(voteState)) {
             new_voteState[k] = (k === val) ? !v : false
         }
-        console.log(new_voteState)
+        setVoteState(new_voteState) // optimistic set
 
         // PUT the new value; a fully-cleared state means the vote was withdrawn
         const nullify = Object.values(new_voteState).every(x => x === false)
-        const res = await voteProvisional({
-            post_id: data.post_id,
-            vote: nullify ? null : val,
-        })
+        const res = await reactProvisional(id, id, nullify ? null : val)
+        const data = await res.json()
+            console.log(data)
 
         if (res.ok) {
+            // set to actual values confirmed by db
             setVoteState(new_voteState)
+        }
+        else{
+            // reset vote
         }
     }
 
@@ -40,12 +47,12 @@ function Provisional({data, phaseDelta}){
 
     return (
         <div className="Provisional sub-content">
-            <div className="option prosecute" value='' onClick={(e)=>handleClick(e.target.value)}>
+            <button className="option prosecute" value='UP' onClick={(e)=>handleClick(e.target.value)}>
                 🔪 Prosecute
-            </div>
-            <div className="option defend" value='' onClick={(e)=>handleClick(e.target.value)}>
+            </button>
+            <button className="option defend" value='DOWN' onClick={(e)=>handleClick(e.target.value)}>
                 🛡️ Defend 
-            </div>
+            </button>
         </div>
     )
 }

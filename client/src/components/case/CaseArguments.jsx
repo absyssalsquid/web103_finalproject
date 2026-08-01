@@ -64,19 +64,34 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
     }, [history.page, history.limit, history.sortBy, history.filterBy, history.hasFetched, queryDB])
 
 
+    function patchVoteCounts(idx, newVoteCounts){
+        setHistory((prev) => {
+            const newEntry = {
+                ...prev.entries[idx],
+                ...newVoteCounts
+            }
+            const newEntries = prev.entries.with(idx, newEntry)
+
+            return{
+                ...prev,
+                entries: newEntries
+            }
+        });
+    }
+
     if (loading)
-        return (
-            <div className="sub-content">
-                <div className='minimal'>Loading arguments...</div>
-            </div>
-        )
+    return (
+        <div className="sub-content">
+            <div className='minimal'>Loading arguments...</div>
+        </div>
+    )
 
     if (phaseDelta > 0)
-        return (
-            <div className="sub-content">
-                <div className='minimal'>Phase not started yet.</div>
-            </div>
-        )
+    return (
+        <div className="sub-content">
+            <div className='minimal'>Phase not started yet.</div>
+        </div>
+    )
 
     const isActivePhase = phaseDelta == 0;
 
@@ -92,7 +107,7 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
                 />
                 {history.entries.length === 0
                     ? <div className="minimal">No arguments submitted{isActivePhase && ' yet'}.</div>
-                    : history.entries.map((arg, index) => <ArgumentCard key={index} data={arg} />)}
+                    : history.entries.map((arg, index) => <ArgumentCard key={index} idx={index} data={arg} isActive={isActivePhase} patchVoteCounts={patchVoteCounts}/>)}
             </div>
             <Pagination history={history} setHistory={setHistory}/>
         </div>

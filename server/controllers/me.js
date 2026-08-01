@@ -121,4 +121,56 @@ const getUserJuryAssignments = async (req, res) => {
   }
 }
 
-export default { updateUser, getUsage, getUserActivity, getUserLikes, getUserJuryAssignments }
+const getUserCases = async (req, res) => {
+}
+
+const getUserArguments = async (req, res) => {
+}
+
+const getUserEvidence = async (req, res) => {
+  // Get all evidence for case (?limit=20&page=1&sort=oldest|newest|most-voted)
+  // console.log('getCaseEvidence')
+  try {
+    const { user_id } = req.token_payload.user
+    const { sortBy, limit, page } = req.query
+    const offset = (page-1) * limit;
+
+    // calcualate last page
+    const count_response = await pool.query(`
+      SELECT COUNT(*)
+      FROM evidence
+      WHERE user_id = $1
+      `, [user_id])
+    const count = Number(count_response.rows[0].count)
+    const last_page = Math.ceil(count / limit)
+    
+    // entries
+    const response = await pool.query(`
+      SELECT
+        evidence.*,
+        users.username,
+        users.image_url AS user_image_url,
+        ach.name AS flair_name
+      FROM evidence
+      JOIN users
+        ON evidence.user_id = users.user_id
+      LEFT JOIN achievements AS ach
+        ON users.flair = ach.achievement_id
+      WHERE case_id = $1
+      ORDER BY ${EV_ARG_SORT_MODES[sortBy]}
+      LIMIT $2
+      OFFSET $3
+      `, [user_id, limit, offset])
+
+    const entries = response.rows
+
+    res.status(200).json({
+      last_page,
+      entries
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error.' })
+  }
+}
+
+export default { updateUser, getUsage, getUserCases, getUserEvidence, getUserArguments, getUserLikes, getUserJuryAssignments }

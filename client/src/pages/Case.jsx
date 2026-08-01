@@ -78,7 +78,7 @@ const Case = () => {
 
     const child_element = useRoutes([
         { path: '/',            element: <></> },
-        { path: 'provisional',  element: <Provisional   phaseDelta={phaseDelta(caseData.phase, 'PROVISIONAL')} /> },
+        { path: 'provisional',  element: <Provisional   phaseDelta={phaseDelta(caseData.phase, 'PROVISIONAL')}          /> },
         { path: 'evidence',     element: <CaseEvidence  phaseDelta={phaseDelta(caseData.phase, 'DISCOVERY')}         history={evidenceHistoryData} setHistory={setEvidenceHistoryData} /> },
         { path: 'arguments',    element: <CaseArguments phaseDelta={phaseDelta(caseData.phase, 'ARGUMENT')}          history={argumentHistoryData} setHistory={setArgumentHistoryData} /> },
         { path: 'verdict',      element: <CaseVerdict   phaseDelta={phaseDelta(caseData.phase, 'JURY_DELIBERATION')} caseData={caseData} data={jurySummary} /> },

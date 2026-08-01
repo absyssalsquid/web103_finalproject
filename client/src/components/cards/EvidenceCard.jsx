@@ -2,11 +2,11 @@ import UserTag from "/src/components/UserTag"
 import VotingArrows from "/src/components/VotingArrows"
 
 import {formatDateTime} from "/src/utils"
-import {voteEvidence} from "/src/api/cases"
+import { reactEvidence } from '/src/api/reactions.js'
 
 import "./EvidenceCard.css"
 
-function EvidenceCard({data, isActivePhase}){
+function EvidenceCard({idx, data, isActivePhase, patchVoteCounts}){
     return (
         <div className="EvidenceCard">
             <div className="ev-number">#{data.evidence_num}</div>
@@ -19,13 +19,20 @@ function EvidenceCard({data, isActivePhase}){
             <div className="content">{data.text}</div>
             {data.image_url && <img src={data.image_url}/>}
             <div className="footer">
-                <VotingArrows 
-                    data={data}
+                <VotingArrows
+                    data={{
+                        idx,
+                        case_id: data.case_id,
+                        id: data.evidence_id,
+                        reaction: data.reaction,
+                        up_votes: data.up_votes,
+                        down_votes: data.down_votes}}
                     arrowVals={{
                         up_tooltip: 'credible',
                         down_tooltip: 'questionable'
                     }}
-                    voteFn={voteEvidence}
+                    voteFn={reactEvidence}
+                    patchVoteCounts={patchVoteCounts}
                     isActive={isActivePhase}
                 />
                 <div className="flex-grow"></div>

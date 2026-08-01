@@ -1,15 +1,15 @@
 import express from 'express'
 import controller from '../controllers/arguments.js'
-import { validateJWT } from '../middleware/jwt.js'
+import { requireJWT } from '../middleware/jwt.js'
 import { validateArgumentSubmission } from '../middleware/submissionValidation.js'
 
 const router = express.Router()
 
-router.post('/', validateJWT, validateArgumentSubmission, controller.createArgument)  // body: { caseId, content, ... }
+router.post('/', requireJWT, validateArgumentSubmission, controller.createArgument)  // body: { caseId, content, ... }
 router.get('/:id', controller.getArgument)
-router.delete('/:id', validateJWT, controller.deleteArgument) // Users CANNOT delete once argument phase has passed
+router.delete('/:id', requireJWT, controller.deleteArgument) // Users CANNOT delete once argument phase has passed
 
-router.put('/:id/vote', validateJWT, controller.voteArgument) // Users CANNOT vote/or change once argument phase has passed
+router.put('/:id/vote', requireJWT, controller.voteArgument) // Users CANNOT vote/or change once argument phase has passed
 router.get('/:id/votes', controller.voteCountArgument)
 
 export default router
