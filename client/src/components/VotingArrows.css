@@ -1,34 +1,61 @@
 .VotingArrows {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 6px 0;
+    gap: 12px;
 }
 
 .VotingArrows .pair{
     display: flex;
     align-items: center;
-    gap:5px
+    gap: 4px;
+}
+
+.VotingArrows .pair .tooltip{
+    border-bottom: none;
 }
 
 .VotingArrows .arrow {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     line-height: 1;
-    color: var(--text-dim)
+    color: var(--text-dim);
+    transition: all 0.15s ease;
+
+    padding: 2px;
+    margin: 0;
+    border: none;
+    background-color: transparent;
 }
 
-.VotingArrows .arrow:hover {
+.VotingArrows .arrow:active{
+    transform: none;
+}
+
+.VotingArrows.active .arrow:hover.up {
+    transform: translateY(-0.35rem) scale(1.5);
+}
+.VotingArrows.active .arrow:hover.down {
+    transform: translateY(0.25rem) scale(1.5);
+}
+
+/* on click */
+.VotingArrows.active .arrow:active.selected.up {
+    transform: translateY(-1.2rem) scale(1.5);
+}
+.VotingArrows.active .arrow:active.selected.down {
+    transform: translateY(1rem) scale(1.5);
+}
+
+.VotingArrows.active .arrow:active:not(.selected).up {
+    transform: rotate(180deg);
+}
+.VotingArrows.active .arrow:active:not(.selected).down {
+    transform: rotate(180deg);
+}
+
+/* colors */
+.VotingArrows .arrow.up.selected{
     color: var(--accent);
 }
-
-/* .VotingArrows .arrow {
-    padding: 0 0.4rem;
-    border-radius: 99999px;
+.VotingArrows .arrow.down.selected {
+    color: rgb(75, 24, 194);
 }
-.VotingArrows .arrow.up {
-    background-color: aqua;
-}
-
-.VotingArrows .arrow.down {
-    background-color: orange;
-} */

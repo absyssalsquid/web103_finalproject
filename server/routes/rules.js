@@ -1,6 +1,6 @@
 import express from 'express'
 import { USAGE_LIMITS, REFRESH_TIME, LENGTH_LIMITS } from '../config/userRules.js'
-import {getNextRefresh} from '../utils/time.js'
+import {getRefreshTime} from '../utils/time.js'
 
 const router = express.Router()
 
@@ -13,7 +13,7 @@ router.get('/length-limits', (req, res) => {
 })
 
 router.get('/reset-time', (req, res) => {
-    res.json(getNextRefresh());
+    res.json(getRefreshTime());
 })
 
 export default router

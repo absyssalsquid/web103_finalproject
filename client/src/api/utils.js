@@ -1,10 +1,3 @@
-export const DEFAULT_GET_OPTS = {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json",
-  }
-}
-
 export const CRED_GET_OPTS = {
   method: "GET",
   credentials: "include",
@@ -16,6 +9,17 @@ export const CRED_GET_OPTS = {
 export function defaultPostOpts(params){
   return {
     method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  }
+}
+
+export function defaultPutOpts(params){
+  return {
+    method: "PUT",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",

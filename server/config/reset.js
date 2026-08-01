@@ -6,10 +6,10 @@ import { LENGTH_LIMITS } from '../config/userRules.js'
 const ENUMS = {
     submission_rxn:    `submission_rxn AS ENUM ('UP', 'DOWN')`,
     case_phase:        `case_phase AS ENUM ('PROVISIONAL', 'DISCOVERY', 'ARGUMENT', 'JURY_DELIBERATION', 'RULING', 'CLOSED', 'WITHDRAWN', 'DISMISSED')`,
-    juror_vote:        `juror_vote AS ENUM ('GUILTY', 'NOT_GUILTY', 'INSUFFICIENT_EVIDENCE')`,
+    juror_vote:        `juror_vote AS ENUM ('GUILTY', 'NOT_GUILTY')`,
     verdict:           `verdict AS ENUM ('GUILTY', 'NOT_GUILTY', 'TB_PECKED_AT')`,
-    argument_tag:      `argument_tag AS ENUM('DEFENSE, PROSECUTION')`,
-    submission_type:   `submission_type AS ENUM('CASE, EVIDENCE, ARGUMENT')`,
+    argument_tag:      `argument_tag AS ENUM('DEFENSE', 'PROSECUTION')`,
+    submission_type:   `submission_type AS ENUM('CASE', 'EVIDENCE', 'ARGUMENT')`,
     
     xp_event_reason:   `xp_event_reason AS ENUM ('SUBMISSION', 'JURY_VOTE', 'CASE_ADVANCED_TO_TRIAL', 'SUBMISSION_RXN', 'SUBMISSION_CITED')`,
     xp_event_ref_type: `xp_event_ref_type AS ENUM ('CASE', 'EVIDENCE', 'ARGUMENT', 'VOTE')`,

@@ -15,7 +15,6 @@ Enum case_phase {
 Enum juror_vote {
   GUILTY
   NOT_GUILTY
-  INSUFFICIENT_EVIDENCE
 }
 
 Enum verdict {

@@ -25,7 +25,7 @@ Reference the Creating an Entity Relationship Diagram final project guide in the
 |------|--------|
 | `submission_vote` | `UP`, `DOWN` |
 | `case_phase` | `PROVISIONAL`, `DISCOVERY`, `ARGUMENT`, `JURY_DELIBERATION`, `RULING`, `CLOSED` |
-| `juror_vote` | `GUILTY`, `NOT_GUILTY`, `INSUFFICIENT_EVIDENCE` |
+| `juror_vote` | `GUILTY`, `NOT_GUILTY` |
 | `verdict` | `GUILTY`, `NOT_GUILTY`, `TB_PECKED_AT` |
 | `xp_event_reason` | `SUBMISSION`, `JURY_VOTE`, `CASE_ADVANCED_TO_TRIAL`, `SUBMISSION_VOTE`, `SUBMISSION_CITED` |
 | `xp_event_ref_type` | `CASE`, `EVIDENCE`, `ARGUMENT`, `VOTE` |
@@ -142,7 +142,7 @@ Each table is outlined below.
 | id | PK | primary key |
 | case_id | FK → cases | assigned case |
 | user_id | FK → users | assigned juror |
-| vote | ENUM (`juror_vote`) | GUILTY, NOT_GUILTY, INSUFFICIENT_EVIDENCE |
+| vote | ENUM (`juror_vote`) | GUILTY, NOT_GUILTY |
 | created_at | TIMESTAMPTZ | assignment time |
 | completed_at | TIMESTAMPTZ | when the juror completed their vote |
 | | | UNIQUE(case_id, user_id) |

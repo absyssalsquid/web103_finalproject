@@ -5,10 +5,14 @@
     background-color: var(--card-bg);
 
     padding: 0.6rem 1rem;
+    padding-bottom: 0.3rem;
+    box-sizing: border-box;
+    width: 100%;
     position: relative;
 
     @media screen and (min-width:576px) {
         padding: 0.8rem 1.2rem;
+        padding-bottom: 0.4rem;
     }
 }
 .ArgumentCard .header{
@@ -25,12 +29,19 @@
     padding: 0.5rem 0.8rem;
 }
 
+.ArgumentCard .content{
+    margin: 0.2rem 0;
+}
 
 .ArgumentCard .citations {
     display: flex;
     flex-direction: column;
     gap:5px;
     margin-top: 10px;
+}
+
+.ArgumentCard .citations:empty {
+  display: none;
 }
 
 .ArgumentCard .citations .citation-card {
@@ -48,13 +59,13 @@
 .ArgumentCard .footer {
     display: flex;
     align-items: center;
-    gap: 1rem; 
+    gap: 1rem;
+    margin-top: 0.5rem;
 }
 
 .ArgumentCard .date {
     color: var(--text-dim);
     font-size: 0.8em;
-    margin-top: 0.5rem;
     /* font-size: 0.7em; */
     /* font-family: var(--mono); */
 }

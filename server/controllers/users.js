@@ -62,6 +62,7 @@ const getUserAchievements = async (req, res) => {
       JOIN achievements AS ach
         ON u_ach.achievement_id = ach.achievement_id
       WHERE u_ach.user_id = $1
+      ORDER BY earned_at DESC NULLS LAST
       `, [user_id])
     res.status(200).json(response.rows)
   } catch (error) {

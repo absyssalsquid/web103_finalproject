@@ -154,29 +154,36 @@ async function insertEvidence(case_id, ev){
 }
 
 async function insertArgument(case_id, arg) {
-    return
+    try {
+        const result = await pool.query(`
+            INSERT INTO arguments (case_id, user_id, arg_num, text, argument_tag, up_votes, down_votes)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [case_id, arg.user_id, arg.arg_num, arg.text, arg.argument_tag, arg.up_votes, arg.down_votes]
+        );
+    } catch (err) {
+        console.error(`    XXX error creating argument: #${arg.arg_num}`, err)
+    }
 }
 
 async function seedAll(){
-    // await seedAchievements();
+    await seedAchievements();
 
-    // for (const user of users) {
-    //     await insertUser(user)
-    // }
+    for (const user of users) {
+        await insertUser(user)
+    }
     
-    // // seed user achievements
-    // for (var i=0; i < users.length; i++){
-    //     const user_id = i+1
-    //     const u_achs = generateUserAchievements(users[i])
-    //     const success_count = await seedUserAchievements(user_id, u_achs)
-    //     const symbol = success_count === u_achs.length ? 'OOO' : 'XXX'
-    //     console.log(`${symbol} ${users[i].username}: seeded ${success_count}/${u_achs.length} achievements`)
+    // seed user achievements
+    for (var i=0; i < users.length; i++){
+        const user_id = i+1
+        const u_achs = generateUserAchievements(users[i])
+        const success_count = await seedUserAchievements(user_id, u_achs)
+        const symbol = success_count === u_achs.length ? 'OOO' : 'XXX'
+        console.log(`${symbol} ${users[i].username}: seeded ${success_count}/${u_achs.length} achievements`)
 
-    //     // select one achievement to flair
-    //     const idx = getRandomInt(0, u_achs.length)
-    //     const flair_id = u_achs[idx].achievement_id
-    //     pool.query(`UPDATE users SET flair = $1 WHERE user_id = $2`, [flair_id, user_id])
-    // }
+        // select one achievement to flair
+        if (u_achs[0].earned_at != null)
+            pool.query(`UPDATE users SET flair = $1 WHERE user_id = $2`, [u_achs[0].achievement_id, user_id])
+    }
 
     // seed cases
     for (var i=0; i < cases.length; i++){

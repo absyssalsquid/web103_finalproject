@@ -15,14 +15,17 @@ export function dateWithDelta(delta, date=null) {
   return new_date
 }
 
-export function getNextRefresh() {
+export function getRefreshTime(next=true) {
   let refresh = DateTime.now()
-    .setZone(REFRESH_TIME.tz)
+    .setZone(REFRESH_TIME.time_zone)
     .set({ hour: REFRESH_TIME.hour, minute: 0, second: 0, millisecond: 0 });
 
-  if (refresh <= DateTime.now().setZone(REFRESH_TIME.time_zone)) {
+  if (next && refresh <= DateTime.now().setZone(REFRESH_TIME.time_zone)) {
     refresh = refresh.plus({ days: 1 });
   }
-
+  else if (!next && refresh >= DateTime.now().setZone(REFRESH_TIME.time_zone)) {
+    refresh = refresh.plus({ days: -1 });
+  }
+  
   return refresh.toUTC();
 }

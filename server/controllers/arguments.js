@@ -1,4 +1,5 @@
 import { pool } from '../config/database.js'
+import { updateReaction } from '../utils/reactionService.js'
 
 const createArgument = async (req, res) => {
   // Create argument submission
@@ -34,14 +35,24 @@ const deleteArgument = async (req, res) => {
 }
 
 const voteArgument = async (req, res) => {
+  // Vote on argument (argument phase)
   try {
-    // Vote on argument (restricted to argument phase)
-    const { id } = req.params
-    const { value } = req.body
-    res.json({ /* vote data */ })
+    const params = {
+      submission_type: 'ARGUMENT',
+      submission_id: req.params.id,
+      user_id: req.token_payload.user.user_id,
+      reaction: req.body.reaction,
+      case_id: req.body.case_id,
+    }
+    
+    const response = await updateReaction(params)
+    if (!response.ok)
+      return res.status(response.status).json(response.message)
+    res.status(response.status).json(response.data)
+
   } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: "Internal server error." })
+    console.log("voteArgument", error.message)
+    res.status(500).json({ error: 'Internal server error.' })
   }
 }
 

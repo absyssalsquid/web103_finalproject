@@ -2,7 +2,7 @@ import express from 'express'
 import controller from '../controllers/auth.js'
 
 import { validateCreateUser } from '../middleware/submissionValidation.js'
-import { validateJWT } from '../middleware/jwt.js'
+import { requireJWT } from '../middleware/jwt.js'
 
 const router = express.Router()
 
@@ -13,6 +13,6 @@ const router = express.Router()
 
 router.post('/register', validateCreateUser, controller.createUser)
 router.post('/login', controller.login)
-router.post('/logout', validateJWT, controller.logout)
+router.post('/logout', requireJWT, controller.logout)
 
 export default router

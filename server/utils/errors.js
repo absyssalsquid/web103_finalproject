@@ -11,3 +11,10 @@ export class PhaseError extends Error {
     this.status = 403;
   }
 }
+
+export class IDError extends Error {
+  constructor(num, id_type) {
+    super(`Invalid submission ID for ${id_type} ${num}.`);
+    this.status = 422;
+  }
+}

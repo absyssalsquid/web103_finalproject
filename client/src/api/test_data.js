@@ -37,11 +37,12 @@ export const SAMPLE_USER = {
 }
 
 export const SAMPLE_CASE = {
-    case_id: 1, 
     user_id: SAMPLE_USER.user_id,
-    username: 'GuiltyGoose',
-    user_image_url: 'https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w',
-    user_flair: 'One Wing to Rule Them All',
+    username: SAMPLE_USER.username,
+    user_image_url: SAMPLE_USER.image_url,
+    user_flair: SAMPLE_USER.flair_name,
+
+    case_id: 1, 
     created_at: dateWithDelta({days: -4}),
     object_name: 'office building on the intersection of elm street and 5th avenue',
     accusation: 'contains a counterfeit sky, deceiving birds into flying into it. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In molestie tortor nec augue imperdiet, quis vestibulum turpis euismod. Intege',
@@ -57,12 +58,13 @@ export const SAMPLE_CASE = {
 
 function generateSampleEvidence(){
     return {
+        user_id: SAMPLE_USER.user_id,
+        username: SAMPLE_USER.username,
+        user_image_url: SAMPLE_USER.image_url,
+        user_flair: SAMPLE_USER.flair_name,
+        
         evidence_id: getRandomInt(1, 100000000), 
         case_id: SAMPLE_CASE.case_id, 
-        user_id: SAMPLE_USER.user_id,
-        username: 'GuiltyGoose',
-        user_image_url: 'https://images.squarespace-cdn.com/content/v1/5979177946c3c4cf12d4fb7c/1560806448788-CUXJOXPEWI6C4RUT25UL/goosehead.gif?format=1500w',
-        user_flair: 'One Wing to Rule Them All',
         created_at: dateWithDelta({days: -5}),
         evidence_num: 1, 
         text: generateLoremIpsum(50, 200),
@@ -143,8 +145,7 @@ export function generateSampleArguments(count){
 
 export const SAMPLE_JURY_SUMMARY = {
     'GUILTY': getRandomInt(30, 100), 
-    'NOT_GUILTY': getRandomInt(10, 70),
-    'INSUFFICIENT_EVIDENCE': getRandomInt(2, 12)
+    'NOT_GUILTY': getRandomInt(10, 70)
 }
 
 // export const SAMPLE_ACHIEVEMENTS = [
@@ -175,7 +176,7 @@ export const SAMPLE_JURY_SUMMARY = {
 // ]
 
 // export function randomJuryAssignment(recent=false){
-//     const VOTES = ["GUILTY", "NOT_GUILTY", "INSUFFICIENT_EVIDENCE", null]
+//     const VOTES = ["GUILTY", "NOT_GUILTY", null]
 //     const vote = VOTES[getRandomInt(0,3)]
 
 //     const msBack = getRandomInt((recent?1:180)*MS_PER_DAY, 0);

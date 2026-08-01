@@ -19,7 +19,7 @@
 }
 
 .Provisional .option:hover{font-size: 2.2rem;}
-.Provisional .option:active{font-size: 2.1rem;}
+.Provisional .option:active{font-size: 2.1rem; transform: none;}
 
 .Provisional .option.prosecute{background-color: rgb(206, 63, 63);}
 .Provisional .option.defend{background-color: rgb(108, 204, 172);}

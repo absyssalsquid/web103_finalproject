@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 
 import EvidenceCard from "../cards/EvidenceCard";
@@ -11,9 +11,9 @@ import { getUsage } from '/src/api/me'
 import { getUserLimits, getLengthLimits } from '/src/api/rules'
 import { fetchCaseEvidence, submitEvidence } from "/src/api/cases"
 
-import "./CaseEvidence.css"
-
 import { useAuthContext } from '/src/contexts/auth'
+
+import "./CaseEvidence.css"
 
 const EV_ARG_SORT_MODES = [ 
     { value: 'newest', label: 'newest' }, 
@@ -28,6 +28,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
+    const [isFirstRender, setFirstRender] = useState(true);
 
     const [formActive, setFormActive] = useState(false)
     const [evidenceSubmission, setEvidenceSubmission] = useState({case_id: case_id, text: ''})
@@ -58,25 +59,55 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         fetchData();
     }, [case_id]);
 
+     const queryDB = useCallback(async (case_id, qParams) => {
+        setLoading(true)
+        const res = await fetchCaseEvidence(case_id, qParams )
+        const data = await res.json()
+        if (res.ok){
+            setHistory((prev)=>({
+                ...prev,
+                last_page: data.last_page,
+                entries: data.entries,
+                hasFetched: true
+            }))
+        }
+        else {
+            console.log(data.error)
+        }
+        setLoading(false)
+        
+    }, [setHistory]);
+
     useEffect(()=>{
-        (async ()=>{
-            setLoading(true)
-            const res = await fetchCaseEvidence(case_id, {page: history.page, limit: history.limit, sortBy: history.sortBy} )
-            const data = await res.json()
-            if (res.ok){
-                setHistory((prev)=>({
-                    ...prev,
-                    last_page: data.last_page,
-                    entries: data.entries
-                }))
-                console.log(data)
+        (() => {
+            if (history.hasFetched && isFirstRender){
+                setFirstRender(false)
+                setLoading(false)
+                return
             }
-            else {
-                console.log(data.error)
-            }
-            setLoading(false)
+            queryDB(case_id, {
+                page: history.page,
+                limit: history.limit,
+                sortBy: history.sortBy,
+                filterBy: history.filterBy
+            })
         })()
-    }, [history.page, history.limit, history.sortBy, setHistory, case_id])
+    }, [history.page, history.limit, history.sortBy, history.filterBy, history.hasFetched, queryDB])
+
+    function patchVoteCounts(idx, newVoteCounts){
+        setHistory((prev) => {
+            const newEntry = {
+                ...prev.entries[idx],
+                ...newVoteCounts
+            }
+            const newEntries = prev.entries.with(idx, newEntry)
+
+            return{
+                ...prev,
+                entries: newEntries
+            }
+        });
+    }
 
     function handleChange(e){
         if (alertMsg) setAlertMsg('')
@@ -101,17 +132,18 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         setFormActive(false)
     }
 
-    if (phaseDelta > 0)
-        return (
-            <div className="sub-content">
-                <div className='minimal'>Phase not started yet.</div>
-            </div>
-        )
-
+    
     if (loading)
         return (
             <div className="sub-content">
                 <div className='minimal'>Loading evidence...</div>
+            </div>
+        )
+
+    if (phaseDelta > 0)
+        return (
+            <div className="sub-content">
+                <div className='minimal'>Phase not started yet.</div>
             </div>
         )
 
@@ -128,13 +160,15 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                 sortOptions={EV_ARG_SORT_MODES}
             />
 
-                {history.entries.length === 0 
-                    ? <div className="minimal">No evidence submitted{isActivePhase && ' yet'}.</div> 
-                    : history.entries.map((item) => 
-                        <EvidenceCard key={item.evidence_id} 
-                            data={item} 
-                            isActivePhase={isActivePhase}/>
-                      )}
+            {history.entries.length === 0 
+                ? <div className="minimal">No evidence submitted{isActivePhase && ' yet'}.</div> 
+                : history.entries.map((item, index) =>
+                    <EvidenceCard key={item.evidence_id}
+                        idx={index}
+                        data={item}
+                        isActivePhase={isActivePhase}
+                        patchVoteCounts={patchVoteCounts}/>
+                    )}
             </div>
             <Pagination history={history} setHistory={setHistory}/>
 
@@ -148,7 +182,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
             {/* ------------------------- submission form  ------------------------- */}
 
-            <form className={`pullup-panel ${(!formActive || phaseDelta!=0) ?'hidden':''}`}>
+            <form onSubmit={handleSubmit} className={`pullup-panel ${(!formActive || phaseDelta!=0) ?'hidden':''}`}>
                 <button className='close' onClick={handleCancel}>✖</button>
 
                 <div className='title'>Submit evidence</div>
@@ -160,7 +194,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                         image_url={user.image_url}
                         linkDisabled={true}/>)}
                     <div className='flex-grow'></div>
-                    <button type='submit' onClick={handleSubmit}>submit</button>
+                    <button type='submit'>submit</button>
                 </div>
 
                 <textarea
@@ -168,6 +202,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                     name="evidence"
                     type="text"
                     value={evidenceSubmission.text}
+                    minLength={lengthLimits.evidence_min}
                     maxLength={lengthLimits.evidence_max}
                     onChange={handleChange}
                     placeholder="what did you see..."

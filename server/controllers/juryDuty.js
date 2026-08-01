@@ -69,7 +69,7 @@ const getAssignment = async (req, res) => {
       return res.status(200).json({
         case_id: data[0].case_id,
         vote: data[0].vote,
-        persuasive_args: [] // later add the currently saved persuasive arguments
+        fav_args: [] // later add the currently saved persuasive arguments
       })
 
   } catch (error) {
@@ -78,14 +78,45 @@ const getAssignment = async (req, res) => {
 }
 
 const castBallot = async (req, res) => {
+  const { assignment_id } = req.params
+  let { vote, fav_args } = req.body
+  
+  const client = await pool.connect();
   try {
-    const { assignment_id } = req.params
-    const { verdict, bestArgumentIds } = req.body
-    // Submit jury verdict and best arguments (only during jury phase)
-    // Delete previously voted best arguments from jury_arg_refs before adding new ones
-    res.json({ success: true })
+
+    await client.query('BEGIN');
+    
+    const response = await client.query(`
+      UPDATE jury_assignments
+      SET vote = $1
+      WHERE id = $2
+      RETURNING vote
+    `, [vote, assignment_id])
+    if (response.rows.length === 0)
+      return res.status(400).json({error: 'Could not update.'});
+
+    // delete previously voted best arguments
+    await client.query(`
+      DELETE
+      FROM jury_arg_refs
+      WHERE ja_id = $1
+    `, [assignment_id])
+
+    // construct vals string
+    await client.query(`
+    INSERT INTO jury_arg_refs (ja_id, arg_id)
+    SELECT $1, unnest($2::int[])
+    `, [assignment_id, fav_args]);
+      
+    await client.query('COMMIT');
+    res.status(201).json({ success: true })
   } catch (error) {
+    await client.query('ROLLBACK');
+    console.log("castBallot", error.message)
     res.status(500).json({ error: error.message })
+  }
+  finally{
+    client.release();
   }
 }
 

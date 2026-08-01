@@ -132,6 +132,7 @@ const NewCase = () => {
                         name="object_name"
                         type="text"
                         value={caseParams.object_name}
+                        minLength={lengthLimits.object_name_min}
                         maxLength={lengthLimits.object_name_max}
                         onChange={handleChange}
                         placeholder="e.g. the satellite dish"
@@ -145,6 +146,7 @@ const NewCase = () => {
                         className='accusation'
                         name="accusation"
                         value={caseParams.accusation}
+                        minLength={lengthLimits.accusation_min}
                         maxLength={lengthLimits.accusation_max}
                         onChange={handleChange}
                         placeholder="describe the crime and alleged harm..."
@@ -179,7 +181,7 @@ const NewCase = () => {
                     />
 
                     <div className="form-actions">
-                        <button type="submit" disabled={limitReached || !isAuthenticated}>
+                        <button type="submit" disabled={!isAuthenticated || limitReached }>
                             Submit case
                         </button>
                         <button type="button" onClick={cancelHandler}>

@@ -28,6 +28,8 @@ const LINKS = {
 const Dashboard = () => {
     const { theme, setTheme, themes } = useTheme()
     const { isAuthenticated } = useAuthContext()
+    
+    const [loading, setLoading] = useState(true)
 
     const [userLimits, setUserLimits] = useState({})
     const [refreshTime, setRefreshTime] = useState(null)
@@ -41,20 +43,21 @@ const Dashboard = () => {
 
     useEffect(() => {
         async function fetchData(){
+            if (isAuthenticated){
+                const res = await Promise.all([
+                    getRefreshTime(),
+                    getUserLimits(),
+                    getUsage()
+                ])
 
-            const res = await Promise.all([
-                getRefreshTime(),
-                getUserLimits(),
-                getUsage()
-            ])
+                const data = await Promise.all(
+                    res.map((item) => item.json()))
 
-            const data = await Promise.all(
-                res.map((item) => item.json()))
-
-            setRefreshTime(new Date(data[0]))
-            setUserLimits(data[1])
-            setUsage(data[2])
-            console.log(data)
+                setRefreshTime(new Date(data[0]))
+                setUserLimits(data[1])
+                setUsage(data[2])
+            }
+            setLoading(false)
         }
         fetchData();
     }, []);
@@ -65,6 +68,14 @@ const Dashboard = () => {
         {'path': '/arguments'        , 'element': <h2>arguments</h2>},
         {'path': '/jury-assignments' , 'element': <JuryAssignments history={juryHistoryData} setHistory={setJuryHistoryData}/>},
     ]);
+
+    if (loading){
+        return (
+            <div className='main-content minimal'>
+                <h1>Loading dashboard...</h1>
+            </div>
+        )
+    }
 
     if (!isAuthenticated){
         return (

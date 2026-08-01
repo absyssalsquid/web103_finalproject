@@ -71,7 +71,7 @@
     border-radius: 99999px;
     padding: 0.4rem 0.7rem;
 }
-.CaseEvidence .pullup-panel button:hover {
+.CaseEvidence .pullup-panel button:not(:disabled):hover {
     color: var(--text-accent)
 }
 .CaseEvidence .pullup-panel button.close {
@@ -83,7 +83,7 @@
     padding: 0.3rem 0.7rem;
     border-color: var(--border);
 }
-.CaseEvidence .pullup-panel button[type="submit"]:hover {
+.CaseEvidence .pullup-panel button[type="submit"]:not(:disabled):hover {
     border-color: var(--accent);
     color: var(--text-accent)
 }
