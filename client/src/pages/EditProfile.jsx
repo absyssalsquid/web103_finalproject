@@ -13,7 +13,7 @@ const PENCIL_ICON = '/pencil-xxl.png'
 
 function EditProfile(){
     const navigate = useNavigate();
-    const { user, isAuthenticated } = useAuthContext();
+    const { user, isAuthenticated, updateUser } = useAuthContext();
     const fileInputRef = useRef(null);
 
     const [lengthLimits, setLengthLimits] = useState({});
@@ -106,6 +106,7 @@ function EditProfile(){
         const data = await res.json()
 
         if (res.ok) {
+            updateUser(data)
             setAlertMsg('Profile updated.')
             setTimeout(() => navigate('/profile'), 800);
         } else {

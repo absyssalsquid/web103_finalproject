@@ -68,8 +68,14 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  // Merge fresh fields (e.g. the response from PATCH /me/edit) into the
+  // authenticated user without a full re-fetch or page reload.
+  const updateUser = (updatedFields) => {
+    setUser((prev) => (prev ? { ...prev, ...updatedFields } : prev));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
