@@ -56,44 +56,42 @@ const getAssignment = async (req, res) => {
     // Get specific jury assignment details
     // get current vote and selected arguments
     const response = await pool.query(`
-      SELECT * FROM jury_assignments
-      WHERE id = $1`,
-      [assignment_id])
-    const data = response.rows
+      SELECT
+        ja.*,
+        COALESCE(array_agg(jar.arg_id) FILTER (WHERE jar.arg_id IS NOT NULL), '{}') AS arg_ids
+      FROM jury_assignments AS ja
+      LEFT JOIN jury_arg_refs AS jar
+        ON jar.ja_id = ja.id
+      WHERE ja.id = $1
+        AND ja.user_id = $2
+      GROUP BY ja.id
+    `, [assignment_id, user_id]);
+    let data = response.rows
 
     if (data.length === 0) 
       return res.status(404).json({error: "Assignment not found."})
-    if (data[0].user_id != user_id)
-      return res.status(401).json({error: "This is not your assignment."})
     else 
       return res.status(200).json({
         case_id: data[0].case_id,
+        expires_at: data[0].expires_at,
         vote: data[0].vote,
-        fav_args: [] // later add the currently saved persuasive arguments
+        fav_args: data[0].arg_ids
       })
 
   } catch (error) {
+    console.log("getAssignmentDetails", error.message)
     res.status(500).json({ error: error.message })
   }
 }
 
 const castBallot = async (req, res) => {
   const { assignment_id } = req.params
-  let { vote, fav_args } = req.body
+  const { vote, fav_args } = req.body
   
   const client = await pool.connect();
   try {
 
     await client.query('BEGIN');
-    
-    const response = await client.query(`
-      UPDATE jury_assignments
-      SET vote = $1
-      WHERE id = $2
-      RETURNING vote
-    `, [vote, assignment_id])
-    if (response.rows.length === 0)
-      return res.status(400).json({error: 'Could not update.'});
 
     // delete previously voted best arguments
     await client.query(`
@@ -101,12 +99,25 @@ const castBallot = async (req, res) => {
       FROM jury_arg_refs
       WHERE ja_id = $1
     `, [assignment_id])
+    
+    const response = await client.query(`
+      WITH updated AS (
+        UPDATE jury_assignments
+        SET vote = $1
+        WHERE id = $2
+        RETURNING id, vote
+      ),
+      inserted AS (
+        INSERT INTO jury_arg_refs (ja_id, arg_id)
+        SELECT updated.id, unnest($3::int[])
+        FROM updated
+      )
+      SELECT vote
+      FROM updated
+    `, [vote, assignment_id, fav_args]);
 
-    // construct vals string
-    await client.query(`
-    INSERT INTO jury_arg_refs (ja_id, arg_id)
-    SELECT $1, unnest($2::int[])
-    `, [assignment_id, fav_args]);
+    if (response.rows.length === 0)
+      return res.status(400).json({ error: 'Could not update.' });
       
     await client.query('COMMIT');
     res.status(201).json({ success: true })

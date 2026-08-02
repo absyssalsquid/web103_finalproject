@@ -166,7 +166,7 @@ export async function validateCaseSubmission(req, res, next) {
   next();
 }
 
-const MAX_TOTAL_CITATIONS = 5
+const MAX_TOTAL_CITATIONS = LENGTH_LIMITS.arg_cite_max
 
 // Reconciles the currently-deployed frontend's field names (id/content/
 // case_ids/evidence_ids) with the canonical backend contract (case_id/text/
@@ -442,6 +442,9 @@ export async function validateBallotSubmission(req, res, next) {
   let success = toIntArray(fav_args)
   if (!success)
       return res.status(400).json({error: 'Selected arguments not recognized.'});
+    
+  if(fav_args.length > LENGTH_LIMITS.juror_cite_max)
+    return res.status(400).json({error: 'You can select a maximum of 3 arguments.'});
 
   try{
     const response = await pool.query(`
@@ -455,7 +458,7 @@ export async function validateBallotSubmission(req, res, next) {
     
     // validate phase
     const {expires_at} = response.rows[0]
-    if (DateTime.now() > new DateTime(expires_at)) 
+    if (DateTime.now() > expires_at) 
       return res.status(400).json({error: `Jury is no longer in session.`});
 
     // check that fav_args exist and belong to case

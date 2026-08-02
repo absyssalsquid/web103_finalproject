@@ -173,7 +173,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
             <Pagination history={history} setHistory={setHistory}/>
 
             <button 
-              className={`submit-evidence ${(formActive || phaseDelta!=0)?'hidden':''}`} 
+              className={`action ${(formActive || phaseDelta!=0)?'hidden':''}`} 
               disabled={phaseDelta!=0}
               onClick={()=>{setFormActive(true)}}>
                 + submit evidence

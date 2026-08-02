@@ -13,9 +13,10 @@ import './NewCase.css'
 
 const NewCase = () => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuthContext();
+    const { isAuthenticated, isAuthLoading } = useAuthContext();
     const fileInputRef = useRef(null);
     
+    const [loading, setLoading] = useState(true);
     const [userLimits, setUserLimits] = useState({})
     const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
@@ -39,6 +40,7 @@ const NewCase = () => {
             setUserLimits(data[0])
             setLengthLimits(data[1])
             setUsage(data[2])
+            setLoading(false)
         }
         fetchData();
     }, []);
@@ -105,6 +107,15 @@ const NewCase = () => {
     }
 
     const limitReached = usage.cases >= userLimits.cases;
+    if (loading || isAuthLoading) {
+        return (
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1>Loading form...</h1>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="NewCase">

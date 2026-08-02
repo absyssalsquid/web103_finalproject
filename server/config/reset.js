@@ -66,16 +66,22 @@ const TABLES = {
         CREATE TABLE IF NOT EXISTS users (
             user_id     SERIAL PRIMARY KEY,
             username    VARCHAR(${LENGTH_LIMITS.username_max}) NOT NULL,
-            email       VARCHAR(500),
-            pw_hash     VARCHAR(255) NOT NULL,
             image_url   VARCHAR(500),
             bio         VARCHAR(${LENGTH_LIMITS.bio_max}),
             total_xp    INT DEFAULT 0,
             created_at  TIMESTAMPTZ DEFAULT NOW(),
             flair       INT REFERENCES achievements(achievement_id),
             UNIQUE(username),
-            UNIQUE(email),
             CONSTRAINT chk_min_length CHECK (length(username) >= ${LENGTH_LIMITS.username_min})
+        )
+    `,
+
+    credentials: `
+        CREATE TABLE IF NOT EXISTS credentials (
+            user_id         INT REFERENCES users(user_id),
+            pw_hash         VARCHAR(255) NOT NULL,
+            email           VARCHAR(500),
+            UNIQUE(email)
         )
     `,
 

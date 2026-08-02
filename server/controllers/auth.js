@@ -36,23 +36,26 @@ const createUser = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const result = await pool.query(
-      `
-      INSERT INTO users (email, username, pw_hash)
-      VALUES ($1, $2, $3)
-      RETURNING user_id, username, email
-      `,
-      [email, username, passwordHash]
-    );
+    const result = await pool.query(`
+      WITH new_row AS (
+        INSERT INTO users (username)
+        VALUES ($1)
+        RETURNING user_id, username
+      )
+      INSERT INTO credentials (user_id, email, pw_hash)
+      SELECT new_row.user_id, $2, $3
+      FROM new_row
+      RETURNING user_id
+    `, [username, email, passwordHash]);
 
     const user = result.rows[0];
+    console.log(user)
     const token = newToken(user)
     res.cookie("access_token", token, TOKEN_COOKIE_OPTIONS);
     return res.status(201).json({
       user: {
         user_id: user.user_id,
         username: user.username,
-        email: user.email
       }
     });
 
@@ -74,14 +77,14 @@ const login = async (req, res) => {
     const { username, password } = req.body
     // Authenticate user and return token/session
 
-    const result = await pool.query(
-      `
-      SELECT user_id, username, email, pw_hash
-        FROM users
+    const result = await pool.query(`
+      SELECT 
+        u.user_id, u.username, c.pw_hash
+        FROM users AS u
+      JOIN credentials AS c
+        ON u.user_id = c.user_id
       WHERE username = $1
-      `,
-      [username]
-    );
+    `, [username]);
 
     if (result.rowCount === 0) {
       return res.status(409).json({

@@ -135,8 +135,10 @@ const getUserJuryAssignments = async (req, res) => {
     const response = await pool.query(`
       SELECT * FROM jury_assignments
       WHERE user_id = $1
+      ORDER BY created_at DESC
       LIMIT $2
-      OFFSET $3`, 
+      OFFSET $3
+      `, 
       [user_id, limit, offset])
 
     // console.log(response.rows)

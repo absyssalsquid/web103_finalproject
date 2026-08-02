@@ -131,7 +131,7 @@ const Case = () => {
                         {text: 'Evidence'   , href: `/cases/${id}/evidence` },
                         {text: 'Arguments'  , href: `/cases/${id}/arguments` },
                         {text: 'Verdict'    , href: `/cases/${id}/verdict`},
-                        {text: 'Ruling'     , href: `/cases/${id}/ruling`},
+                        // {text: 'Ruling'     , href: `/cases/${id}/ruling`},
                     ]}
                 />
                 

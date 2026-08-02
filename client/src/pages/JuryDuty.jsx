@@ -21,6 +21,8 @@ function JuryDuty(){
     const [refreshTime, setRefreshTime] = useState(null)
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
 
+    const atLimit = usage.jury_assignments >= userLimits.jury_assignments 
+
     useEffect(() => {
         async function fetchData(){
             if (isAuthenticated){
@@ -81,7 +83,7 @@ function JuryDuty(){
                 <form onSubmit={handleNew}>
                     <h2>Do you want to serve on a jury?</h2>
                     <p>You have {userLimits.jury_assignments - usage.jury_assignments} jury summons remaining. Today's jury summons expire in <Countdown date={new Date(refreshTime)}/></p>
-                    <button type="submit" className="primary" >Respond to jury summons</button>
+                    <button type="submit" className="primary" disabled={atLimit}>Respond to jury summons</button>
                 </form>
             </div>
             {alertMsg && <div className='error-msg'>{alertMsg}</div>}

@@ -45,11 +45,19 @@ async function insertUser(user){
     const passwordHash = await bcrypt.hash(user.pw, 12);
     user.created_at = getRandomDate(USER_CREATION_START)
 
-    return pool.query(`
-        INSERT INTO users (email, username, pw_hash, created_at, flair, bio, image_url)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING user_id`,
-        [user.email, user.username, passwordHash, user.created_at.toISO(), user.flair, user.bio, user.image_url]
+    return pool.query(
+      `
+      WITH new_row AS (
+        INSERT INTO users (username, created_at, bio, image_url)
+        VALUES ($1, $2, $3, $4)
+        RETURNING user_id
+      )
+      INSERT INTO credentials (user_id, email, pw_hash)
+      SELECT new_row.user_id, $5, $6
+      FROM new_row
+      RETURNING user_id
+      `,
+      [user.username, user.created_at.toISO(), user.bio, user.image_url, user.email, passwordHash]
     );
 }
 
@@ -233,27 +241,26 @@ async function seedAll(){
 
         console.log(`case created #${case_id}: ${case_data.object_name}`)
 
+
         // seed evidence
-        if (phaseDelta(case_data.phase, 'DISCOVERY') > 0) continue
         const ev_count = getRandomInt(5, 35)
         const evidence = generateEvidence(ev_count, filtered_users)
         await seedEvidence(case_id, evidence)
         const ev_ids = evidence.filter(ev => ev.evidence_id).map(ev => ev.evidence_id)
+        if (phaseDelta(case_data.phase, 'DISCOVERY') === 0) continue
 
         // seed arguments
-        if (phaseDelta(case_data.phase, 'ARGUMENT') > 0) continue
         const arg_count = getRandomInt(5, Math.floor(ev_count/2))
         const args = generateArguments(arg_count, filtered_users, ev_ids)
         await seedArguments(case_id, args)
-        const arg_ids = args.filter(arg => arg.arg_id).map(arg => arg.arg_id)
+        if (phaseDelta(case_data.phase, 'ARGUMENT') === 0) continue
 
         // seed votes
-        if (phaseDelta(case_data.phase, 'JURY_DELIBERATION') > 0) continue
         const ballots = generateJuryBallots(case_data, filtered_users)
         await seedJuryAssignments(ballots)
+        if (phaseDelta(case_data.phase, 'JURY_DELIBERATION') === 0) continue
 
         // calculate ruling
-        if (phaseDelta(case_data.phase, 'RULING') > 0) continue
         let [guilty_count, not_guilty_count] = [0,0]
         for (const ballot of ballots){
             if (!ballot.vote) continue
@@ -268,6 +275,8 @@ async function seedAll(){
         else if (guilty_count < not_guilty_count) verdict = 'NOT_GUILTY'
         
         await pool.query(`UPDATE cases SET verdict = $1 WHERE case_id = $2`, [verdict, case_data.case_id])
+
+        if (phaseDelta(case_data.phase, 'JURY_DELIBERATION') < 0) continue
 
     }
 

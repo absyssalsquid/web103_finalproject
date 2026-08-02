@@ -46,6 +46,11 @@ const Docket = () => {
 
     useEffect(() => {
         (async () => {
+            setLoading(true);
+            setCaseHistory((prev)=>({
+                ...prev,
+                last_page: 1,
+            }))
             const queryParams = {
                 filterBy: caseHistory.filterBy,
                 sortBy: caseHistory.sortBy,
@@ -68,14 +73,15 @@ const Docket = () => {
         })();
     }, [caseHistory.filterBy, caseHistory.sortBy, caseHistory.limit, caseHistory.page, setCaseHistory]);
 
-    if (loading) {
-        return (
-            <div className="main-content">
-                <div className='minimal'>
-                    <h1>Loading docket...</h1>
-                </div>
-            </div>
-        )
+    var inner_content=null
+    if (loading){
+        inner_content = (<div className='minimal'><h1>Loading docket...</h1></div>)
+    } else if (caseHistory.entries.length === 0){
+        inner_content =(<div className='minimal'><h2>No cases match your search.</h2></div>)
+    } else {
+        inner_content = caseHistory.entries.map((el) => (
+            <CaseCard key={el.case_id} data={el} />
+        ))
     }
 
     return (
@@ -89,18 +95,15 @@ const Docket = () => {
             />
 
             <div className='case-container'>
-                {caseHistory.entries.length === 0
-                    ? (<div className='minimal'><h2>No cases match your search.</h2></div>)
-                    : (caseHistory.entries.map((el) => (
-                        <CaseCard key={el.case_id} data={el} />
-                       )))
-                }
+                { inner_content}
             </div>
-
             <Pagination history={caseHistory} setHistory={setCaseHistory} />
 
-            <Link to='/new-case' className='submit-case'>
-                + submit case
+
+            <Link to='/new-case'>
+                <button className="action">
+                    + submit argument
+                </button>
             </Link>
         </div>
     )

@@ -19,9 +19,11 @@ function JuryDuty(){
     const [loading, setLoading] = useState(true);
     const [alertMsg, setAlertMsg] = useState('')
 
-    const [assignmentDetails, setAssignmentDetails] = useState({ case_id: null, vote: null, fav_args: [] })
+    const [assignmentDetails, setAssignmentDetails] = useState({ case_id: null, expires_at: null, vote: null, fav_args: [] })
+    const [isExpired, setExpired] = useState(true)
     const [argumentsList, setArgumentsList] = useState([])
     const [paneOpen, setPaneOpen] = useState(false)
+
 
     useEffect(()=>{
         async function init(){
@@ -30,9 +32,12 @@ function JuryDuty(){
                 const data = await res.json()
                 if (res.ok){
                     setAssignmentDetails(data)
+                    setExpired(Date.now() > new Date(data.expires_at))
+                    console.log(Date.now() > new Date(data.expires_at))
+                    console.log(data)
 
                     if (data.case_id) {
-                        const argsRes = await fetchCaseArguments({})
+                        const argsRes = await fetchCaseArguments(data.case_id, {limit: 50, page: 1})
                         if (argsRes.ok) setArgumentsList((await argsRes.json()).entries)
                     }
                 }
@@ -152,7 +157,7 @@ function JuryDuty(){
                                                 {arg.argument_tag?.toLowerCase()} — by {arg.username}
                                             </div>
                                         </div>
-                                        <button type="button" onClick={() => removeArg(argId)}>remove ×</button>
+                                        <button type="button" onClick={() => removeArg(argId)} className="remove-citation">✖</button>
                                     </div>
                                 )
                             })}
@@ -160,7 +165,7 @@ function JuryDuty(){
                     )}
 
                     <div className="form-actions">
-                        <button type="submit" >
+                        <button type="submit" disabled={isExpired}>
                             Save
                         </button>
                         <button type="button" onClick={handleCancel}>
@@ -173,39 +178,40 @@ function JuryDuty(){
             </div>
             {alertMsg && <div className='error-msg'>{alertMsg}</div>}
 
-            {paneOpen && (
-                <div className="pullout-overlay" onClick={() => setPaneOpen(false)}>
-                    <aside className="pullout-pane" onClick={(e) => e.stopPropagation()}>
-                        <div className="pullout-header">
-                            <div>
-                                <h3>arguments</h3>
-                                <small className="char-limit">select to cite, then close pane</small>
-                            </div>
-                            <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane">×</button>
-                        </div>
-                        <div className="pullout-list">
-                            {argumentsList.map((arg) => (
-                                <label className="pullout-item" key={arg.arg_id}>
-                                    <input
-                                        type="checkbox"
-                                        checked={assignmentDetails.fav_args.includes(arg.arg_id)}
-                                        onChange={() => toggleArg(arg.arg_id)}
-                                    />
-                                    <div>
-                                        <div>"{arg.text}"</div>
-                                        <div className="citation-sub">
-                                            {arg.argument_tag?.toLowerCase()} — by {arg.username} — up {arg.up_votes}
-                                        </div>
-                                    </div>
-                                </label>
-                            ))}
-                        </div>
-                        <button type="button" onClick={() => setPaneOpen(false)}>
-                            close pane
-                        </button>
-                    </aside>
+            <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
+            </div>
+
+            <aside className={`pullout-pane ${paneOpen ? 'open':''}`} onClick={(e) => e.stopPropagation()} >
+                <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane" className="close-pane">✖</button>
+                <div className="pullout-header">
+                    <div>
+                        <h2>arguments</h2>
+                        <small className="char-limit">select to cite</small>
+                    </div>
                 </div>
-            )}
+                <div className="pullout-list">
+                    {argumentsList.map((arg) => (
+                        <label className="pullout-item" key={arg.arg_id}>
+                            <input
+                                type="checkbox"
+                                checked={assignmentDetails.fav_args.includes(arg.arg_id)}
+                                onChange={() => toggleArg(arg.arg_id)}
+                            />
+                            <div>
+                                <div>"{arg.text}"</div>
+                                <div className="citation-sub">
+                                    <div>{arg.argument_tag?.toLowerCase()}</div> — 
+                                    <div>by {arg.username}</div> — 
+                                    <div>+{arg.up_votes} / -{arg.down_votes}</div>
+                                </div>
+                            </div>
+                        </label>
+                    ))}
+                </div>
+                <button type="button" onClick={() => setPaneOpen(false)}>
+                    close pane
+                </button>
+            </aside>
         </div>
     )
 }

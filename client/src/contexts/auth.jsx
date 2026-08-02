@@ -11,23 +11,27 @@ const AuthContext = createContext(undefined);
 export const AuthProvider = ({ children }) => {
   // user = { user_id, username, email } | null
   const [user, setUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  async function fetchImage(user_id) {
+    const res = await fetchUserData(user_id)
+    const data = await res.json();
+    if (res.ok) {
+      return data.image_url
+    }
+    return null
+  }
 
   useEffect(() => {
     const checkAuth = async () => {
       const res = await decodeToken();
+      const data = await res.json();
       let authd_user = {}
 
       // fetch initial
       if (res.ok) {
-        const data = await res.json();
         authd_user = data.user
-      } 
-      
-      // fetch image
-      const res2 = await fetchUserData(authd_user.user_id)
-      if (res2.ok) {
-        const data2 = await res2.json();
-        authd_user['image_url'] = data2.image_url
+        authd_user.image_url = await fetchImage(authd_user.user_id)
       }
 
       if (Object.keys(authd_user).length > 0)
@@ -36,6 +40,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
 
+      setIsAuthLoading(false);
     };
 
     checkAuth();
@@ -48,8 +53,11 @@ export const AuthProvider = ({ children }) => {
   const login = async (params) => {
     const response = await loginApi(params);
     const data = await response.json();
-    if (response.ok)
-      setUser(data.user);
+    if (response.ok){
+      const user = data.user
+      user.image_url = await fetchImage(user.user_id)
+      setUser(user);
+    }
     return data;
   };
 
@@ -58,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     const response = await registerApi(params);
     const data = await response.json();
     if (response.ok)
-      setUser(data.user);
+      setUser(data);
     return data;
   };
 
@@ -68,6 +76,8 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+
+
   // Merge fresh fields (e.g. the response from PATCH /me/edit) into the
   // authenticated user without a full re-fetch or page reload.
   const updateUser = (updatedFields) => {
@@ -75,7 +85,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAuthLoading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

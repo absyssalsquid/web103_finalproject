@@ -13,7 +13,7 @@ import { fetchUserData, fetchUserStats, fetchUserAchievements } from "/src/api/u
 import { toTitleCase } from "/src/utils.js"
 
 const STAT_NAMES = {
-    total_xp: 'total xp',
+    // total_xp: 'total xp',
     cases_contributed: 'cases contributed',
     cases: 'cases filed',
     jury_assignments: 'juries served',
@@ -52,6 +52,7 @@ const UserProfile = () => {
                 setProfileData(data[0])
                 setUserStats(data[1])
                 setAchievements(data[2])
+                console.log(data[0])
             }
             setLoading(false)
         }

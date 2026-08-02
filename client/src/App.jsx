@@ -11,6 +11,7 @@ import JuryDuty from './pages/JuryDuty'
 import JuryBallot from './pages/JuryBallot'
 import Guidelines from './pages/Guidelines'
 import EditProfile from './pages/EditProfile'
+import NewArgument from './pages/NewArgument'
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -22,19 +23,21 @@ function App() {
   const { user, isAuthenticated, logout} = useAuthContext()
 
   const element = useRoutes([
-    {'path': '/'           , 'element': <Docket />},
+    {'path': '/'              , 'element': <Docket />},
     {'path': '/guidelines'    , 'element': <Guidelines />},
 
-    {'path': '/sign-in'    , 'element': <SignIn />},
-    {'path': '/register'    , 'element': <Register />},
+    {'path': '/sign-in'       , 'element': <SignIn />},
+    {'path': '/register'      , 'element': <Register />},
     
-    {'path': '/dashboard/*' , 'element': <Dashboard />},
-    {'path': '/new-case'   , 'element': <NewCase/>},
+    {'path': '/dashboard/*'   , 'element': <Dashboard />},
+    {'path': '/new-case'      , 'element': <NewCase/>},
     {'path': '/cases/:id/*'   , 'element': <Case />},
     
+    {'path': '/new-argument/:id'   , 'element': <NewArgument/>},
+    
     {'path': '/users/:id/*'   , 'element': <UserProfile />},
-    {'path': '/profile/edit'   , 'element': <EditProfile />},
-    {'path': '/profile/*'    , 'element': <UserProfile />},
+    {'path': '/profile/edit'  , 'element': <EditProfile />},
+    {'path': '/profile/*'     , 'element': <UserProfile />},
 
     {'path': '/jury/serve/'   , 'element': <JuryDuty />},
     {'path': '/jury/ballot/:id' , 'element': <JuryBallot />},

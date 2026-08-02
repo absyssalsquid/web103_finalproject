@@ -27,17 +27,17 @@ const LINKS = {
 
 const Dashboard = () => {
     const { theme, setTheme, themes } = useTheme()
-    const { isAuthenticated } = useAuthContext()
-    
-    const [loading, setLoading] = useState(true)
+    const { isAuthenticated, isAuthLoading } = useAuthContext()
+
+    const [loading, setLoading] = useState(false)
 
     const [userLimits, setUserLimits] = useState({})
     const [refreshTime, setRefreshTime] = useState(null)
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
 
-    const [caseHistoryData    , setCaseHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
-    const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
-    const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    // const [caseHistoryData    , setCaseHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    // const [evidenceHistoryData, setEvidenceHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
+    // const [argumentHistoryData, setArgumentHistoryData] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
     const [juryHistoryData    , setJuryHistoryData    ] = useState({ page: 1, last_page: 1, limit: 20, entries: [] })
 
 
@@ -60,7 +60,7 @@ const Dashboard = () => {
             setLoading(false)
         }
         fetchData();
-    }, []);
+    }, [isAuthenticated, isAuthLoading]);
 
     const element = useRoutes([
         {'path': '/cases'            , 'element': <h2>cases</h2>},
@@ -69,7 +69,7 @@ const Dashboard = () => {
         {'path': '/jury-assignments' , 'element': <JuryAssignments history={juryHistoryData} setHistory={setJuryHistoryData}/>},
     ]);
 
-    if (loading){
+    if (isAuthLoading || loading){
         return (
             <div className='main-content minimal'>
                 <h1>Loading dashboard...</h1>
@@ -106,10 +106,10 @@ const Dashboard = () => {
             <h2>Activity</h2>
             <SubNav 
                 items={[
-                    {text: 'Cases'     , href: `/dashboard/cases`},
-                    {text: 'Evidence'   , href: `/dashboard/evidence` },
-                    {text: 'Arguments'  , href: `/dashboard/arguments` },
                     {text: 'Jury\xa0Assignments'    , href: `/dashboard/jury-assignments`},
+                    {text: 'Cases'     , href: `/dashboard/cases`},
+                    // {text: 'Evidence'   , href: `/dashboard/evidence` },
+                    // {text: 'Arguments'  , href: `/dashboard/arguments` },
                     // {text: 'Likes/dislikes'     , href: `/dashboard/reactions`},
                 ]}
             />

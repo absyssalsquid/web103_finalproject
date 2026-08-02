@@ -19,6 +19,9 @@ export const LENGTH_LIMITS = {
     password_min: 8,
 
     bio_max: 500,
+
+    juror_cite_max: 3,
+    arg_cite_max: 5
 }
 
 export const USAGE_LIMITS = {

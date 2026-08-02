@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 import ArgumentCard from "../cards/ArgumentCard";
 import Pagination from '../Pagination';
@@ -110,6 +110,15 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
                     : history.entries.map((arg, index) => <ArgumentCard key={index} idx={index} data={arg} isActive={isActivePhase} patchVoteCounts={patchVoteCounts}/>)}
             </div>
             <Pagination history={history} setHistory={setHistory}/>
+            
+            <Link to='/new-argument'>
+                <button 
+                className={`action`} 
+                disabled={phaseDelta!=0}>
+                    + submit argument
+                </button>
+            </Link>
+
         </div>
     )
 }

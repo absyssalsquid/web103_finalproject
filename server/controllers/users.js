@@ -28,25 +28,36 @@ const getUserStats = async (req, res) => {
   // Get user stats (XP, contributions, etc.)
   try {
     const { user_id } = req.params
-
-    const conditions = `user_id = $1`
     const response = await pool.query(`
       SELECT
-        (SELECT total_xp FROM users            WHERE ${conditions}) as total_xp,
-        (SELECT COUNT(*) FROM cases            WHERE ${conditions}) as cases,
-        (SELECT COUNT(*) FROM jury_assignments WHERE ${conditions}) as jury_assignments,
-        (SELECT COUNT(*) FROM evidence         WHERE ${conditions}) as evidence,
-        (SELECT COUNT(*) FROM arguments        WHERE ${conditions}) as arguments
+        (SELECT total_xp FROM users            WHERE user_id = $1) as total_xp,
+        (SELECT COUNT(*) FROM cases            WHERE user_id = $1) as cases,
+        (SELECT COUNT(*) FROM evidence         WHERE user_id = $1) as evidence,
+        (SELECT COUNT(*) FROM arguments        WHERE user_id = $1) as arguments,
+        (SELECT COUNT(*) FROM jury_assignments WHERE user_id = $1 AND vote IS NOT NULL) as jury_assignments,
+        (SELECT COUNT(*)
+          FROM (
+            SELECT case_id FROM cases WHERE user_id = $1
+            UNION
+            SELECT case_id FROM evidence WHERE user_id = $1
+            UNION
+            SELECT case_id FROM arguments WHERE user_id = $1
+            UNION
+            SELECT case_id FROM jury_assignments WHERE user_id = $1 AND vote IS NOT NULL
+          )
+        ) AS cases_contributed
     `, [user_id])
 
     let stats = response.rows[0]
+    console.log(stats)
     for (const [key, val] of Object.entries(stats) ){
       stats[key] = Number(val)
     }
 
     res.status(200).json(stats)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log("getUserStats", error.message)
+    res.status(500).json({ error: "Internal server error." })
   }
 }
 
