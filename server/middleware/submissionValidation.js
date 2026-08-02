@@ -166,101 +166,193 @@ export async function validateCaseSubmission(req, res, next) {
   next();
 }
 
-export async function validateArgumentSubmission(req, res, next) {
-  const { user_id } = req.token_payload.user
+const MAX_TOTAL_CITATIONS = 5
 
-  // validate body and extract params
+// Reconciles the currently-deployed frontend's field names (id/content/
+// case_ids/evidence_ids) with the canonical backend contract (case_id/text/
+// case_citations/evidence_citations) before validateArgumentSubmission runs.
+// Route params always win over the body for case_id — this only checks the
+// body for an explicit conflict, never for the value itself.
+export function normalizeArgumentSubmission(req, res, next) {
   if (!isDict(req.body))
-    return res.status(400).json({error: 'Request body must be a JSON object.'});
+    return next(); // let validateArgumentSubmission report the canonical error
 
-  let { case_id, text, argument_tag, case_citations, evidence_citations } = req.body
-  text = (text === null || text === '') ? null : text
-  argument_tag = (argument_tag === null || argument_tag === '') ? null : argument_tag
-  case_citations = (case_citations === null) ? [] : case_citations
-  evidence_citations = (evidence_citations === null) ? [] : evidence_citations
+  const body = req.body
 
-  // validate case id
-  case_id = Number(case_id)
-  if (!Number.isSafeInteger(case_id) || case_id < 1)
-    return res.status(400).json({error: 'Invalid case ID.'});
-
-  // validate argument tag
-  if (argument_tag === null)
-    return res.status(400).json({error: 'Argument tag (prosecution or defense) is required.'});
-
-  if (!['PROSECUTION', 'DEFENSE'].includes(argument_tag))
-    return res.status(400).json({error: 'Argument tag must be prosecution or defense.'});
-  
-  // validate argument
-  if (text === null)
-    return res.status(400).json({error: 'Argument is required.'});
-
-  if (typeof text !== 'string')
-    return res.status(400).json({error: 'Argument must be a string.'});
-
-  text = compressWhitespace(text)
-  const argumentMin = LENGTH_LIMITS.argument_min
-  const argumentMax = LENGTH_LIMITS.argument_max
-  if (text.length < argumentMin || text.length > argumentMax) 
-    return res.status(400).json({error: `Argument must be between ${argumentMin} and ${argumentMax} characters.`});
-
-  // validate evidence citations formatting
-  let success = toIntArray(evidence_citations)
-  if (!success)
-      return res.status(400).json({error: 'Selected evidence citations not recognized.'});
-
-  // validate case citations formatting
-  success = toIntArray(case_citations)
-  if (!success)
-      return res.status(400).json({error: 'Selected case citations not recognized.'});
-  
-  // validate participation limits
-  const canSubmit = await isBelowSubmissionLimit(user_id, 'arguments', USAGE_LIMITS.arguments)
-  if (canSubmit === null)
-    return res.status(500).json({ error: 'Could not validate usage limits.' })
-  if (!canSubmit)
-      return res.status(401).json({error: `You have used all of your argument submissions for today.`});
-    
-  try {
-    // validate phase
-    const response = await pool.query(`
-      SELECT
-        phase,
-        phase_end
-      FROM cases
-      WHERE case_id = $1`,
-      [case_id])
-
-    if (response.rows.length === 0) {
-      return res.status(404).json({error: 'Case not found.'});
-    }
-
-    const { phase, phase_end } = response.rows[0]
-    if (phase_end === null) 
-      return res.status(400).json({error: 'Case is not eligible for argument submissions.'});
-    
-    if (phase !== 'ARGUMENT') 
-      return res.status(400).json({error: 'Arguments can only be submitted during the argument phase.'});
-    
-    if (DateTime.now() > new DateTime(phase_end)) 
-      return res.status(400).json({error: 'Argument phase has ended.'});
-    
-  } catch (error) {
-    console.log(error.message)
-    return res.status(500).json({error: 'Internal server error.'});
+  // --- case id: req.params.id (nested route) beats any body value ---
+  if (req.params.id !== undefined) {
+    const suppliedRaw = body.case_id ?? body.id
+    if (suppliedRaw !== undefined && Number(suppliedRaw) !== Number(req.params.id))
+      return res.status(400).json({error: 'Case ID in the request body does not match the route.'});
+    body.case_id = Number(req.params.id)
+  } else {
+    body.case_id = Number(body.case_id ?? body.id)
   }
 
-  // TODO: validate case_citations, evidence_citations exist
+  // --- argument text: canonical `text`, legacy `content` ---
+  const hasText = body.text !== undefined
+  const hasContent = body.content !== undefined
+  if (hasText && hasContent) {
+    const normText = typeof body.text === 'string' ? compressWhitespace(body.text, true) : body.text
+    const normContent = typeof body.content === 'string' ? compressWhitespace(body.content, true) : body.content
+    if (normText !== normContent)
+      return res.status(400).json({error: 'text and content do not match.'});
+  }
+  body.text = hasText ? body.text : body.content
 
-  req.body = { case_id, text, argument_tag, case_citations, evidence_citations }
+  // --- citations: canonical name wins on formatting disputes, but any
+  // genuine mismatch between the two names for the same data is a conflict ---
+  const caseCitations = reconcileCitationAlias(body.case_citations, body.case_ids)
+  if (caseCitations.conflict)
+    return res.status(400).json({error: 'case_citations and case_ids do not match.'});
+  body.case_citations = caseCitations.value
+
+  const evidenceCitations = reconcileCitationAlias(body.evidence_citations, body.evidence_ids)
+  if (evidenceCitations.conflict)
+    return res.status(400).json({error: 'evidence_citations and evidence_ids do not match.'});
+  body.evidence_citations = evidenceCitations.value
+
+  // argument_tag has no legacy alias — passed through untouched
 
   next();
 }
 
-export function createArgumentSubmissionValidator(query = pool.query.bind(pool)) {
-  // for testing
-  return validateArgumentSubmission;
+function reconcileCitationAlias(canonical, legacy) {
+  const hasCanonical = canonical !== undefined
+  const hasLegacy = legacy !== undefined
+
+  if (hasCanonical && hasLegacy) {
+    if (Array.isArray(canonical) && Array.isArray(legacy)) {
+      const a = [...new Set(canonical.map(Number))].sort((x, y) => x - y)
+      const b = [...new Set(legacy.map(Number))].sort((x, y) => x - y)
+      const differ = a.length !== b.length || a.some((v, i) => v !== b[i])
+      if (differ) return { conflict: true }
+    }
+    // if either isn't an array, don't guess — let toIntArray reject it below
+    return { value: canonical }
+  }
+  if (hasCanonical) return { value: canonical }
+  if (hasLegacy) return { value: legacy }
+  return { value: [] } // neither supplied — default
 }
+
+export function createArgumentSubmissionValidator(query = pool.query.bind(pool)) {
+  return async function validateArgumentSubmission(req, res, next) {
+    const { user_id } = req.token_payload.user
+
+    // validate body and extract params
+    if (!isDict(req.body))
+      return res.status(400).json({error: 'Request body must be a JSON object.'});
+
+    let { case_id, text, argument_tag, case_citations, evidence_citations } = req.body
+    text = (text === null || text === '') ? null : text
+    argument_tag = (argument_tag === null || argument_tag === '') ? null : argument_tag
+    case_citations = (case_citations === null) ? [] : case_citations
+    evidence_citations = (evidence_citations === null) ? [] : evidence_citations
+
+    // validate case id
+    case_id = Number(case_id)
+    if (!Number.isSafeInteger(case_id) || case_id < 1)
+      return res.status(400).json({error: 'Invalid case ID.'});
+
+    // validate argument tag
+    if (argument_tag === null)
+      return res.status(400).json({error: 'Argument tag (prosecution or defense) is required.'});
+
+    if (!['PROSECUTION', 'DEFENSE'].includes(argument_tag))
+      return res.status(400).json({error: 'Argument tag must be prosecution or defense.'});
+
+    // validate argument
+    if (text === null)
+      return res.status(400).json({error: 'Argument is required.'});
+
+    if (typeof text !== 'string')
+      return res.status(400).json({error: 'Argument must be a string.'});
+
+    text = compressWhitespace(text)
+    const argumentMin = LENGTH_LIMITS.argument_min
+    const argumentMax = LENGTH_LIMITS.argument_max
+    if (text.length < argumentMin || text.length > argumentMax)
+      return res.status(400).json({error: `Argument must be between ${argumentMin} and ${argumentMax} characters.`});
+
+    // validate evidence citations formatting
+    let success = toIntArray(evidence_citations)
+    if (!success)
+        return res.status(400).json({error: 'Selected evidence citations not recognized.'});
+
+    // validate case citations formatting
+    success = toIntArray(case_citations)
+    if (!success)
+        return res.status(400).json({error: 'Selected case citations not recognized.'});
+
+    // dedupe before counting/inserting so repeated IDs never reach the DB
+    case_citations = [...new Set(case_citations)]
+    evidence_citations = [...new Set(evidence_citations)]
+
+    if (case_citations.length + evidence_citations.length > MAX_TOTAL_CITATIONS)
+      return res.status(400).json({error: `You may cite at most ${MAX_TOTAL_CITATIONS} items total.`});
+
+    // validate participation limits
+    const canSubmit = await isBelowSubmissionLimit(user_id, 'arguments', USAGE_LIMITS.arguments)
+    if (canSubmit === null)
+      return res.status(500).json({ error: 'Could not validate usage limits.' })
+    if (!canSubmit)
+        return res.status(401).json({error: `You have used all of your argument submissions for today.`});
+
+    try {
+      // validate phase
+      const response = await query(`
+        SELECT
+          phase,
+          phase_end
+        FROM cases
+        WHERE case_id = $1`,
+        [case_id])
+
+      if (response.rows.length === 0) {
+        return res.status(404).json({error: 'Case not found.'});
+      }
+
+      const { phase, phase_end } = response.rows[0]
+      if (phase_end === null)
+        return res.status(400).json({error: 'Case is not eligible for argument submissions.'});
+
+      if (phase !== 'ARGUMENT')
+        return res.status(400).json({error: 'Arguments can only be submitted during the argument phase.'});
+
+      if (DateTime.now() > new DateTime(phase_end))
+        return res.status(400).json({error: 'Argument phase has ended.'});
+
+      // validate cited cases exist
+      if (case_citations.length > 0) {
+        const cc_response = await query(`
+          SELECT COUNT(*) FROM cases WHERE case_id = ANY($1)`,
+          [case_citations])
+        if (Number(cc_response.rows[0].count) !== case_citations.length)
+          return res.status(400).json({error: 'One or more cited cases do not exist.'});
+      }
+
+      // validate cited evidence exists and belongs to this case
+      if (evidence_citations.length > 0) {
+        const ec_response = await query(`
+          SELECT COUNT(*) FROM evidence WHERE evidence_id = ANY($1) AND case_id = $2`,
+          [evidence_citations, case_id])
+        if (Number(ec_response.rows[0].count) !== evidence_citations.length)
+          return res.status(400).json({error: 'One or more cited evidence items do not exist for this case.'});
+      }
+
+    } catch (error) {
+      console.log(error.message)
+      return res.status(500).json({error: 'Internal server error.'});
+    }
+
+    req.body = { case_id, text, argument_tag, case_citations, evidence_citations }
+
+    next();
+  }
+}
+
+export const validateArgumentSubmission = createArgumentSubmissionValidator()
 
 export async function validateEvidenceSubmission(req, res, next) {
   const { user_id } = req.token_payload.user

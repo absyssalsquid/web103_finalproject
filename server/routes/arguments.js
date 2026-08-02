@@ -1,11 +1,13 @@
 import express from 'express'
 import controller from '../controllers/arguments.js'
 import { requireJWT } from '../middleware/jwt.js'
-import { validateArgumentSubmission } from '../middleware/submissionValidation.js'
+import { validateArgumentSubmission, normalizeArgumentSubmission } from '../middleware/submissionValidation.js'
 
 const router = express.Router()
 
-router.post('/', requireJWT, validateArgumentSubmission, controller.createArgument)  // body: { caseId, content, ... }
+// legacy/compatibility route — accepts the currently-deployed frontend's
+// { id, content, case_ids, evidence_ids } body via normalizeArgumentSubmission
+router.post('/', requireJWT, normalizeArgumentSubmission, validateArgumentSubmission, controller.createArgument)
 router.get('/:id', controller.getArgument)
 router.delete('/:id', requireJWT, controller.deleteArgument) // Users CANNOT delete once argument phase has passed
 
