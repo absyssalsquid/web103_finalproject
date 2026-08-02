@@ -213,9 +213,9 @@ const createEnum = async (enum_name, enum_vals) => {
     `
     try {
         await pool.query(query)
-        console.log(`🎉 enum created: ${enum_name}`)
+        console.log(`- enum created: ${enum_name}`)
     } catch (err) {
-        console.error(`⚠️ error creating enum: ${enum_name}`, err)
+        console.error(`X error creating enum: ${enum_name}`, err)
     }
 }
 
@@ -223,27 +223,27 @@ const deleteEnum = async (enum_name) => {
     const query = `DROP TYPE ${enum_name}`
     try {
         await pool.query(query)
-        console.log(`🎉 enum deleted: ${enum_name}`)
+        console.log(`- enum deleted: ${enum_name}`)
     } catch (err) {
-        console.error(`⚠️ error deleting enum: ${enum_name}`, err)
+        console.error(`X error deleting enum: ${enum_name}`, err)
     }
 }
 
 const createTable = async (table_name, query) => {
     try {
         await pool.query(query)
-        console.log(`🎉 table created: ${table_name}`)
+        console.log(`- table created: ${table_name}`)
     } catch (err) {
-        console.error(`⚠️ error creating table: ${table_name}`, err)
+        console.error(`X error creating table: ${table_name}`, err)
     }
 }
 
 const deleteTable = async (table_name) => {
     try {
         await pool.query(`DROP TABLE IF EXISTS ${table_name} CASCADE`)
-        console.log(`🎉 table deleted: ${table_name}`)
+        console.log(`- table deleted: ${table_name}`)
     } catch (err) {
-        console.error(`⚠️ error deleting table: ${table_name}`, err)
+        console.error(`X error deleting table: ${table_name}`, err)
     }
 }
 
@@ -251,9 +251,9 @@ const createIndex = async(table_name, field) => {
     const query = `CREATE INDEX idx_${table_name}_${field} ON ${table_name}(${field});`
     try {
         await pool.query(query)
-        console.log(`🎉 index created: ${table_name}, ${field}`)
+        console.log(`- index created: ${table_name}, ${field}`)
     } catch (err) {
-        console.error(`⚠️ error creating index: ${table_name}, ${field}`, err)
+        console.error(`X error creating index: ${table_name}, ${field}`, err)
     }
 }
 
@@ -287,9 +287,9 @@ async function doAll(){
 
     try {
         await pool.query(WILSON_FN)
-        console.log(`🎉 created wilson_score`)
+        console.log(`- created wilson_score`)
     } catch (err) {
-        console.error(`⚠️ error creating wilson_score`, err)
+        console.error(`X error creating wilson_score`, err)
     }
 
     await pool.end(); 

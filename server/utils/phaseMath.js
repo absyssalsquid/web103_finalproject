@@ -2,9 +2,9 @@ export const PHASES = ['PROVISIONAL', 'DISMISSED', 'DISCOVERY', 'ARGUMENT', 'JUR
 
 export function phaseDelta(currPhase, targetPhase){
   return PHASES.indexOf(targetPhase) - PHASES.indexOf(currPhase)
-  // neg if passed
+  // neg if target has passed
   // 0 if active
-  // pos if not yet active
+  // pos if target not yet active
 }
 
 export function nextPhase(currPhase){

@@ -2,15 +2,17 @@ import { pool } from './database.js'
 import bcrypt from 'bcrypt'
 import { DateTime} from 'luxon'
 import { getRandomInt } from '../utils/time.js'
+import { phaseDelta } from '../utils/phaseMath.js'
 
 import './dotenv.js'
 
 import achievements from '../data/achievements.js'
 import users from '../data/users.js'
-import cases from '../data/cases.js'
-import { generateArguments, generateEvidence } from '../data/generators.js'
-// import evidence from '../data/evidence.js'
-// import arguments from '../data/arguments.js'
+import usernames from '../data/usernames.js'
+import {
+    getRandomDate, generateUsers, generateUserAchievements, generateCases , 
+    generateEvidence, generateArguments, generateJuryBallots
+} from '../data/generators.js'
 
 const CREATED_AT_DELTA_DAYS = {
     PROVISIONAL: -1,
@@ -20,39 +22,49 @@ const CREATED_AT_DELTA_DAYS = {
     RULING: -5,
 }
 
-// ----------------------------------------- utils ----------------------------------------- 
+const USER_CREATION_START = DateTime.now().plus({years:-2})
 
-function randomDate({start=DateTime.now().plus({days: -30}), end=DateTime.now()}){
-    const randomValue = Math.random() * (end.valueOf() - start.valueOf());
-    return DateTime.fromMillis(start.valueOf() + randomValue);
+const bulletPt = (count, target=1) => (count === target) ? '  -' : '  X'
+
+function processResults(results, name, callback=null){
+    let errors_output = 0
+    results.forEach((result, i) => {
+        if (result.status === 'fulfilled'){
+            if (callback) callback(result, i)
+        }
+        else if (errors_output < 3) {
+            console.error(`${bulletPt(0)} error seeding ${name}:`, result.reason)
+            errors_output ++
+        }
+    })
 }
-
-function shuffleInPlace(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1)); // Pick a random index from 0 to i
-    [array[i], array[j]] = [array[j], array[i]]; // Swap elements using destructuring assignment
-  }
-}
-
 
 // ----------------------------------------- users ----------------------------------------- 
 
 async function insertUser(user){
     const passwordHash = await bcrypt.hash(user.pw, 12);
-    
-    try {
-        const result = await pool.query(`
-            INSERT INTO users (email, username, pw_hash, created_at, flair, bio, image_url)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [user.email, user.username, passwordHash, user.created_at.toISO(), user.flair, user.bio, user.image_url]
-        );
-        console.log(`OOO user created: ${user.username}`)
-    } catch (err) {
-        console.error(`XXX error creating user: ${user.username}`, err)
-    }
+    user.created_at = getRandomDate(USER_CREATION_START)
+
+    return pool.query(`
+        INSERT INTO users (email, username, pw_hash, created_at, flair, bio, image_url)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING user_id`,
+        [user.email, user.username, passwordHash, user.created_at.toISO(), user.flair, user.bio, user.image_url]
+    );
 }
 
-const seedAchievements = async () => {
+async function seedUsers(all_users) {
+    const results = await Promise.allSettled(
+        all_users.map(user => insertUser(user))
+    )
+    const success_count = results.filter(r => r.status === 'fulfilled').length
+    console.log(`${bulletPt(success_count, all_users.length)} seeded ${success_count}/${all_users.length} users`)
+    
+    const callback = (result, i) => all_users[i].user_id = result.value.rows[0].user_id
+    processResults(results, "user", callback)
+}
+
+async function seedAchievements(achievements) {
     console.log("seeding achievements table")
     const results = await Promise.allSettled(
         achievements.map(ach =>
@@ -63,64 +75,29 @@ const seedAchievements = async () => {
         )
     )
     const success_count = results.filter(r => r.status === 'fulfilled').length
-    results.forEach((result, i) => {
-        if (result.status === 'rejected') {
-            console.error(`XXX error seeding achievement: ${achievements[i].name}`, result.reason)
-        }
-    })
-    const symbol = success_count === achievements.length ? 'OOO' : 'XXX'
-    console.log(`${symbol} seeded ${success_count}/${achievements.length} achievements`)
-}
-
-function generateUserAchievements(user){
-    const N = getRandomInt(3, 10) // select 3-10 random achievements
-    let user_achievements = new Array(N)
-    let n_completed = getRandomInt(0, N)
+    console.log(`${bulletPt(success_count, achievements.length)} seeded ${success_count}/${achievements.length} achievements`)
     
-    const ach_idxs = achievements.map((item)=>(item.achievement_id - 1))
-    shuffleInPlace(ach_idxs)
-
-    // for each achievement
-    for (var i=0; i < N; i++){
-        const ach = achievements[ach_idxs[i]]
-        let entry = {
-            achievement_id: ach.achievement_id,
-            progress: (i < n_completed) ? ach.threshold : getRandomInt(1, ach.threshold), // generate progress: 1 <= x <= threshold
-        }
-        if (entry.progress == ach.threshold){
-            entry.earned_at = randomDate({start: user.created_at})
-        }
-        user_achievements[i] = entry
-    }
-    return user_achievements
+    processResults(results, "achievement")
 }
 
-async function seedUserAchievements(user_id, arr){
+async function seedUserAchievements(arr){
     const results = await Promise.allSettled(
         arr.map(u_ach =>
             pool.query(
                 `INSERT INTO user_achievements (user_id, achievement_id, progress, earned_at) 
                 VALUES ($1, $2, $3, $4)`,
-                [user_id, u_ach.achievement_id, u_ach.progress, u_ach.earned_at]
+                [u_ach.user_id, u_ach.achievement_id, u_ach.progress, u_ach.earned_at]
             )
         )
     )
     const success_count = results.filter(r => r.status === 'fulfilled').length
-    results.forEach((result, i) => {
-        if (result.status === 'rejected') {
-            console.error(`XXX error seeding achievement: ${achievements[i].name}`, result.reason)
-        }
-    })
-    return success_count
+    console.log(`${bulletPt(success_count, arr.length)} seeded ${success_count}/${arr.length} achievements`)
+    
+    processResults(results, "user achievement")
 }
-
 
 // ----------------------------------------- cases ----------------------------------------- 
 async function insertCase(cased){
-    if (cased.phase_start == null){
-        cased.phase_start = cased.phase_end.plus({days:-1})
-        cased.created_at = cased.phase_end.plus({days: CREATED_AT_DELTA_DAYS[cased.phase]})
-    }
     try {
         const result = await pool.query(`
             INSERT INTO cases (
@@ -134,77 +111,164 @@ async function insertCase(cased){
              cased.phase, cased.phase_start.toISO(), cased.phase_end?.toISO(), 
             ]
         );
-        return result.rows[0].case_id
-        console.log(`OOO case created: ${cased.object_name}`)
+        cased.case_id = result.rows[0].case_id
+        return cased.case_id
     } catch (err) {
-        console.error(`XXX error creating case: ${cased.object_name}`, err)
+        console.error(`${bulletPt(0)} error creating case: ${cased.object_name}`, err)
+        return null
     }
 }
 
-async function insertEvidence(case_id, ev){
-    try {
-        const result = await pool.query(`
+async function seedEvidence(case_id, arr){
+    const results = await Promise.allSettled(
+        arr.map(ev => pool.query(`
             INSERT INTO evidence (case_id, user_id, evidence_num, text, up_votes, down_votes)
-            VALUES ($1, $2, $3, $4, $5, $6)`,
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING evidence_id`,
             [case_id, ev.user_id, ev.evidence_num, ev.text, ev.up_votes, ev.down_votes]
-        );
-    } catch (err) {
-        console.error(`    XXX error creating evidence: #${ev.evidence_num}`, err)
-    }
+        ))
+    )
+    const success_count = results.filter(r => r.status === 'fulfilled').length
+    console.log(`${bulletPt(success_count, arr.length)} seeded ${success_count}/${arr.length} pieces of evidence`)
+
+    const callback = (result, i) => arr[i].evidence_id = result.value.rows[0].evidence_id
+    processResults(results, "evidence", callback)
 }
 
-async function insertArgument(case_id, arg) {
-    try {
-        const result = await pool.query(`
-            INSERT INTO arguments (case_id, user_id, arg_num, text, argument_tag, up_votes, down_votes)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [case_id, arg.user_id, arg.arg_num, arg.text, arg.argument_tag, arg.up_votes, arg.down_votes]
-        );
-    } catch (err) {
-        console.error(`    XXX error creating argument: #${arg.arg_num}`, err)
-    }
+async function seedArguments(case_id, arr){
+    const arg_results = await Promise.allSettled(
+        arr.map((arg) => pool.query(`
+            WITH new_row AS (
+                INSERT INTO arguments (case_id, user_id, arg_num, text, argument_tag, up_votes, down_votes)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING arg_id
+            ),
+            ins AS (
+                INSERT INTO argument_evidence_refs (arg_id, evidence_id)
+                SELECT arg_id, unnest($8::int[])
+                FROM new_row
+            )
+            SELECT arg_id
+            FROM new_row;
+            `,
+            [case_id, arg.user_id, arg.arg_num, arg.text, arg.argument_tag, arg.up_votes, arg.down_votes, arg.cited_evidence_ids]
+        ))
+    )
+    let success_count = arg_results.filter(r => r.status === 'fulfilled').length
+    console.log(`${bulletPt(success_count, arr.length)} seeded ${success_count}/${arr.length} arguments`)
+
+    const callback = (result, i) => arr[i].arg_id = result.value.rows[0].arg_id
+    processResults(arg_results, "argument", callback)    
+}
+
+async function seedJuryAssignments(arr){
+    const ballot_results = await Promise.allSettled(
+        arr.map((ballot)=>pool.query(`
+            INSERT INTO jury_assignments (case_id, user_id, vote, created_at, expires_at, completed_at)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            `,
+            [ballot.case_id, ballot.user_id, ballot.vote, ballot.created_at.toISO(), ballot.expires_at.toISO(), ballot.completed_at?.toISO()]
+        ))
+    )
+    let success_count = ballot_results.filter(r => r.status === 'fulfilled').length
+    console.log(`${bulletPt(success_count, arr.length)} seeded ${success_count}/${arr.length} jury assignments`)
+
+    processResults(ballot_results, "jury assignments")
+}
+
+async function setFlairs(arr){
+    const results = await Promise.allSettled(
+        arr.map((pair) => pool.query(
+            `UPDATE users SET flair = $1 WHERE user_id = $2`, 
+            [pair.flair, pair.user_id])
+        )
+    )
+    let success_count = results.filter(r => r.status === 'fulfilled').length
+    console.log(`${bulletPt(success_count, arr.length)} set ${success_count}/${arr.length} user flairs`)
+
+    processResults(results, "user flairs")
 }
 
 async function seedAll(){
-    await seedAchievements();
+    await seedAchievements(achievements);
 
-    for (const user of users) {
-        await insertUser(user)
-    }
-    
+    console.log("seeding users")
+    const generatedUsers = generateUsers(usernames)
+    const all_users = [...users, ...generatedUsers]
+    await seedUsers(all_users)
+
+    const filtered_users = all_users.filter(user => user.user_id)
+
     // seed user achievements
-    for (var i=0; i < users.length; i++){
-        const user_id = i+1
-        const u_achs = generateUserAchievements(users[i])
-        const success_count = await seedUserAchievements(user_id, u_achs)
-        const symbol = success_count === u_achs.length ? 'OOO' : 'XXX'
-        console.log(`${symbol} ${users[i].username}: seeded ${success_count}/${u_achs.length} achievements`)
-
+    const flairs = []
+    const all_u_achs = []
+    console.log("seeding user achievements")
+    for (const user of filtered_users){
+        const u_achs = generateUserAchievements(user)
+        all_u_achs.push(...u_achs)
+       
         // select one achievement to flair
         if (u_achs[0].earned_at != null)
-            pool.query(`UPDATE users SET flair = $1 WHERE user_id = $2`, [u_achs[0].achievement_id, user_id])
+            flairs.push({
+                user_id: user.user_id, 
+                flair: u_achs[0].achievement_id
+            })
     }
+    await seedUserAchievements(all_u_achs)
+    await setFlairs(flairs)
+
+    const cases_old = [] // generateCases(30, filtered_users, USER_CREATION_START)
+    const cases_new = generateCases(20, filtered_users, DateTime.now().plus({days: -6}))
+    const cases = [...cases_old, ...cases_new]
 
     // seed cases
     for (var i=0; i < cases.length; i++){
-        const case_id = await insertCase(cases[i])
-        console.log(`case created #${case_id}`)
-        
-        // seed evidence
-        const ev_count = getRandomInt(5, 25)
-        console.log(`  evidence count: ${ev_count} `)
-        const evidence = generateEvidence(ev_count)
-        for (const ev of evidence) {
-            await insertEvidence(case_id, ev)
+        const case_data = cases[i]
+        await insertCase(case_data)
+        const case_id = case_data.case_id
+        if (!case_id) {
+            console.log("failed to create case#", case_data.object_name, case_data.phase)
+            continue
         }
 
+        console.log(`case created #${case_id}: ${case_data.object_name}`)
+
+        // seed evidence
+        if (phaseDelta(case_data.phase, 'DISCOVERY') > 0) continue
+        const ev_count = getRandomInt(5, 35)
+        const evidence = generateEvidence(ev_count, filtered_users)
+        await seedEvidence(case_id, evidence)
+        const ev_ids = evidence.filter(ev => ev.evidence_id).map(ev => ev.evidence_id)
+
         // seed arguments
-        const arg_count = getRandomInt(5, 25)
-        console.log(`  argument count: ${arg_count} `)
-        const args = generateArguments(arg_count)
-        for (const arg of args) {
-            await insertArgument(case_id, arg)
+        if (phaseDelta(case_data.phase, 'ARGUMENT') > 0) continue
+        const arg_count = getRandomInt(5, Math.floor(ev_count/2))
+        const args = generateArguments(arg_count, filtered_users, ev_ids)
+        await seedArguments(case_id, args)
+        const arg_ids = args.filter(arg => arg.arg_id).map(arg => arg.arg_id)
+
+        // seed votes
+        if (phaseDelta(case_data.phase, 'JURY_DELIBERATION') > 0) continue
+        const ballots = generateJuryBallots(case_data, filtered_users)
+        await seedJuryAssignments(ballots)
+
+        // calculate ruling
+        if (phaseDelta(case_data.phase, 'RULING') > 0) continue
+        let [guilty_count, not_guilty_count] = [0,0]
+        for (const ballot of ballots){
+            if (!ballot.vote) continue
+            if (ballot.vote==='GUILTY') guilty_count++
+            if (ballot.vote==='NOT_GUILTY') not_guilty_count++
         }
+
+        let verdict
+        if (guilty_count + not_guilty_count === 0) verdict = null
+        else if (guilty_count === not_guilty_count) verdict = 'TB_PECKED_AT'
+        else if (guilty_count > not_guilty_count) verdict = 'GUILTY'
+        else if (guilty_count < not_guilty_count) verdict = 'NOT_GUILTY'
+        
+        await pool.query(`UPDATE cases SET verdict = $1 WHERE case_id = $2`, [verdict, case_data.case_id])
+
     }
 
     await pool.end(); 
