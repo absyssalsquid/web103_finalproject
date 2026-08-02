@@ -1,9 +1,10 @@
 import express from 'express'
 import controller from '../controllers/cases.js'
+import argumentsController from '../controllers/arguments.js'
 import multer from "multer";
 
 import { requireJWT, checkJWT } from '../middleware/jwt.js'
-import { validateCaseSubmission} from '../middleware/submissionValidation.js'
+import { validateCaseSubmission, validateArgumentSubmission, normalizeArgumentSubmission } from '../middleware/submissionValidation.js'
 import { validateQueryPageLimit, validateCaseQuery, validateEvidenceQuery, validateArgumentQuery } from '../middleware/queryValidation.js'
 
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
@@ -53,6 +54,7 @@ router.get('/:id/votes', controller.voteCountCase)
 
 router.get('/:id/evidence', checkJWT, validateQueryPageLimit, validateEvidenceQuery, controller.getCaseEvidence) // query params ?limit=20&page=1&sort=oldest|newest|most-voted
 router.get('/:id/arguments', checkJWT, validateQueryPageLimit, validateArgumentQuery, controller.getCaseArguments) // query params ?limit=20&page=1&sort=oldest|newest|most-voted
+router.post('/:id/arguments', requireJWT, normalizeArgumentSubmission, validateArgumentSubmission, argumentsController.createArgument) // canonical endpoint (#78); body: { text, argument_tag, case_citations, evidence_citations }
 
 router.get('/:id/jury-summary', controller.getJurySummary)
 
