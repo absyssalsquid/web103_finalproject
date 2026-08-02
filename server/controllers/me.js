@@ -3,41 +3,71 @@ import jwt from 'jsonwebtoken'
 
 import {getRefreshTime} from '../utils/time.js'
 import {newToken, TOKEN_COOKIE_OPTIONS} from '../utils/jwt.js'
+import { uploadProfileImage } from '../utils/imageUpload.js'
 
 
-const updateUser = async (req, res) => {
-  const { user_id } = req.token_payload.user
-  const { bio, flair } = req.body
+// Dependency-injectable so tests can supply fake `query`/`uploadProfileImage`
+// implementations, mirroring createArgumentSubmissionValidator's pattern.
+export function createUpdateUserController(deps = {}) {
+  const query = deps.query ?? pool.query.bind(pool)
+  const uploadImage = deps.uploadProfileImage ?? uploadProfileImage
 
-  // TODO: image uploads — req.file holds the new avatar once storage is wired up
+  return async function updateUser(req, res) {
+    const { user_id } = req.token_payload.user
+    const { bio, flair } = req.body
 
-  try {
-    // a user may only flair an achievement they've actually earned
-    if (flair != null) {
-      const owned = await pool.query(`
-        SELECT 1 FROM user_achievements
-        WHERE user_id = $1 AND achievement_id = $2 AND earned_at IS NOT NULL`,
-        [user_id, flair])
+    try {
+      // a user may only flair an achievement they've actually earned
+      if (flair != null) {
+        const owned = await query(`
+          SELECT 1 FROM user_achievements
+          WHERE user_id = $1 AND achievement_id = $2 AND earned_at IS NOT NULL`,
+          [user_id, flair])
 
-      if (owned.rows.length === 0)
-        return res.status(400).json({ error: 'You have not earned that achievement.' })
+        if (owned.rows.length === 0)
+          return res.status(400).json({ error: 'You have not earned that achievement.' })
+      }
+
+      // uploads to a deterministic per-user path (overwrite: true), so if the
+      // DB write below fails afterward, the new image is already live on
+      // Cloudinary with no way to undo it — see uploadProfileImage's comments.
+      let imageUrl
+      if (req.file) {
+        try {
+          const uploaded = await uploadImage(req.file.buffer, user_id)
+          imageUrl = uploaded.url
+        } catch (uploadError) {
+          console.log('Profile image upload failed:', uploadError.message)
+          return res.status(500).json({ error: 'Image upload failed.' })
+        }
+      }
+
+      const response = imageUrl === undefined
+        ? await query(`
+            UPDATE users
+            SET bio = $1, flair = $2
+            WHERE user_id = $3
+            RETURNING user_id, username, image_url, bio, flair, created_at`,
+            [bio, flair, user_id])
+        : await query(`
+            UPDATE users
+            SET bio = $1, flair = $2, image_url = $4
+            WHERE user_id = $3
+            RETURNING user_id, username, image_url, bio, flair, created_at`,
+            [bio, flair, user_id, imageUrl])
+
+      if (response.rows.length === 0)
+        return res.status(404).json({ error: 'user not found!' })
+
+      res.status(200).json(response.rows[0])
+    } catch (error) {
+      console.log(error.message)
+      res.status(500).json({ error: 'Internal server error.' })
     }
-
-    const response = await pool.query(`
-      UPDATE users
-      SET bio = $1, flair = $2
-      WHERE user_id = $3
-      RETURNING user_id, username, image_url, bio, flair, created_at`,
-      [bio, flair, user_id])
-    if (response.rows.length === 0)
-      return res.status(404).json({ error: 'user not found!' })
-
-    res.status(200).json(response.rows[0])
-  } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: 'Internal server error.' })
   }
 }
+
+const updateUser = createUpdateUserController()
 
 const getUsage = async (req, res) => {
   const {user_id} = req.token_payload.user
