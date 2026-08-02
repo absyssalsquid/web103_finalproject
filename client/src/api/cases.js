@@ -47,3 +47,11 @@ export async function submitArgument(params) {
   return await fetch(`/api/arguments`, options);
 }
 
+// ------------------------ judge decision ------------------------
+
+export async function submitJudgeVerdict(case_id, params) {
+  // params = { verdict, judge_ruling }
+  // verdict: 'GUILTY' | 'NOT_GUILTY' | 'TB_PECKED_AT'
+  const options = defaultPostOpts(params)
+  return await fetch(`/api/cases/${case_id}/judge-verdict`, options);
+}
