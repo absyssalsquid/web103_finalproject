@@ -1,0 +1,61 @@
+.CaseRuling .judge-panel {
+    box-sizing: border-box;
+    width: calc(100% - 1rem);
+    max-width: 450px;
+    margin: 1.5rem auto 0;
+    padding: 1.25rem 1.5rem;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.CaseRuling .judge-panel h3 {
+    margin: 0 0 0.3rem;
+    color: var(--text-h);
+}
+
+.CaseRuling .judge-panel .dim {
+    color: var(--text-dim);
+    font-size: 0.9em;
+    margin-bottom: 1rem;
+}
+
+.CaseRuling .verdict-options {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.CaseRuling .verdict-btn {
+    flex: 1;
+    min-width: 9rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-h);
+    cursor: pointer;
+}
+
+.CaseRuling .verdict-btn:hover {
+    background-color: var(--accent-bg);
+}
+
+.CaseRuling .verdict-btn.active {
+    border-color: var(--accent-border);
+    background-color: var(--accent-bg);
+    font-weight: 700;
+}
+
+.CaseRuling .judge-panel textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.4rem;
+}
+
+.CaseRuling .judge-submitted-msg {
+    color: var(--text-accent);
+    font-weight: 600;
+}
