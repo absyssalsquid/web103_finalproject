@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 
+import ToastMessage from '../components/ToastMessage'
 import { useAuthContext } from '/src/contexts/auth'
 
 import { fetchUserData, fetchUserAchievements } from '/src/api/users'
@@ -27,7 +28,7 @@ function EditProfile(){
     const [imagePreview, setImagePreview] = useState('');
     const [selectedFlair, setSelectedFlair] = useState({}); // complete ach + u_ach data join
 
-    const [alertMsg, setAlertMsg] = useState('');
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -78,7 +79,6 @@ function EditProfile(){
     const pickImage = () => fileInputRef.current?.click();
 
     const imageHandler = (e) => {
-        if (alertMsg) setAlertMsg('')
         const file = e.target.files[0];
         if (!file) return;
         setEdited((prev)=>({...prev, image_url: file}))
@@ -86,7 +86,6 @@ function EditProfile(){
     }
 
     const flairHandler = (achievement_id) => {
-        if (alertMsg) setAlertMsg('')
         const id = Number(achievement_id)
         // clicking the currently selected flair clears it
         const old_flair = edited.flair
@@ -94,23 +93,21 @@ function EditProfile(){
     }
 
     const bioHandler = (e) => {
-        if (alertMsg) setAlertMsg('')
         setEdited((prev)=>({...prev, bio:e.target.value}))
     }
 
     const submitHandler = async (e) => {
         e.preventDefault();
-        setAlertMsg('')
 
         const res = await updateProfile({ bio: edited.bio, flair: edited.flair, image: edited.image_url })
         const data = await res.json()
 
         if (res.ok) {
             updateUser(data)
-            setAlertMsg('Profile updated.')
+            setToastMsg({message: 'Profile updated.', type: 'success', key: Date.now()})
             setTimeout(() => navigate('/profile'), 800);
         } else {
-            setAlertMsg(data.error || 'Something went wrong.')
+            setToastMsg({message: data.error || 'Something went wrong.', type: 'error', key: Date.now()})
         }
     }
 
@@ -120,7 +117,6 @@ function EditProfile(){
         setEdited(original)
         setImagePreview(original.image_url || '')
         if (fileInputRef.current) fileInputRef.current.value = ''
-        setAlertMsg('')
     }
 
     if (loading || isAuthLoading) {
@@ -145,6 +141,8 @@ function EditProfile(){
 
     return (
         <div className="EditProfile main-content">
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
+
             <div className='header-container'>
                 <div className='header'>
                     <h2>Edit profile</h2>
@@ -228,8 +226,6 @@ function EditProfile(){
                     <button type="button" onClick={cancelHandler}>Cancel</button>
                 </div>
             </form>
-
-            {alertMsg && <div className='alert-msg'>{alertMsg}</div>}
         </div>
     )
 }

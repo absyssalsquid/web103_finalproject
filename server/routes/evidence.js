@@ -7,8 +7,9 @@ import { validateEvidenceSubmission } from '../middleware/submissionValidation.j
 const router = express.Router()
 
 router.post('/', requireJWT, validateEvidenceSubmission, controller.createEvidence)  // body: { caseId, content, ... }
-router.get('/:id', controller.getEvidence)
+router.patch('/:id', requireJWT, validateEvidenceSubmission,controller.updateEvidence) // Users CANNOT edit after 5 minues 
 router.delete('/:id', requireJWT, controller.deleteEvidence) // Users CANNOT delete once evidence phase has passed
+router.get('/:id', controller.getEvidence)
 
 router.put('/:id/vote', requireJWT, controller.voteEvidence)  // Users CANNOT vote once evidence phase has passed
 router.get('/:id/votes', controller.voteCountEvidence)

@@ -6,6 +6,7 @@ import Pagination from '../Pagination';
 import ProgressBar from '/src/components/ProgressBar'
 import UserTag from '../UserTag';
 import SearchBar from '../SearchBar';
+import ToastMessage from "/src/components/ToastMessage"
 
 import { getUsage } from '/src/api/me'
 import { getUserLimits, getLengthLimits } from '/src/api/rules'
@@ -24,7 +25,7 @@ const EV_ARG_SORT_MODES = [
 
 const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     const {id: case_id} = useParams()
-    const { user, isAuthenticated} = useAuthContext()
+    const { user, isAuthenticated, isAuthLoading} = useAuthContext()
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
@@ -33,20 +34,20 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
     const [formActive, setFormActive] = useState(false)
     const [evidenceSubmission, setEvidenceSubmission] = useState({case_id: case_id, text: ''})
-    const [alertMsg, setAlertMsg] = useState('')
+    const [toastMsg, setToastMsg] = useState({message: '', type:''})
 
     const [userLimits, setUserLimits] = useState({})
     const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
+
     const limitReached = usage.evidence >= userLimits.evidence
+    const isActivePhase = phaseDelta == 0;
 
     useEffect(() => {
         async function fetchData(){
-
             const res = await Promise.all([
                 getUserLimits(),
                 getLengthLimits(),
-                getUsage()
             ])
 
             const data = await Promise.all(
@@ -54,12 +55,23 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
             setUserLimits(data[0])
             setLengthLimits(data[1])
-            setUsage(data[2])
-
             setLoading(false)
         }
         fetchData();
-    }, [case_id]);
+    }, [case_id, isAuthenticated]);
+
+    useEffect(() => {
+        async function fetchData(){
+            if (isAuthenticated){
+                const res2 = await getUsage()
+                if (res2.ok){
+                    const data2 = await res2.json()
+                    setUsage(data2)
+                }
+            }
+        }
+        fetchData();
+    }, [isAuthenticated]);
 
      const queryDB = useCallback(async (case_id, qParams) => {
         setLoading(true)
@@ -112,7 +124,6 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     }
 
     function handleChange(e){
-        if (alertMsg) setAlertMsg('')
         setEvidenceSubmission((prev) => ({...prev, text: e.target.value}))
     }
 
@@ -122,11 +133,11 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         const res = await submitEvidence(evidenceSubmission)
         const data = await res.json()
         if (res.ok){
-            setAlertMsg("Evidence sucessfully submitted.")
-            setTimeout(() => navigate(0), 1500);
+            setToastMsg({message: "Evidence sucessfully submitted.", type: 'success', key: Date.now()})
+            setTimeout(() => navigate(0), 1700);
         }
         else {
-            setAlertMsg(data.error)
+            setToastMsg({message: data.error, type: 'error', key: Date.now()})
         }
         setSubmitting(false)
     }
@@ -137,7 +148,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     }
 
     
-    if (loading)
+    if (loading || isAuthLoading)
         return (
             <div className="sub-content">
                 <div className='minimal'>Loading evidence...</div>
@@ -151,10 +162,10 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
             </div>
         )
 
-    const isActivePhase = phaseDelta == 0;
-
     return (
         <div className="CaseEvidence sub-content">
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
+
             <div className="evidence-container">
             <SearchBar
                 state={history}
@@ -171,7 +182,10 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                         idx={index}
                         data={item}
                         isActivePhase={isActivePhase}
-                        patchVoteCounts={patchVoteCounts}/>
+                        patchVoteCounts={patchVoteCounts}
+                        isOwned={isAuthenticated && item.user_id === user.user_id}
+                        lengthLimits={{min: lengthLimits.evidence_min, max: lengthLimits.evidence_max}}
+                        />
                     )}
             </div>
             <Pagination history={history} setHistory={setHistory}/>
@@ -219,13 +233,10 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
                 <ProgressBar
                     label="Daily evidence submissions"
-                    value={usage.evidence}
+                    value={usage.evidence !== null ? usage.evidence : '???'}
                     limit={userLimits.evidence}
                     limit_message={"You've reached your daily evidence submission limit."}
                 />
-
-                {alertMsg && <div className='error-msg'>{alertMsg}</div>}
-
             </form>
         </div>
     )

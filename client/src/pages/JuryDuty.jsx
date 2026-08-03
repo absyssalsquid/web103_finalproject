@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from "react-router-dom";
 import Countdown from 'react-countdown';
 
+import ToastMessage from '../components/ToastMessage'
 import { useAuthContext } from '/src/contexts/auth'
 
 import { getUserLimits, getRefreshTime } from '/src/api/rules'
@@ -17,8 +18,8 @@ function JuryDuty(){
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
 
-    const [alertMsg, setAlertMsg] = useState('')
-    
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
+
     const [userLimits, setUserLimits] = useState({})
     const [refreshTime, setRefreshTime] = useState(null)
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
@@ -56,11 +57,11 @@ function JuryDuty(){
             if (data.ja_id)
                 nav(`/jury/ballot/${data.ja_id}`)
             else
-                setAlertMsg(data.message);
+                setToastMsg({message: data.message, type: 'info', key: Date.now()});
         }
         else{
             console.log (res)
-            setAlertMsg(data.error);
+            setToastMsg({message: data.error, type: 'error', key: Date.now()});
         }
         setSubmitting(false)
     }
@@ -83,6 +84,8 @@ function JuryDuty(){
 
     return (
         <div className="JuryDuty main-content">
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
+
             <div className="card">
                 <form onSubmit={handleNew}>
                     <h2>Do you want to serve on a jury?</h2>
@@ -92,7 +95,6 @@ function JuryDuty(){
                     </button>
                 </form>
             </div>
-            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )
 }

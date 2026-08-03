@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 
 import ProgressBar from "/src/components/ProgressBar"
 import TopAlert from "/src/components/TopAlert"
+import ToastMessage from "/src/components/ToastMessage"
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -24,7 +25,7 @@ const NewCase = () => {
     const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
     const [caseParams, setCaseParams] = useState({object_name: '', accusation: '', image: null})
-    const [alertMsg, setAlertMsg] = useState('')
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
 
     const [imagePreview, setImagePreview] = useState(null);
 
@@ -70,7 +71,6 @@ const NewCase = () => {
     }
 
     const handleChange = (e) => {
-        if (alertMsg) setAlertMsg('')
         setCaseParams({
             ...caseParams,
             [e.target.name]: e.target.value,
@@ -96,13 +96,13 @@ const NewCase = () => {
         const data = await res.json()
 
         if (res.ok){
-            setAlertMsg(`Case #${data.case_id} successfully created.`)
+            setToastMsg({message: `Case #${data.case_id} successfully created.`, type: 'success', key: Date.now()})
             setTimeout(() => {
                 navigate('/');
             }, 1000);
         }
         else {
-            setAlertMsg(data.error)
+            setToastMsg({message: data.error, type: 'error', key: Date.now()})
         }
         setSubmitting(false)
     }
@@ -126,6 +126,8 @@ const NewCase = () => {
 
     return (
         <div className="NewCase">
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
+
             {(!isAuthenticated) &&
                 <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit a case</>)} />
             }
@@ -204,7 +206,6 @@ const NewCase = () => {
                         </button>
                     </div>
                 </form>
-                {alertMsg && <div className='error-msg'>{alertMsg}</div>}
             </div>
 
         </div>

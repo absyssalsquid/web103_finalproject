@@ -95,15 +95,6 @@ const getUsage = async (req, res) => {
   }
 }
 
-const getUserActivity = async (req, res) => {
-  try {
-    // Get aggregated activity: likes, jury assignments, submissions
-    res.json({ /* activity data */ })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
 const getUserLikes = async (req, res) => {
   try {
     // Get user's votes (?limit=20&page=1)
@@ -148,7 +139,7 @@ const getUserJuryAssignments = async (req, res) => {
       entries: response.rows 
     })
   } catch (error) {
-    console.log(error.message)
+    console.log("getUserJuryAssignments", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }

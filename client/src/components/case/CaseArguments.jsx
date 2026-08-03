@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom';
 
+import { useAuthContext } from '/src/contexts/auth'
+
+
 import ArgumentCard from "../cards/ArgumentCard";
 import Pagination from '../Pagination';
 import SearchBar from '../SearchBar';
@@ -24,6 +27,7 @@ const ARGUMENT_FILTER_MODES = [
 
 const CaseArguments = ({phaseDelta, history, setHistory}) => {
     const {id: case_id} = useParams()
+    const { user, isAuthenticated, isAuthLoading} = useAuthContext()
 
     const [loading, setLoading] = useState(true);
     const [isFirstRender, setFirstRender] = useState(true);
@@ -79,7 +83,7 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
         });
     }
 
-    if (loading)
+    if (loading || isAuthLoading)
     return (
         <div className="sub-content">
             <div className='minimal'>Loading arguments...</div>
@@ -107,7 +111,16 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
                 />
                 {history.entries.length === 0
                     ? <div className="minimal">No arguments submitted{isActivePhase && ' yet'}.</div>
-                    : history.entries.map((arg, index) => <ArgumentCard key={index} idx={index} data={arg} isActive={isActivePhase} patchVoteCounts={patchVoteCounts}/>)}
+                    : history.entries.map((arg, index) => 
+                        <ArgumentCard 
+                            key={index} 
+                            idx={index} 
+                            data={arg} 
+                            isActivePhase={isActivePhase} 
+                            patchVoteCounts={patchVoteCounts} 
+                            isOwned={isAuthenticated && arg.user_id === user.user_id}
+                        />
+                    )}
             </div>
             <Pagination history={history} setHistory={setHistory}/>
             

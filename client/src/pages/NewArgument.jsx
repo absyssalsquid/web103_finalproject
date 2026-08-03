@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 import ProgressBar from '/src/components/ProgressBar'
 import TopAlert from "/src/components/TopAlert"
 import Pagination from '/src/components/Pagination'
+import ToastMessage from "/src/components/ToastMessage"
 
 import { useAuthContext } from '/src/contexts/auth'
 import { getUsage } from '/src/api/me'
 import { getUserLimits } from '/src/api/rules'
-import { submitArgument, fetchCaseEvidence, fetchCase } from '/src/api/cases'
+import { submitArgument, fetchCaseEvidence, fetchCase, getArgument } from '/src/api/cases'
 import { LIMITS } from '/src/api/limits'
 
 import './NewArgument.css'
+import { editArgument } from '../api/cases'
 
 const TAGS = [
     { value: 'PROSECUTION', label: 'Prosecution', tag:'prosecution'  },
@@ -19,34 +21,46 @@ const TAGS = [
 ]
 
 function NewArgument({ onSubmitted }){
-    const { id } = useParams()
-    const { isAuthenticated, isAuthLoading } = useAuthContext();
+    const routeParams = useParams()
+
+    const [case_id, setCaseID] = useState(routeParams.case_id)
+    const [arg_id, setArgID] = useState(routeParams.arg_id)
+    const [forEdit, setEdit] = useState(arg_id ? true : false)
+    const [isFetchArgError, setIsFetchArgError] = useState(false)
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null}) // key=Date.now()
+
+    const { isAuthenticated, user, isAuthLoading } = useAuthContext();
+    
+    const navigate = useNavigate()
 
     // loading vars
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [loadingEvidence, setLoadingEvidence] = useState(false)
+    const [citingCase, setCitingCase] = useState(false)
+    
 
     // submission vars
+    const [fetchedArg, setFetchedArg] = useState({})
     const [tag, setTag] = useState(null);
     const [argument, setArgument] = useState('');
+    const [citedEvidenceData, setCitedEvidenceData] = useState({}) // full params of citation for rendering, indexed by evidence_id
+    const [citedCaseData, setCitedCaseData] = useState({}) // full params of citation for rendering, indexed by case_id
     const [citedEvidenceIds, setCitedEvidenceIds] = useState([])
-    const [citedCases, setCitedCases] = useState([]) // [{ case_id, judge_ruling }]
     const [caseInput, setCaseInput] = useState('')
 
     const [userLimits, setUserLimits] = useState({arguments: 0})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
-    const [evidenceHistory, setEvidenceHistory] = useState({limit: 10, page: 1, last_page: 1, entries: []})
+    const [evidenceHistory, setEvidenceHistory] = useState({limit: 20, page: 1, last_page: 1, entries: []})
     const [paneOpen, setPaneOpen] = useState(false)
     
     // err messages
-    const [alertMsg, setAlertMsg] = useState('')
     const [citeError, setCiteError] = useState('')
 
-    const refreshUsage = async () => {
-        const res = await getUsage()
-        if (res.ok) setUsage(await res.json())
-    }
+    // const refreshUsage = async () => {
+    //     const res = await getUsage()
+    //     if (res.ok) setUsage(await res.json())
+    // }
 
     useEffect(() => {
         async function fetchData(){
@@ -56,21 +70,48 @@ function NewArgument({ onSubmitted }){
             ])
             if (res[0].ok) setUserLimits(await res[0].json())
             if (res[1].ok) setUsage(await res[1].json())
+
+            // populate form from fetch for edit
+            if (arg_id) {
+                const arg_res = await getArgument(arg_id)
+                const arg_data = await arg_res.json()
+
+                if (arg_res.ok){
+                    console.log(arg_data)
+                    setTag(arg_data.argument_tag)
+                    setArgument(arg_data.text)
+                    setCitedEvidenceIds(arg_data.evidence_citations)
+                    setCaseID(arg_data.case_id)
+                    setEdit(true)
+                    setFetchedArg(arg_data)
+
+                    const ev_cache = Object.fromEntries(arg_data.evidence_citations_data.map((ev) => [ev.evidence_id, ev]))
+                    setCitedEvidenceData(ev_cache)
+
+                    const case_cache = Object.fromEntries(arg_data.case_citations_data.map((c) => [c.case_id, c]))
+                    setCitedCaseData(case_cache)
+
+                } else{
+                    setIsFetchArgError(true)
+                    setArgID(null)
+                }
+            }
             setLoading(false)
         }
         fetchData();
-    }, [id]);
+    }, []);
 
     useEffect(() => {
+        if (loading) return
+
         (async () => {
-            if (loading) return
             setLoadingEvidence(true);
             const queryParams = {
                 limit: evidenceHistory.limit,
                 page: evidenceHistory.page,
             }
 
-            const res = await fetchCaseEvidence(id, queryParams)
+            const res = await fetchCaseEvidence(case_id, queryParams)
             const data = await res.json()
             if (res.ok){
                 setEvidenceHistory((prev)=>({
@@ -81,74 +122,112 @@ function NewArgument({ onSubmitted }){
             }
             setLoadingEvidence(false);
         })();
-    }, [loading, id, evidenceHistory.limit, evidenceHistory.page]);
+    }, [loading, case_id, arg_id, evidenceHistory.limit, evidenceHistory.page]);
 
     const toggleEvidence = (evidenceId) => {
         setCitedEvidenceIds((prev) =>
             prev.includes(evidenceId) ? prev.filter((e) => e !== evidenceId) : [...prev, evidenceId]
         )
+
+        // cache or uncache from citedEvidenceData
+        const cache = {...citedEvidenceData}
+        if (evidenceId in citedEvidenceData){
+            delete cache[evidenceId]
+        } else{
+            const entry = evidenceHistory.entries.filter((e)=> e.evidence_id == evidenceId)
+            cache[evidenceId] = entry[0]
+        }
+        setCitedEvidenceData(cache)
     }
 
     const removeEvidence = (evidenceId) => {
         setCitedEvidenceIds((prev) => prev.filter((e) => e !== evidenceId))
+        const cache = {...citedEvidenceData}
+        delete cache[evidenceId]
+        setCitedEvidenceData(cache)
     }
 
     const handleCiteCase = async () => {
         const num = caseInput.trim()
         if (!num) return
-        if (citedCases.some((c) => c.case_id === num)) {
+        const num2 = Number(num)
+        if (!Number.isSafeInteger(num2) || num2 < 1) {
+            setCiteError(`Invalid case number.`)
+            return
+        }
+        
+        if (num in citedCaseData) {
             setCiteError(`Case #${num} is already cited.`)
             return
         }
+
+        setCitingCase(true)
+
         const res = await fetchCase(num)
+        const data = await res.json()
+
+        // if (data.phase !== 'CLOSED'){
+        //     setCiteError(`Case #${num} has not concluded yet.`)
+        //     return
+        // }
+
         if (!res.ok) {
             setCiteError(`Case #${num} not found.`)
+            setCitingCase(false)
             return
         }
-        const found = await res.json()
-        setCitedCases((prev) => [...prev, found])
+        setCitedCaseData((prev)=> ({...prev, [data.case_id]: data}))
+
         setCaseInput('')
         setCiteError('')
+        setCitingCase(false)
     }
 
     const removeCase = (caseNum) => {
-        setCitedCases((prev) => prev.filter((c) => c.case_id !== caseNum))
+        const cache = {...citedCaseData}
+        console.log(cache)
+        delete cache[caseNum]
+        setCitedCaseData(cache)
     }
 
     const submitHandler = async (e) => {
         e.preventDefault();
-        if (alertMsg) setAlertMsg('')
 
         if (!tag) {
-            setAlertMsg('Select prosecution or defense before submitting.')
+            setToastMsg({message: 'Select prosecution or defense before submitting.', type: 'error', key: Date.now()})
             return
         }
-        if (citedEvidenceIds.length + citedCases.length > 5) {
-            setAlertMsg('Arguments can cite at most 5 items total.')
+        if (citedEvidenceIds.length + Object.keys(citedCaseData).length > 5) {
+            setToastMsg({message: 'Arguments can cite at most 5 items total.', type: 'error', key: Date.now()})
             return
         }
 
         setSubmitting(true)
 
-        const res = await submitArgument({
-            id,
-            content: argument,
+        const fn = forEdit ? editArgument : submitArgument
+        const res = await fn({
+            case_id,
+            arg_id,
+            text: argument,
             argument_tag: tag,
-            evidence_ids: citedEvidenceIds,
-            case_ids: citedCases.map((c) => c.case_id),
+            evidence_citations: citedEvidenceIds,
+            case_citations: Object.keys(citedCaseData),
+            for_edit: forEdit
         })
         const data = await res.json()
 
         if (res.ok){
-            setArgument('')
-            setTag(null)
-            setCitedEvidenceIds([])
-            setCitedCases([])
-            await refreshUsage()
-            if (onSubmitted) onSubmitted()
+            setToastMsg({message: forEdit ? "Argument saved." : "Argument received.", type: 'success', key: Date.now()})
+            setTimeout(() => navigate(`/cases/${case_id}/arguments`), 1700);
+            // setArgument('')
+            // setTag(null)
+            // setCitedEvidenceIds([])
+            // setCitedCases([])
+            // await refreshUsage()
+            // if (onSubmitted) onSubmitted()
         }
         else {
-            setAlertMsg(data.error)
+            setToastMsg({message: data.error, type: 'error', key: Date.now()})
         }
         setSubmitting(false)
     }
@@ -169,9 +248,27 @@ function NewArgument({ onSubmitted }){
             </div>
         )
     }
+
+    if (isFetchArgError){
+        return (
+            <div className='main-content minimal'>
+                <h1>Error fetching argument.</h1>
+            </div>
+        )
+    }
+
+    if (arg_id && isAuthenticated && user.user_id!=fetchedArg.user_id){
+        return (
+            <div className='main-content minimal'>
+                <h1>This is not your argument.</h1>
+            </div>
+        )
+    }
     
     return (
         <div className='NewArgument'>
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
+            
             {(!isAuthenticated) &&
                 <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit an argument</>)} />
             }
@@ -220,14 +317,15 @@ function NewArgument({ onSubmitted }){
                                 + cite evidence
                             </button>
 
+                            {/* ----------------------------------------- CASE CITATION ROW --------------------------------------- */}
                             <div className="case-cite-row">
                                 <input
                                     type="text"
                                     value={caseInput}
-                                    onChange={(e) => setCaseInput(e.target.value)}
+                                    onChange={(e) => {setCaseInput(e.target.value); setCiteError('')}}
                                     placeholder="case #"
                                 />
-                                <button type="button" onClick={handleCiteCase}>+ case citation</button>
+                                <button type="button" onClick={handleCiteCase} disabled={citingCase}>+ case citation</button>
                             </div>
 
                             {citeError && (
@@ -237,35 +335,45 @@ function NewArgument({ onSubmitted }){
                                 </div>
                             )}
 
-                            {(citedEvidenceIds.length > 0 || citedCases.length > 0) && (
-                                <div className="citations-container">
-                                    {citedEvidenceIds.map((evidenceId) => {
-                                        const ev = evidenceHistory.entries.find((e) => e.evidence_id === evidenceId)
-                                        if (!ev) return null
-                                        return (
-                                            <div className="citation-row" key={`ev-${evidenceId}`}>
+                            {/* ----------------------------------------- EVIDENCE CITATIONS --------------------------------------- */}
+
+                            {(citedEvidenceIds.length > 0) && (
+                                <>
+                                    <label htmlFor="ev-citations" className="label">Evidence citations</label>
+
+                                    <div className="citations-container">
+                                        { Object.entries(citedEvidenceData).map(([ev_id, ev])=>(
+                                            <div className="citation-row" key={`ev-${ev_id}`}>
                                                 <div>
                                                     <div>"{ev.text}"</div>
                                                     <div className="citation-sub">
-                                                        Evidence #{evidenceId} — +{ev.up_votes} / -{ev.down_votes}
+                                                        {ev.username} — #{ev_id} — +{ev.up_votes} / -{ev.down_votes} 
                                                     </div>
                                                 </div>
-                                                <button type="button" onClick={() => removeEvidence(evidenceId)} className="remove-citation">✖</button>
+                                                <button type="button" onClick={() => removeEvidence(ev_id)} className="remove-citation">✖</button>
                                             </div>
-                                        )
-                                    })}
-                                    {citedCases.map((c) => (
-                                        <div className="citation-row" key={`case-${c.case_id}`}>
-                                            <div>
-                                                <div>Case #{c.case_id}</div>
-                                                <div className="citation-sub">
-                                                    {c.judge_ruling}
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                            {/* ----------------------------------------- CASE CITATIONS --------------------------------------- */}
+                            {(Object.keys(citedCaseData).length > 0) && (
+                                <>
+                                    <label htmlFor="case-citations" className="label">Precedent</label>
+                                    <div className="citations-container">
+                                        { Object.entries(citedCaseData).map(([c_id, c])=>(
+                                            <div className="citation-row" key={`case-${c_id}`}>
+                                                <div>
+                                                    <div>"{c.judge_ruling}"</div>
+                                                    <div className="citation-sub">
+                                                        case #{c_id} — {c.judge_name}
+                                                    </div>
                                                 </div>
+                                                <button type="button" onClick={() => removeCase(c_id)} className="remove-citation">✖</button>
                                             </div>
-                                            <button type="button" onClick={() => removeCase(c.case_id)} className="remove-citation">✖</button>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                </>
                             )}
 
                             <ProgressBar
@@ -281,18 +389,13 @@ function NewArgument({ onSubmitted }){
                                 disabled={submitDisabled || submitting}
                                 aria-busy={submitting}
                             >
-                                {submitting ? 'Submitting…' : ' Submit Argument'}
+                                {submitting ? 'Submitting…' : (forEdit ? 'Save argument' : 'Submit argument')}
                             </button>
 
                         </form>
-
-                        {alertMsg && (
-                            <div className="alert alert-error">
-                                <span className="alert-icon">!</span>
-                                <span>{alertMsg}</span>
-                            </div>
-                        )}
                     </div>
+
+
 
                 <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
                 </div>
@@ -301,7 +404,7 @@ function NewArgument({ onSubmitted }){
                     <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane" className="close-pane">✖</button>
                     <div className="pullout-header">
                         <div>
-                            <h2>evidence & cases</h2>
+                            <h2>case evidence</h2>
                             <small className="char-limit">select to cite</small>
                         </div>
                     </div>
@@ -321,7 +424,8 @@ function NewArgument({ onSubmitted }){
                                     <div>
                                         <div>"{ev.text}"</div>
                                         <div className="citation-sub">
-                                            <div>Evidence #{ev.evidence_id}</div> —
+                                            <div>{ev.username}</div> —
+                                            <div>#{ev.evidence_id}</div> —
                                             <div>+{ev.up_votes} / -{ev.down_votes}</div>
                                         </div>
                                     </div>
@@ -329,8 +433,8 @@ function NewArgument({ onSubmitted }){
                             ))
                         )}
                     </div>
-
-                    <Pagination history={evidenceHistory} setHistory={setEvidenceHistory} />
+                    
+                    {!loadingEvidence && (<Pagination history={evidenceHistory} setHistory={setEvidenceHistory} />)}
 
                     <button type="button" onClick={() => setPaneOpen(false)}>
                         close pane

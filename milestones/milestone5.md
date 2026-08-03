@@ -11,7 +11,7 @@ This unit, be sure to complete all tasks listed below. To complete a task, place
 - [x] Update the status of issues in your project board as you complete them
 - [x] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of their title
   - [ ] Under each feature you have completed, **include a GIF** showing feature functionality
-- [ ] In this document, complete the **Reflection** section below
+- [x] In this document, complete the **Reflection** section below
 - [ ] 🚩🚩🚩**Complete the Final Project Feature Checklist section below**, detailing each feature you completed in the project (ONLY include features you implemented, not features you planned)
 - [ ] 🚩🚩🚩**Record a GIF showing a complete run-through of your app** that displays all the components included in the **Final Project Feature Checklist** below
   - [ ] Include this GIF in the **Final Demo GIF** section below
@@ -24,20 +24,20 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 
 👉🏾👉🏾👉🏾 Check off each completed feature below.
 
-- [ ] The project includes an Express backend app and a React frontend app
-- [ ] The project includes these backend-specific features:
-  - [ ] At least one of each of the following database relationships in Postgres
+- [x] The project includes an Express backend app and a React frontend app
+- [x] The project includes these backend-specific features:
+  - [x] At least one of each of the following database relationships in Postgres
     - [x] one-to-many
-    - [ ] many-to-many with a join table
-  - [ ] A well-designed RESTful API that:
-    - [ ] supports all four main request types for a single entity (ex. tasks in a to-do list app): GET, POST, PATCH, and DELETE
+    - [x] many-to-many with a join table
+  - [x] A well-designed RESTful API that:
+    - [x] supports all four main request types for a single entity (ex. tasks in a to-do list app): GET, POST, PATCH, and DELETE
       - [x] the user can **view** items, such as tasks
       - [x] the user can **create** a new item, such as a task
-      - [ ] the user can **update** an existing item by changing some or all of its values, such as changing the title of task
-      - [ ] the user can **delete** an existing item, such as a task
+      - [x] the user can **update** an existing item by changing some or all of its values, such as changing the title of task
+      - [x] the user can **delete** an existing item, such as a task
     - [x] Routes follow proper naming conventions
-  - [ ] The web app includes the ability to reset the database to its default state
-- [ ] The project includes these frontend-specific features:
+  - [x] The web app includes the ability to reset the database to its default state
+- [x] The project includes these frontend-specific features:
   - [x] At least one redirection, where users are able to navigate to a new page with a new URL within the app
   - [x] At least one interaction that the user can initiate and complete on the same page without navigating to a new page
   - [x] Dynamic frontend routes created with React Router
@@ -66,6 +66,7 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 👉🏾👉🏾👉🏾 Check off each completed feature below.
 
 - [x] A subset of pages require the user to log in before accessing the content
+  - [x] After login, users are issued a JWT that is attached to every request
   - [ ] Users can log in and log out via GitHub OAuth with Passport.js
 - [ ] Restrict available user options dynamically, such as restricting available purchases based on a user's currency
 - [ ] Show a spinner while a page or page element is loading
@@ -86,20 +87,20 @@ Complete the checklist below detailing each baseline, custom, and stretch featur
 
 ### 1. What went well during this unit?
 
-[👉🏾👉🏾👉🏾 your answer here]
+was able to get a lot done
 
 ### 2. What were some challenges your group faced in this unit?
 
-[👉🏾👉🏾👉🏾 your answer here]
+didn't spread out tasks during weeks before, leading to huge crunch at the end
 
 ### 3. What were some of the highlights or achievements that you are most proud of in this project?
 
-[👉🏾👉🏾👉🏾 your answer here]
+learning how to use github more
 
 ### 4. Reflecting on your web development journey so far, how have you grown since the beginning of the course?
 
-[👉🏾👉🏾👉🏾 your answer here]
+learned a lot of how to develop backend apis
 
 ### 5. Looking ahead, what are your goals related to web development, and what steps do you plan to take to achieve them?
 
-[👉🏾👉🏾👉🏾 your answer here]
+hopefully going to deploy game for friends to play with

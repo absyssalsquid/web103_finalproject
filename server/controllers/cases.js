@@ -288,17 +288,17 @@ const getCaseArguments = async (req, res) => {
     // add evidence citations to arguments
     const evResponse = await pool.query(`
       SELECT
-          aef.arg_id,
-          COALESCE(
-              json_agg(
-                  json_build_object(
-                      'evidence_num', ev.evidence_num,
-                      'text', ev.text
-                  )
-                  ORDER BY ev.evidence_num
-              ),
-              '[]'::json
-          ) AS ev_citations
+        aef.arg_id,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'evidence_num', ev.evidence_num,
+                    'text', ev.text
+                )
+                ORDER BY ev.evidence_num
+            ),
+            '[]'::json
+        ) AS ev_citations
       FROM argument_evidence_refs AS aef
       JOIN evidence AS ev
           ON aef.evidence_id = ev.evidence_id

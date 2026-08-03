@@ -140,16 +140,16 @@ const TABLES = {
 
     argument_case_refs: `
         CREATE TABLE IF NOT EXISTS argument_case_refs (
-            arg_id          INT REFERENCES arguments(arg_id),
-            refd_case_id    INT REFERENCES cases(case_id),
+            arg_id          INT REFERENCES arguments(arg_id) ON DELETE CASCADE,
+            refd_case_id    INT REFERENCES cases(case_id) ON DELETE CASCADE,
             PRIMARY KEY(arg_id, refd_case_id)
         )
     `,
 
     argument_evidence_refs: `
         CREATE TABLE IF NOT EXISTS argument_evidence_refs (
-            arg_id          INT REFERENCES arguments(arg_id),
-            evidence_id     INT REFERENCES evidence(evidence_id),
+            arg_id          INT REFERENCES arguments(arg_id) ON DELETE CASCADE,
+            evidence_id     INT REFERENCES evidence(evidence_id) ON DELETE CASCADE,
             PRIMARY KEY(arg_id, evidence_id)
         )
     `,
@@ -180,8 +180,8 @@ const TABLES = {
 
     jury_arg_refs: `
         CREATE TABLE IF NOT EXISTS jury_arg_refs (
-            ja_id       INT REFERENCES jury_assignments(id),
-            arg_id      INT REFERENCES arguments(arg_id),
+            ja_id       INT REFERENCES jury_assignments(id) ON DELETE CASCADE,
+            arg_id      INT REFERENCES arguments(arg_id) ON DELETE CASCADE,
             PRIMARY KEY(ja_id, arg_id)
         )
     `,

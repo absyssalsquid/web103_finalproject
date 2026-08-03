@@ -32,10 +32,44 @@
 .EvidenceCard .footer {
     display: flex;
     align-items: center;
-    margin-top: 0.8rem;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
 }
 
 .EvidenceCard .date {
     color: var(--text-dim);
     font-size: 0.8em;
+}
+
+/* text area */
+.EvidenceCard .edit-area{
+    display: flex;
+    flex-direction: column;
+}
+.EvidenceCard textarea {
+    box-sizing: border-box;
+    width: 100%;
+    resize: vertical;
+    min-height: 4rem;
+    padding: 0.4rem 0.6rem;
+}
+
+
+
+/* edit actions */
+.EvidenceCard .edit-actions {
+    display: flex;
+    gap: 0.6rem;
+}
+.EvidenceCard .edit-actions button {
+    border: none;
+    background-color: var(--dim-bg);
+    border: 1px solid transparent;
+    padding: 0.2rem 0.6rem;
+    color: var(--text);
+}
+
+.EvidenceCard .edit-actions button:hover {
+    border: 1px solid var(--border);
+
 }

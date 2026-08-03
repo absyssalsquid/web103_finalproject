@@ -1,0 +1,22 @@
+.DeleteButton.tooltip{
+    border: none;
+    border-radius: 99999px;
+}
+
+.DeleteButton button.delete {
+    font-size: 0.9rem;
+    padding: 0.2rem;
+    background-color: transparent;
+    border: 1px solid var(--border);
+    border: none;
+}
+.DeleteButton button.delete:hover {
+    transform: scale(1.2);
+}
+.DeleteButton button.delete:active {
+    transform: scale(1.1);
+}
+
+.DeleteButton .tooltip {
+    border-bottom: none;
+}

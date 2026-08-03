@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import { useNavigate, Link} from 'react-router-dom'
 
+import ToastMessage from '../components/ToastMessage'
 import { useAuthContext } from '/src/contexts/auth'
 
 import './SignIn.css'
@@ -10,10 +11,9 @@ const SignIn = () =>{
     const { isAuthenticated, register } = useAuthContext()
 
     const [RegisterParams, setRegisterParams] = useState({email: '', username: '', password: '', password2: ''})
-    const [alertMsg, setAlertMsg] = useState('')
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
 
     const handleChange = (e) => {
-        if (alertMsg) setAlertMsg('')
         setRegisterParams({
             ...RegisterParams,
             [e.target.name]: e.target.value,
@@ -24,11 +24,11 @@ const SignIn = () =>{
         e.preventDefault()
         const data = await register(RegisterParams)
         if (!data.error) {
-            setAlertMsg('Signed in. You will be redirected shortly.');
+            setToastMsg({message: 'Signed in. You will be redirected shortly.', type: 'success', key: Date.now()});
             nav('/');
         }
         else{
-            setAlertMsg(data.error);
+            setToastMsg({message: data.error, type: 'error', key: Date.now()});
         }
     }
 
@@ -42,6 +42,7 @@ const SignIn = () =>{
 
     return (
         <div className='sign-in '>
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
             <div className='header'>
                 <h2>Register </h2>
@@ -77,8 +78,6 @@ const SignIn = () =>{
                     <button className='primary'>Register</button>
                 </div>
             </form>
-
-            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )
 

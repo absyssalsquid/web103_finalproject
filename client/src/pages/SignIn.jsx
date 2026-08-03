@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 
+import ToastMessage from '../components/ToastMessage'
 import { useAuthContext } from '/src/contexts/auth'
 
 import './SignIn.css'
@@ -11,14 +12,13 @@ const SignIn = () =>{
 
     const [signInParams, setSignInParams] = useState({username: '', password: ''})
     const [lengthLimits, setLengthLimits] = useState({})
-    const [alertMsg, setAlertMsg] = useState('')
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
 
     useEffect(()=>{
         // check if user is signed in
     },[])
 
     const handleChange = (e) => {
-        if (alertMsg) setAlertMsg('')
         var newSignInParams = {
             ...signInParams,
             [e.target.name]: e.target.value,
@@ -30,11 +30,11 @@ const SignIn = () =>{
         e.preventDefault()
         const data = await login(signInParams);
         if (!data.error) {
-            setAlertMsg('Signed in. You will be redirected shortly.');
+            setToastMsg({message: 'Signed in. You will be redirected shortly.', type: 'success', key: Date.now()});
             nav('/');
         }
         else{
-            setAlertMsg(data.error);
+            setToastMsg({message: data.error, type: 'error', key: Date.now()});
         }
     }
 
@@ -48,12 +48,13 @@ const SignIn = () =>{
 
     return (
         <div className='sign-in main-content'>
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
             <div className='header'>
                 <h2>Sign in </h2>
                 <p>or <Link to={"/register"}>register</Link> for an account</p>
             </div>
-            
+
             <form onSubmit={handleSignIn}>
                 <input
                     name='username'
@@ -74,8 +75,6 @@ const SignIn = () =>{
                     <button className='primary' type="submit">Sign in</button>
                 </div>
             </form>
-
-            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
         </div>
     )
 

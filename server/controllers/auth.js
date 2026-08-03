@@ -49,7 +49,6 @@ const createUser = async (req, res) => {
     `, [username, email, passwordHash]);
 
     const user = result.rows[0];
-    console.log(user)
     const token = newToken(user)
     res.cookie("access_token", token, TOKEN_COOKIE_OPTIONS);
     return res.status(201).json({
@@ -67,7 +66,7 @@ const createUser = async (req, res) => {
       });
     }
 
-    console.error(error);
+    console.error(error.message);
     return res.status(500).json({error: "Internal server error"});
   }
 };

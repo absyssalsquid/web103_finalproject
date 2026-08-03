@@ -26,7 +26,7 @@
 .CaseEvidence .pullup-panel{
     box-sizing: border-box;
     width: 100%;
-    max-width: 600px;
+    max-width: calc(35rem + 5rem);
     box-shadow: var(--shadow), 0 0 20px 5px rgba(0, 0, 0, 0.281);
     border: 1px solid var(--card-border);
     position: fixed;

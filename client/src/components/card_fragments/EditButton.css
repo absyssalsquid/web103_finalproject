@@ -1,0 +1,24 @@
+.EditButton.tooltip{
+    border: none;
+    border-radius: 99999px;
+}
+
+.EditButton button.edit {
+    transform: scaleX(-1);
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0.1rem;
+    background-color: transparent;
+    border: 1px solid var(--border);
+    border: none;
+}
+.EditButton button.edit:hover {
+    transform: scaleX(-1) scale(1.2);
+}
+.EditButton button.edit:active {
+    transform: scaleX(-1) scale(1.1);
+}
+
+.EditButton .tooltip {
+    border-bottom: none;
+}

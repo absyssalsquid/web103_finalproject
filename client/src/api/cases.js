@@ -1,5 +1,5 @@
 
-import { CRED_GET_OPTS, defaultPostOpts } from "./utils"
+import { CRED_GET_OPTS, defaultPostOpts, defaultDeleteOpts, defaultPatchOpts } from "./utils"
 
 export async function submitCase(params) {
   // params = { object_name, accusation, image }
@@ -46,6 +46,32 @@ export async function submitArgument(params) {
   return await fetch(`/api/arguments`, options);
 }
 
+// ------------------------ withdraw from case ------------------------
+
+export async function deleteEvidence(evidence_id){
+  const options = defaultDeleteOpts({})
+  return await fetch(`/api/evidence/${evidence_id}`, options);
+}
+
+export async function deleteArgument(arg_id){
+  const options = defaultDeleteOpts({})
+  return await fetch(`/api/arguments/${arg_id}`, options);
+}
+
+// ------------------------ edit from case ------------------------
+
+export async function editEvidence(params){
+  // case_id, evidence_id, text -- case_id only necessary for validation of phase by middleware
+  const options = defaultPatchOpts(params)
+  return await fetch(`/api/evidence/${params.evidence_id}`, options);
+}
+
+export async function editArgument(params){
+  // case_id, text, argument_tag, case_citations, evidence_citations, arg_id
+  const options = defaultPatchOpts(params)
+  return await fetch(`/api/arguments/${params.arg_id}`, options);
+}
+
 // ------------------------ judge decision ------------------------
 
 export async function submitJudgeVerdict(case_id, params) {
@@ -53,4 +79,10 @@ export async function submitJudgeVerdict(case_id, params) {
   // verdict: 'GUILTY' | 'NOT_GUILTY' | 'TB_PECKED_AT'
   const options = defaultPostOpts(params)
   return await fetch(`/api/cases/${case_id}/judge-verdict`, options);
+}
+
+
+// ------------------------ get singles ------------------------
+export async function getArgument(arg_id) {
+  return await fetch(`/api/arguments/${arg_id}`, CRED_GET_OPTS)
 }

@@ -6,6 +6,28 @@ export const CRED_GET_OPTS = {
   }
 }
 
+export function defaultDeleteOpts(params){
+  return {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  }
+}
+
+export function defaultPatchOpts(params){
+  return {
+    method: "PATCH",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  }
+}
+
 export function defaultPostOpts(params){
   return {
     method: "POST",

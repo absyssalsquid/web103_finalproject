@@ -1,5 +1,7 @@
+import { DateTime} from 'luxon'
 import { pool } from '../config/database.js'
 import { updateReaction } from '../utils/reactionService.js'
+import {EDIT_LIMIT_MINUTES} from '../config/userRules.js'
 
 // Dependency-injectable so tests can supply a fake pool/client, mirroring
 // createUpdateUserController's pattern.
@@ -79,20 +81,90 @@ const getArgument = async (req, res) => {
   // Get specific argument by ID
   try {
     const { id } = req.params
-    res.json({ /* argument data */ })
+
+    const result = await pool.query(`
+      WITH arg_data AS (
+        SELECT * FROM arguments WHERE arg_id = $1
+      ),
+      evidence_ids AS (
+        SELECT COALESCE(array_agg(evidence_id), ARRAY[]::int[]) AS evidence_citations
+        FROM argument_evidence_refs
+        WHERE arg_id = $1
+      ),
+      case_ids AS (
+        SELECT COALESCE(array_agg(refd_case_id), ARRAY[]::int[]) AS case_citations
+        FROM argument_case_refs
+        WHERE arg_id = $1
+      )
+      SELECT
+        arg_data.*,
+        evidence_ids.evidence_citations,
+        case_ids.case_citations
+      FROM arg_data
+      CROSS JOIN evidence_ids
+      CROSS JOIN case_ids`,
+      [id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Argument not found." })
+    }
+    const data = result.rows[0]
+
+    // get ev body for display by editor
+    const ev_response = await pool.query(`
+      SELECT
+        e.*,
+        users.username
+      FROM evidence AS e
+      JOIN users
+        ON e.user_id = users.user_id
+      WHERE e.evidence_id = ANY($1)
+    `, [data.evidence_citations]);
+    data.evidence_citations_data = ev_response.rows
+
+    // get case body for display by editor
+    const case_response = await pool.query(`
+      SELECT
+        c.case_id, c.judge_id, c.judge_ruling,
+        u.username AS judge_name
+      FROM cases AS c
+      JOIN users AS u
+        ON c.judge_id = u.user_id
+      WHERE c.case_id = ANY($1)
+    `, [data.case_citations]);
+    data.case_citations_data = case_response.rows
+
+    res.json(result.rows[0])
   } catch (error) {
-    console.log(error.message)
+    console.log("getArgument", error)
     res.status(500).json({ error: "Internal server error." })
   }
 }
 
 const deleteArgument = async (req, res) => {
   // Delete argument (restricted by phase)
+  const { user_id } = req.token_payload.user
+  const { id } = req.params
   try {
-    const { id } = req.params
-    res.json({ success: true })
+    const del_response = await pool.query(`
+      DELETE 
+      FROM arguments AS a
+      JOIN cases as c
+        ON c.case_id = a.case_id
+      WHERE a.arg_id = $1
+        AND user_id = $2
+        AND c.phase = $3
+      RETURNING user_id
+    `, [id, user_id, 'ARGUMENT'])
+    
+    if (del_response.rows.length === 0)
+      return res.status(404).json({error: "You cannot delete this argument."})
+
+    console.log("deleted arg")
+    res.status(204).json()
+
   } catch (error) {
-    console.log(error.message)
+    console.log("deleteArgument", error.message)
     res.status(500).json({ error: "Internal server error." })
   }
 }
@@ -119,6 +191,82 @@ const voteArgument = async (req, res) => {
   }
 }
 
+const updateArgument = async (req, res) => {
+  // Update argument (restricted by phase/time)
+  const { user_id } = req.token_payload.user
+  const { id } = req.params
+  const { case_id, text, argument_tag, case_citations, evidence_citations } = req.body
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+
+    // Verify user owns the argument
+    const argResponse = await client.query(`
+      SELECT arg_id, case_id, user_id, created_at
+      FROM arguments
+      WHERE arg_id = $1`,
+      [id])
+
+    if (argResponse.rows.length === 0) 
+      return res.status(404).json({ error: "Argument not found." })
+    
+    const argData = argResponse.rows[0]
+    if (argData.user_id != user_id)
+      return res.status(403).json({ error: "This is not your argument." })
+
+    if (DateTime.now().plus({minutes:-5}) > argData.created_at)
+      return res.status(404).json({ error: `Arguments can only be edited up to ${EDIT_LIMIT_MINUTES} minutes after submission.` })
+
+    // Update the argument
+    await client.query(`
+      UPDATE arguments
+      SET text = $1, argument_tag = $2
+      WHERE arg_id = $3`,
+      [text, argument_tag, id])
+
+    // Update evidence citations
+    await client.query(`DELETE FROM argument_evidence_refs WHERE arg_id = $1`, [id])
+    if (evidence_citations.length > 0) {
+      await client.query(`
+        INSERT INTO argument_evidence_refs (arg_id, evidence_id)
+        SELECT $1, unnest($2::int[])`,
+        [id, evidence_citations])
+    }
+
+    // Update case citations
+    await client.query(`DELETE FROM argument_case_refs WHERE arg_id = $1`, [id])
+    if (case_citations.length > 0) {
+      await client.query(`
+        INSERT INTO argument_case_refs (arg_id, refd_case_id)
+        SELECT $1, unnest($2::int[])`,
+        [id, case_citations])
+    }
+
+    await client.query('COMMIT')
+
+    res.json({
+      arg_id: id,
+      case_id,
+      text,
+      argument_tag,
+      case_citations,
+      evidence_citations,
+    })
+  } catch (error) {
+    await client.query('ROLLBACK')
+    const CITATION_UNIQUE_CONSTRAINTS = new Set(['argument_case_refs_pkey', 'argument_evidence_refs_pkey'])
+    if (error.code === '23505' && CITATION_UNIQUE_CONSTRAINTS.has(error.constraint)) {
+      console.log('updateArgument duplicate citation', error.message)
+      return res.status(400).json({ error: 'Duplicate citation.' })
+    }
+    console.log('updateArgument', error.message)
+    res.status(500).json({ error: "Internal server error." })
+  } finally {
+    client.release()
+  }
+}
+
 const voteCountArgument = async (req, res) => {
   // Get vote count for argument
   try {
@@ -130,4 +278,4 @@ const voteCountArgument = async (req, res) => {
   }
 }
 
-export default { createArgument, getArgument, deleteArgument, voteArgument, voteCountArgument }
+export default { createArgument, getArgument, deleteArgument, updateArgument, voteArgument, voteCountArgument }

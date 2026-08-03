@@ -5,7 +5,7 @@ import './UserProfile.css'
 import SubNav from '../components/SubNav'
 import Achievements from '../components/user/Achievements'
 import UserCard from '../components/user/UserCard'
-import UserContributions from '../components/Contributions'
+import UserContributions from '../components/user/Contributions'
 import { useAuthContext } from '/src/contexts/auth'
 
 import { fetchUserData, fetchUserStats, fetchUserAchievements } from "/src/api/users.js"

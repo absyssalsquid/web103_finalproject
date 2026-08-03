@@ -244,10 +244,11 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
     if (!isDict(req.body))
       return res.status(400).json({error: 'Request body must be a JSON object.'});
 
-    let { case_id, text, argument_tag, case_citations, evidence_citations } = req.body
+    let { case_id, text, argument_tag, case_citations, evidence_citations, for_edit } = req.body
     text = (text === null || text === '') ? null : text
     argument_tag = (argument_tag === null || argument_tag === '') ? null : argument_tag
     case_citations = (case_citations === null) ? [] : case_citations
+    for_edit = for_edit ? true : false
     evidence_citations = (evidence_citations === null) ? [] : evidence_citations
 
     // validate case id
@@ -293,11 +294,13 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
       return res.status(400).json({error: `You may cite at most ${MAX_TOTAL_CITATIONS} items total.`});
 
     // validate participation limits
-    const canSubmit = await isBelowSubmissionLimit(user_id, 'arguments', USAGE_LIMITS.arguments)
-    if (canSubmit === null)
-      return res.status(500).json({ error: 'Could not validate usage limits.' })
-    if (!canSubmit)
-        return res.status(401).json({error: `You have used all of your argument submissions for today.`});
+    if (!for_edit){
+      const canSubmit = await isBelowSubmissionLimit(user_id, 'arguments', USAGE_LIMITS.arguments)
+      if (canSubmit === null)
+        return res.status(500).json({ error: 'Could not validate usage limits.' })
+      if (!canSubmit)
+          return res.status(401).json({error: `You have used all of your argument submissions for today.`});
+    }
 
     try {
       // validate phase
@@ -326,10 +329,17 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
       // validate cited cases exist
       if (case_citations.length > 0) {
         const cc_response = await query(`
-          SELECT COUNT(*) FROM cases WHERE case_id = ANY($1)`,
+          SELECT case_id, phase FROM cases WHERE case_id = ANY($1)`,
           [case_citations])
+
         if (Number(cc_response.rows[0].count) !== case_citations.length)
           return res.status(400).json({error: 'One or more cited cases do not exist.'});
+        
+        // check that cases are closed
+        for (const row of cc_response.rows){
+          if (row.phase !== 'CLOSED')
+            return res.status(400).json({error: `Case #${row.case_id} has not concluded yet.`});
+        }
       }
 
       // validate cited evidence exists and belongs to this case
@@ -338,7 +348,7 @@ export function createArgumentSubmissionValidator(query = pool.query.bind(pool))
           SELECT COUNT(*) FROM evidence WHERE evidence_id = ANY($1) AND case_id = $2`,
           [evidence_citations, case_id])
         if (Number(ec_response.rows[0].count) !== evidence_citations.length)
-          return res.status(400).json({error: 'One or more cited evidence items do not exist for this case.'});
+          return res.status(400).json({error: 'One or more cited evidence items are not from this case.'});
       }
 
     } catch (error) {

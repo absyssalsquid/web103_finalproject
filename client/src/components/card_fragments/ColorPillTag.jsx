@@ -1,5 +1,5 @@
 import './ColorPillTag.css'
-import {toTitleCase} from '../utils'
+import {toTitleCase} from '../../utils'
 import Countdown from 'react-countdown';
 
 const TAG_COLORS = {

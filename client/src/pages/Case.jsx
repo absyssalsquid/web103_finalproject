@@ -7,7 +7,7 @@ import CaseArguments from '../components/case/CaseArguments'
 import CaseVerdict from '../components/case/CaseVerdict'
 import CaseRuling from '../components/case/CaseRuling'
 import UserTag from '../components/UserTag'
-import ColorPillTag from '../components/ColorPillTag'
+import ColorPillTag from '../components/card_fragments/ColorPillTag'
 import SubNav from '../components/SubNav'
 
 import {fetchCase, fetchJurySummary} from "/src/api/cases"

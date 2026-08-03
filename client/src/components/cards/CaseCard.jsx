@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import ColorPillTag from '../ColorPillTag'
+import ColorPillTag from '../card_fragments/ColorPillTag'
 import UserTag from '../UserTag'
 
 import './CaseCard.css'

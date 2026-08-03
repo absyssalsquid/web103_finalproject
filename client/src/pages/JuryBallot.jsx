@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 import Pagination from '../components/Pagination'
+import ToastMessage from "../components/ToastMessage"
 import { useAuthContext } from '/src/contexts/auth'
 
 import { getJuryAssignmentDetails, voteJury } from "/src/api/jury.js"
@@ -26,11 +27,12 @@ function JuryDuty(){
 
     const [isExpired, setExpired] = useState(true)
 
-    const [alertMsg, setAlertMsg] = useState('')
+    const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
 
     const [assignmentDetails, setAssignmentDetails] = useState({ case_id: null, expires_at: null, vote: null, fav_args: [] })
 
     const [argumentHistory, setArgumentHistory] = useState({limit: 10, page: 1, last_page: 1, filterBy: 'all', sortBy:'best', entries: []})
+    const [citedArgumentData, setCitedArgumentData] = useState({})
 
     const [paneOpen, setPaneOpen] = useState(false)
 
@@ -62,7 +64,7 @@ function JuryDuty(){
                     }
                 }
                 else{
-                    setAlertMsg(data.error);
+                    setToastMsg({message: data.error, type: 'error', key: Date.now()});
                 }
             }
             setLoading(false)
@@ -110,6 +112,15 @@ function JuryDuty(){
                 ? prev.fav_args.filter((a) => a !== argId)
                 : [...prev.fav_args, argId]
         }))
+
+        const cache = {...citedArgumentData}
+        if (argId in citedArgumentData){
+            delete cache[argId]
+        } else{
+            const entry = argumentHistory.entries.filter((a)=> a.arg_id == argId)
+            cache[argId] = entry[0]
+        }
+        setCitedArgumentData(cache)
     }
 
     function removeArg(argId) {
@@ -117,6 +128,9 @@ function JuryDuty(){
             ...prev,
             fav_args: prev.fav_args.filter((a) => a !== argId)
         }))
+        const cache = {...citedArgumentData}
+        delete cache[argId]
+        setCitedArgumentData(cache)
     }
 
     async function handleSubmit (e) {
@@ -129,17 +143,16 @@ function JuryDuty(){
         const res = await voteJury(id, req_body)
         const data = await res.json()
         if (res.ok){
-            setAlertMsg('Ballot received successfully.')
+            setToastMsg({message: 'Ballot received successfully.', type: 'success', key: Date.now()})
             setTimeout(() => nav("/dashboard/jury-assignments"), 1500)
         }
         else{
-            setAlertMsg(data.error)
+            setToastMsg({message: data.error, type: 'error', key: Date.now()})
         }
         setSubmitting(false)
     }
 
     function handleChange(e){
-        if (alertMsg) setAlertMsg('')
         const currVote = e.target.value
         setAssignmentDetails((prev)=>({
             ...prev,
@@ -184,6 +197,8 @@ function JuryDuty(){
 
     return (
         <div className="JuryDuty main-content">
+            <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
+
             <div className="card">
                 <p>You have been assigned to</p>
                 <div className="case-num"><Link to={`/cases/${assignmentDetails.case_id}`}>Case #{assignmentDetails.case_id}</Link></div>
@@ -212,21 +227,17 @@ function JuryDuty(){
 
                     {assignmentDetails.fav_args.length > 0 && (
                         <div className="cited-args">
-                            {assignmentDetails.fav_args.map((argId) => {
-                                const arg = argumentHistory.entries.find((a) => a.arg_id === argId)
-                                if (!arg) return null
-                                return (
-                                    <div className="citation-row" key={argId}>
-                                        <div>
-                                            <div>"{arg.text}"</div>
-                                            <div className="citation-sub">
-                                                {arg.argument_tag?.toLowerCase()} — by {arg.username}
-                                            </div>
+                            {Object.entries(citedArgumentData).map(([arg_id, arg])=>(
+                                <div className="citation-row" key={`arg-${arg_id}`}>
+                                    <div>
+                                        <div>"{arg.text}"</div>
+                                        <div className="citation-sub">
+                                            {arg.argument_tag?.toLowerCase()} — by {arg.username}
                                         </div>
-                                        <button type="button" onClick={() => removeArg(argId)} className="remove-citation">✖</button>
                                     </div>
-                                )
-                            })}
+                                    <button type="button" onClick={() => removeArg(arg_id)} className="remove-citation">✖</button>
+                                </div>
+                            ))}
                         </div>
                     )}
 
@@ -242,7 +253,6 @@ function JuryDuty(){
 
                 <p className="dim">You do not have to complete your ballot at this time. You can return to this page at any time to cast or change your vote, as long as the jury is still in session.</p>
             </div>
-            {alertMsg && <div className='error-msg'>{alertMsg}</div>}
 
             <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
             </div>

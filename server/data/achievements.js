@@ -84,6 +84,8 @@ const achievements = [
     { achievement_id:  77  , name: 'Impeckable',                              requirements: 'Receive no downvotes for 10 consecutive contributions', threshold: 10, image_url: '' },
     { achievement_id:  78  , name: 'Busy Beak',                               requirements: 'Make the maximum daily submissions 10 days in a row', threshold: 10, image_url: '' },
     { achievement_id:  79  , name: 'Gray Goose',                              requirements: "You've been here for 5 years!", threshold: 1, image_url: '' },
+    
+    { achievement_id:  80  , name: 'Evidence Shredder',                       requirements: "Delete 24 pieces of evidence", threshold: 24, image_url: '' },
 ]
 
 export default achievements

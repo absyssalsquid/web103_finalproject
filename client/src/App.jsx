@@ -33,7 +33,8 @@ function App() {
     {'path': '/new-case'      , 'element': <NewCase/>},
     {'path': '/cases/:id/*'   , 'element': <Case />},
     
-    {'path': '/new-argument/:id'   , 'element': <NewArgument/>},
+    {'path': '/new-argument/:case_id'   , 'element': <NewArgument/>},
+    {'path': '/edit-argument/:arg_id'   , 'element': <NewArgument/>},
     
     {'path': '/users/:id/*'   , 'element': <UserProfile />},
     {'path': '/profile/edit'  , 'element': <EditProfile />},
