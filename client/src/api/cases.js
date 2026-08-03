@@ -21,7 +21,6 @@ export async function fetchCases(params) {
 
 export async function fetchCaseEvidence(case_id, q_params){
   const q_string = Object.entries(q_params).map(([key, val])=>(`${key}=${val}`)).join('&')
-  console.log(q_params)
   return await fetch(`/api/cases/${case_id}/evidence?${q_string}`, CRED_GET_OPTS);
 }
 

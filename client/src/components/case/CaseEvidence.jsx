@@ -29,6 +29,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
     const [loading, setLoading] = useState(true);
     const [isFirstRender, setFirstRender] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
     const [formActive, setFormActive] = useState(false)
     const [evidenceSubmission, setEvidenceSubmission] = useState({case_id: case_id, text: ''})
@@ -37,6 +38,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     const [userLimits, setUserLimits] = useState({})
     const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
+    const limitReached = usage.evidence >= userLimits.evidence
 
     useEffect(() => {
         async function fetchData(){
@@ -116,6 +118,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
 
     async function handleSubmit(e){
         e.preventDefault()
+        setSubmitting(true)
         const res = await submitEvidence(evidenceSubmission)
         const data = await res.json()
         if (res.ok){
@@ -125,6 +128,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         else {
             setAlertMsg(data.error)
         }
+        setSubmitting(false)
     }
 
     async function handleCancel(e){
@@ -194,7 +198,9 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                         image_url={user.image_url}
                         linkDisabled={true}/>)}
                     <div className='flex-grow'></div>
-                    <button type='submit'>submit</button>
+                    <button type='submit' disabled={submitting || !isAuthenticated || phaseDelta!=0 || limitReached}>
+                            {submitting ? "submitting..." : "submit"}
+                    </button>
                 </div>
 
                 <textarea
@@ -210,7 +216,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
                     required
                 />
                 <small className="char-limit">{evidenceSubmission.text.length}/{lengthLimits.evidence_max}</small>
-                    
+
                 <ProgressBar
                     label="Daily evidence submissions"
                     value={usage.evidence}

@@ -111,7 +111,7 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
             </div>
             <Pagination history={history} setHistory={setHistory}/>
             
-            <Link to='/new-argument'>
+            <Link to={`/new-argument/${case_id}`}>
                 <button 
                 className={`action`} 
                 disabled={phaseDelta!=0}>

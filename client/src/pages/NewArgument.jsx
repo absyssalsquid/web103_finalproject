@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 
 import ProgressBar from '/src/components/ProgressBar'
+import TopAlert from "/src/components/TopAlert"
+import Pagination from '/src/components/Pagination'
+
 import { useAuthContext } from '/src/contexts/auth'
 import { getUsage } from '/src/api/me'
 import { getUserLimits } from '/src/api/rules'
@@ -11,27 +14,33 @@ import { LIMITS } from '/src/api/limits'
 import './NewArgument.css'
 
 const TAGS = [
-    { value: 'PROSECUTION', label: 'Prosecution' },
-    { value: 'DEFENSE', label: 'Defense' },
+    { value: 'PROSECUTION', label: 'Prosecution', tag:'prosecution'  },
+    { value: 'DEFENSE', label: 'Defense', tag:'defense' },
 ]
 
 function NewArgument({ onSubmitted }){
     const { id } = useParams()
-    const { isAuthenticated } = useAuthContext();
+    const { isAuthenticated, isAuthLoading } = useAuthContext();
 
-    const [argument, setArgument] = useState('');
-    const [tag, setTag] = useState(null);
-    const [userLimits, setUserLimits] = useState({})
-    const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
-    const [limitsLoading, setLimitsLoading] = useState(true)
+    // loading vars
+    const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
-    const [alertMsg, setAlertMsg] = useState('')
+    const [loadingEvidence, setLoadingEvidence] = useState(false)
 
-    const [evidenceList, setEvidenceList] = useState([])
-    const [paneOpen, setPaneOpen] = useState(false)
+    // submission vars
+    const [tag, setTag] = useState(null);
+    const [argument, setArgument] = useState('');
     const [citedEvidenceIds, setCitedEvidenceIds] = useState([])
     const [citedCases, setCitedCases] = useState([]) // [{ case_id, judge_ruling }]
     const [caseInput, setCaseInput] = useState('')
+
+    const [userLimits, setUserLimits] = useState({arguments: 0})
+    const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
+    const [evidenceHistory, setEvidenceHistory] = useState({limit: 10, page: 1, last_page: 1, entries: []})
+    const [paneOpen, setPaneOpen] = useState(false)
+    
+    // err messages
+    const [alertMsg, setAlertMsg] = useState('')
     const [citeError, setCiteError] = useState('')
 
     const refreshUsage = async () => {
@@ -44,15 +53,35 @@ function NewArgument({ onSubmitted }){
             const res = await Promise.all([
                 getUserLimits(),
                 getUsage(),
-                fetchCaseEvidence(id, {})
             ])
             if (res[0].ok) setUserLimits(await res[0].json())
             if (res[1].ok) setUsage(await res[1].json())
-            if (res[2].ok) setEvidenceList(await res[2].json())
-            setLimitsLoading(false)
+            setLoading(false)
         }
         fetchData();
     }, [id]);
+
+    useEffect(() => {
+        (async () => {
+            if (loading) return
+            setLoadingEvidence(true);
+            const queryParams = {
+                limit: evidenceHistory.limit,
+                page: evidenceHistory.page,
+            }
+
+            const res = await fetchCaseEvidence(id, queryParams)
+            const data = await res.json()
+            if (res.ok){
+                setEvidenceHistory((prev)=>({
+                    ...prev,
+                    last_page: data.last_page,
+                    entries: data.entries
+                }))
+            }
+            setLoadingEvidence(false);
+        })();
+    }, [loading, id, evidenceHistory.limit, evidenceHistory.page]);
 
     const toggleEvidence = (evidenceId) => {
         setCitedEvidenceIds((prev) =>
@@ -125,11 +154,7 @@ function NewArgument({ onSubmitted }){
     }
 
     const limitReached = usage.arguments >= userLimits.arguments;
-    const submitDisabled = limitsLoading || limitReached || !isAuthenticated || submitting;
-
-    const remaining = (userLimits.arguments != null && usage.arguments != null)
-        ? Math.max(userLimits.arguments - usage.arguments, 0)
-        : null;
+    const submitDisabled = loading || limitReached || !isAuthenticated || submitting;
 
     const charCount = argument.length;
     const charLimit = LIMITS.ARGUMENT_MAX_LEN;
@@ -137,171 +162,183 @@ function NewArgument({ onSubmitted }){
     const isAtLimit = charCount >= charLimit;
     const charStateClass = isAtLimit ? ' is-error' : isOverWarning ? ' is-warning' : '';
 
+    if (loading || isAuthLoading){
+        return (
+            <div className='main-content minimal'>
+                <h1>Loading argument form...</h1>
+            </div>
+        )
+    }
+    
     return (
-        <div className="argument-composer">
-            <div className="argument-composer-card">
-                <div className="argument-composer-header">
-                    <div className="argument-composer-header-row">
-                        <h3>Present Your Argument</h3>
-                        <div className="argument-composer-tag-toggle">
-                            {TAGS.map((t) => (
-                                <button
-                                    key={t.value}
-                                    type="button"
-                                    className={`argument-composer-tag-btn${tag === t.value ? ' active' : ''}`}
-                                    onClick={() => setTag(t.value)}
-                                    aria-pressed={tag === t.value}
-                                >
-                                    {t.label}
-                                </button>
-                            ))}
-                        </div>
+        <div className='NewArgument'>
+            {(!isAuthenticated) &&
+                <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit an argument</>)} />
+            }
+
+            <div className='main-content'>
+
+                <div className="header">
+                    <div className="header-row">
+                        <h2>Present Your Argument</h2>
+                        <p>Make your case!</p>
                     </div>
-                    <p>Make your case clearly and respectfully.</p>
                 </div>
 
-                <form onSubmit={submitHandler} className="argument-composer-form">
-                    <label htmlFor="argument" className="argument-composer-label">Argument</label>
-                    <textarea
-                        id="argument"
-                        className={`argument-composer-textarea${charStateClass}`}
-                        value={argument}
-                        maxLength={charLimit}
-                        onChange={(e) => setArgument(e.target.value)}
-                        placeholder="Argue the case…"
-                        rows={5}
-                        required
-                    />
-                    <div className="argument-composer-footer-row">
-                        <span className={`argument-composer-char-count${charStateClass}`}>
-                            {charCount}/{charLimit}
-                        </span>
-                    </div>
+                <div className="card">
+                        <form onSubmit={submitHandler} className="form">
+                            <div className="tag-toggle">
+                                {TAGS.map((t) => (
+                                    <label key={t.value} className="tag-label">
+                                        <input
+                                            type="radio"
+                                            name="argument-tag"
+                                            value={t.value}
+                                            checked={tag === t.value}
+                                            onChange={() => setTag(t.value)}
+                                            required
+                                        />
+                                        <span className={`tag-btn ${t.tag}`}>{t.label}</span>
+                                    </label>
+                                ))}
+                            </div>
 
-                    <div className="argument-composer-citations">
-                        <div className="argument-composer-citation-controls">
-                            <button type="button" onClick={() => setPaneOpen(true)}>
-                                + Cite evidence
+                            <label htmlFor="argument" className="label">Argument</label>
+                            <textarea
+                                id="argument"
+                                className={`textarea${charStateClass}`}
+                                value={argument}
+                                maxLength={charLimit}
+                                onChange={(e) => setArgument(e.target.value)}
+                                placeholder="Argue the case…"
+                                rows={5}
+                                required
+                            />
+                            <small className="char-limit">{charCount}/{charLimit}</small>
+
+                            <button type="button" className="cite-toggle" onClick={() => setPaneOpen(true)}>
+                                + cite evidence
                             </button>
-                            <div className="argument-composer-case-cite-row">
+
+                            <div className="case-cite-row">
                                 <input
                                     type="text"
                                     value={caseInput}
                                     onChange={(e) => setCaseInput(e.target.value)}
-                                    placeholder="Cite case #"
+                                    placeholder="case #"
                                 />
-                                <button type="button" onClick={handleCiteCase}>Cite</button>
+                                <button type="button" onClick={handleCiteCase}>+ case citation</button>
                             </div>
-                        </div>
 
-                        {citeError && (
-                            <div className="argument-composer-alert argument-composer-alert-error">
-                                <span className="argument-composer-alert-icon">!</span>
-                                <span>{citeError}</span>
-                            </div>
-                        )}
-
-                        {(citedEvidenceIds.length > 0 || citedCases.length > 0) && (
-                            <div className="argument-composer-citations-added">
-                                {citedEvidenceIds.map((evidenceId) => {
-                                    const ev = evidenceList.find((e) => e.evidence_id === evidenceId)
-                                    return (
-                                        <div className="citation-card" key={`ev-${evidenceId}`}>
-                                            <div>
-                                                <span className="citation-id">Evidence #{evidenceId}</span>
-                                                <div>{ev?.text}</div>
-                                            </div>
-                                            <button type="button" onClick={() => removeEvidence(evidenceId)}>remove ×</button>
-                                        </div>
-                                    )
-                                })}
-                                {citedCases.map((c) => (
-                                    <div className="citation-card" key={`case-${c.case_id}`}>
-                                        <div>
-                                            <span className="citation-id">Case #{c.case_id}</span>
-                                            <div>{c.judge_ruling}</div>
-                                        </div>
-                                        <button type="button" onClick={() => removeCase(c.case_id)}>remove ×</button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="argument-composer-limit-section">
-                        <ProgressBar
-                            label="Daily argument submissions"
-                            value={usage.arguments}
-                            limit={userLimits.arguments}
-                            limit_message={"You've reached your daily argument limit."}
-                        />
-                        {remaining !== null && !limitReached && (
-                            <span className="argument-composer-remaining">
-                                {remaining} submission{remaining === 1 ? '' : 's'} remaining today
-                            </span>
-                        )}
-                    </div>
-
-                    <button
-                        className="argument-composer-submit"
-                        type="submit"
-                        disabled={submitDisabled}
-                        aria-busy={submitting}
-                    >
-                        {submitting ? 'Submitting…' : '+ Submit Argument'}
-                    </button>
-
-                    {!isAuthenticated && (
-                        <div className="argument-composer-alert argument-composer-alert-info">
-                            <span className="argument-composer-alert-icon">i</span>
-                            <span>Sign in to submit an argument.</span>
-                        </div>
-                    )}
-                </form>
-
-                {alertMsg && (
-                    <div className="argument-composer-alert argument-composer-alert-error">
-                        <span className="argument-composer-alert-icon">!</span>
-                        <span>{alertMsg}</span>
-                    </div>
-                )}
-            </div>
-
-            {paneOpen && (
-                <div className="argument-composer-pullout-overlay" onClick={() => setPaneOpen(false)}>
-                    <aside className="argument-composer-pullout-pane" onClick={(e) => e.stopPropagation()}>
-                        <div className="argument-composer-pullout-header">
-                            <div>
-                                <h3>Evidence library</h3>
-                                <p>Select to cite, then close pane</p>
-                            </div>
-                            <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane">×</button>
-                        </div>
-                        <div className="argument-composer-pullout-list">
-                            {evidenceList.length === 0 && (
-                                <div className="minimal">No evidence submitted yet.</div>
+                            {citeError && (
+                                <div className="alert alert-error">
+                                    <span className="alert-icon">!</span>
+                                    <span>{citeError}</span>
+                                </div>
                             )}
-                            {evidenceList.map((ev) => (
-                                <label className="argument-composer-pullout-item" key={ev.evidence_id}>
+
+                            {(citedEvidenceIds.length > 0 || citedCases.length > 0) && (
+                                <div className="citations-container">
+                                    {citedEvidenceIds.map((evidenceId) => {
+                                        const ev = evidenceHistory.entries.find((e) => e.evidence_id === evidenceId)
+                                        if (!ev) return null
+                                        return (
+                                            <div className="citation-row" key={`ev-${evidenceId}`}>
+                                                <div>
+                                                    <div>"{ev.text}"</div>
+                                                    <div className="citation-sub">
+                                                        Evidence #{evidenceId} — +{ev.up_votes} / -{ev.down_votes}
+                                                    </div>
+                                                </div>
+                                                <button type="button" onClick={() => removeEvidence(evidenceId)} className="remove-citation">✖</button>
+                                            </div>
+                                        )
+                                    })}
+                                    {citedCases.map((c) => (
+                                        <div className="citation-row" key={`case-${c.case_id}`}>
+                                            <div>
+                                                <div>Case #{c.case_id}</div>
+                                                <div className="citation-sub">
+                                                    {c.judge_ruling}
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={() => removeCase(c.case_id)} className="remove-citation">✖</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <ProgressBar
+                                label="Daily argument submissions"
+                                value={usage.arguments}
+                                limit={userLimits.arguments}
+                                limit_message={"You've reached your daily argument limit."}
+                            />
+
+                            <button
+                                className="submit"
+                                type="submit"
+                                disabled={submitDisabled || submitting}
+                                aria-busy={submitting}
+                            >
+                                {submitting ? 'Submitting…' : ' Submit Argument'}
+                            </button>
+
+                        </form>
+
+                        {alertMsg && (
+                            <div className="alert alert-error">
+                                <span className="alert-icon">!</span>
+                                <span>{alertMsg}</span>
+                            </div>
+                        )}
+                    </div>
+
+                <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
+                </div>
+
+                <aside className={`pullout-pane ${paneOpen ? 'open':''}`} onClick={(e) => e.stopPropagation()} >
+                    <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane" className="close-pane">✖</button>
+                    <div className="pullout-header">
+                        <div>
+                            <h2>evidence & cases</h2>
+                            <small className="char-limit">select to cite</small>
+                        </div>
+                    </div>
+                    <div className="pullout-list">
+                        {loadingEvidence ? (<div className="minimal"><div>Loading evidence...</div></div>) :
+
+                        evidenceHistory.entries.length === 0 ? (
+                            <div className="minimal">No evidence submitted yet.</div>
+                        ) : (
+                            evidenceHistory.entries.map((ev) => (
+                                <label className="pullout-item" key={ev.evidence_id}>
                                     <input
                                         type="checkbox"
                                         checked={citedEvidenceIds.includes(ev.evidence_id)}
                                         onChange={() => toggleEvidence(ev.evidence_id)}
                                     />
                                     <div>
-                                        <div>Ev #{ev.evidence_id}: "{ev.text}"</div>
-                                        <div className="argument-composer-pullout-sub">up {ev.up_votes} / down {ev.down_votes}</div>
+                                        <div>"{ev.text}"</div>
+                                        <div className="citation-sub">
+                                            <div>Evidence #{ev.evidence_id}</div> —
+                                            <div>+{ev.up_votes} / -{ev.down_votes}</div>
+                                        </div>
                                     </div>
                                 </label>
-                            ))}
-                        </div>
-                        <button type="button" onClick={() => setPaneOpen(false)}>
-                            Close pane
-                        </button>
-                    </aside>
-                </div>
-            )}
+                            ))
+                        )}
+                    </div>
+
+                    <Pagination history={evidenceHistory} setHistory={setEvidenceHistory} />
+
+                    <button type="button" onClick={() => setPaneOpen(false)}>
+                        close pane
+                    </button>
+                </aside>
+            </div>
         </div>
+
     )
 }
 

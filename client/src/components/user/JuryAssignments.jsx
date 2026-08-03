@@ -11,6 +11,7 @@ const now = Date.now();
 
 function JuryAssignments({history, setHistory}){
     const nav = useNavigate();
+    const [loading, setLoading] = useState(true)
 
     useEffect(()=>{
         (async ()=>{
@@ -26,8 +27,18 @@ function JuryAssignments({history, setHistory}){
             else {
                 console.log(data.error)
             }
+            setLoading(false)
         })()
     }, [history.page, history.limit, setHistory])
+
+    if (loading)
+    return (
+        <div className="JuryAssignments sub-content">
+            <div className='minimal'>
+                Loading jury assignments...
+            </div>
+        </div>
+    )
 
     return (
         <div className="JuryAssignments sub-content">
@@ -39,6 +50,7 @@ function JuryAssignments({history, setHistory}){
                             <th className='text-left'>Case#</th>
                             <th className='text-left'>Vote</th>
                             <th className='text-left'>Status</th>
+                            {/* <th className='text-left'></th> */}
                         </tr>
                     </thead>
                     <tbody>
@@ -48,6 +60,7 @@ function JuryAssignments({history, setHistory}){
                                 <td><Link to={`/cases/${item.case_id}`}>{item.case_id}</Link></td>
                                 <td>{toTitleCase(item.vote)}</td>
                                 <td>{(now < new Date(item.expires_at)) ? 'open' : 'closed'}</td>
+                                {/* <td><Link to={`/jury/ballot/${item.id}`} className='view-ballot-link'>👁</Link></td> */}
                             </tr>
                         ))}
                     </tbody>

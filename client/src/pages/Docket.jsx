@@ -102,7 +102,7 @@ const Docket = () => {
 
             <Link to='/new-case'>
                 <button className="action">
-                    + submit argument
+                    + submit case
                 </button>
             </Link>
         </div>

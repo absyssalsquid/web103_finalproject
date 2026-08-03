@@ -46,7 +46,6 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-
   const isAuthenticated = user !== null;
 
   // params = { username, password }
@@ -75,8 +74,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     return response;
   };
-
-
 
   // Merge fresh fields (e.g. the response from PATCH /me/edit) into the
   // authenticated user without a full re-fetch or page reload.

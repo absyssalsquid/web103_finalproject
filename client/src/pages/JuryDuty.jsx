@@ -12,9 +12,11 @@ import "./JuryDuty.css"
 
 function JuryDuty(){
     const nav = useNavigate();
-    const { isAuthenticated } = useAuthContext()
+    const { isAuthenticated, isAuthLoading } = useAuthContext()
 
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+
     const [alertMsg, setAlertMsg] = useState('')
     
     const [userLimits, setUserLimits] = useState({})
@@ -47,6 +49,7 @@ function JuryDuty(){
 
     async function handleNew(e) {
         e.preventDefault()
+        setSubmitting(true)
         const res = await consumeJurySummons();
         const data = await res.json();
         if (res.ok){
@@ -59,9 +62,10 @@ function JuryDuty(){
             console.log (res)
             setAlertMsg(data.error);
         }
+        setSubmitting(false)
     }
 
-    if (loading){
+    if (loading || isAuthLoading){
         return (
             <div className='main-content minimal'>
                 <h1>Loading jury portal...</h1>
@@ -83,7 +87,9 @@ function JuryDuty(){
                 <form onSubmit={handleNew}>
                     <h2>Do you want to serve on a jury?</h2>
                     <p>You have {userLimits.jury_assignments - usage.jury_assignments} jury summons remaining. Today's jury summons expire in <Countdown date={new Date(refreshTime)}/></p>
-                    <button type="submit" className="primary" disabled={atLimit}>Respond to jury summons</button>
+                    <button type="submit" className="primary" disabled={atLimit || submitting}>
+                        {submitting ? "Submitting..." : "Respond to jury summons"}
+                    </button>
                 </form>
             </div>
             {alertMsg && <div className='error-msg'>{alertMsg}</div>}

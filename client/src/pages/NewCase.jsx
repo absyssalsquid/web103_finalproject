@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 
 import ProgressBar from "/src/components/ProgressBar"
+import TopAlert from "/src/components/TopAlert"
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -17,6 +18,8 @@ const NewCase = () => {
     const fileInputRef = useRef(null);
     
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+
     const [userLimits, setUserLimits] = useState({})
     const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
@@ -27,19 +30,20 @@ const NewCase = () => {
 
     useEffect(() => {
         async function fetchData(){
+            if (isAuthenticated){
+                const res = await Promise.all([
+                    getUserLimits(),
+                    getLengthLimits(),
+                    getUsage()
+                ])
 
-            const res = await Promise.all([
-                getUserLimits(),
-                getLengthLimits(),
-                getUsage()
-            ])
+                const data = await Promise.all(
+                    res.map((item) => item.json()))
 
-            const data = await Promise.all(
-                res.map((item) => item.json()))
-
-            setUserLimits(data[0])
-            setLengthLimits(data[1])
-            setUsage(data[2])
+                setUserLimits(data[0])
+                setLengthLimits(data[1])
+                setUsage(data[2])
+            }   
             setLoading(false)
         }
         fetchData();
@@ -76,6 +80,8 @@ const NewCase = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
 
+        setSubmitting(true)
+
         const formData = new FormData();
         formData.append("object_name", caseParams.object_name);
         formData.append("accusation", caseParams.accusation);
@@ -98,6 +104,7 @@ const NewCase = () => {
         else {
             setAlertMsg(data.error)
         }
+        setSubmitting(false)
     }
 
     const cancelHandler = (e) => {
@@ -120,10 +127,7 @@ const NewCase = () => {
     return (
         <div className="NewCase">
             {(!isAuthenticated) &&
-            <div className='form-block'>
-                    <div className='alert'><div>⚠</div></div>
-                    <div><Link to={"/sign-in"}>Sign in</Link> to submit a case</div>
-            </div>
+                <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit a case</>)} />
             }
 
             <div className='main-content'>
@@ -192,8 +196,8 @@ const NewCase = () => {
                     />
 
                     <div className="form-actions">
-                        <button type="submit" disabled={!isAuthenticated || limitReached }>
-                            Submit case
+                        <button type="submit" disabled={!isAuthenticated || limitReached || submitting }>
+                            {submitting ? "Submitting..." : "Submit case"}
                         </button>
                         <button type="button" onClick={cancelHandler}>
                             Cancel

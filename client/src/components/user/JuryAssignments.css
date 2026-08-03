@@ -24,3 +24,13 @@
     background-color: var(--dim-bg);
     cursor: pointer;
 }
+
+.JuryAssignments .view-ballot-link {
+    display: block;
+    text-decoration: none;
+    transform: scaleX(-1);
+}
+
+.JuryAssignments .view-ballot-link:hover {
+    text-decoration: underline;
+}

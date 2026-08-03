@@ -13,7 +13,7 @@ const PENCIL_ICON = '/pencil-xxl.png'
 
 function EditProfile(){
     const navigate = useNavigate();
-    const { user, isAuthenticated, updateUser } = useAuthContext();
+    const { user, isAuthenticated, updateUser, isAuthLoading } = useAuthContext();
     const fileInputRef = useRef(null);
 
     const [lengthLimits, setLengthLimits] = useState({});
@@ -123,7 +123,7 @@ function EditProfile(){
         setAlertMsg('')
     }
 
-    if (loading) {
+    if (loading || isAuthLoading) {
         return (
             <div className="main-content">
                 <div className='minimal'>

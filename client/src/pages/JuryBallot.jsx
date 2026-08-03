@@ -2,6 +2,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
+import Pagination from '../components/Pagination'
+import { useAuthContext } from '/src/contexts/auth'
+
 import { getJuryAssignmentDetails, voteJury } from "/src/api/jury.js"
 import { fetchCaseArguments } from "/src/api/cases.js"
 
@@ -13,32 +16,49 @@ const VOTE_OPTIONS = [
 ]
 
 function JuryDuty(){
-    const nav = useNavigate();
     const {id} = useParams();
+    const nav = useNavigate();
+    const { isAuthenticated, isAuthLoading } = useAuthContext();
 
     const [loading, setLoading] = useState(true);
+    const [loadingData, setLoadingData] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+
+    const [isExpired, setExpired] = useState(true)
+
     const [alertMsg, setAlertMsg] = useState('')
 
     const [assignmentDetails, setAssignmentDetails] = useState({ case_id: null, expires_at: null, vote: null, fav_args: [] })
-    const [isExpired, setExpired] = useState(true)
-    const [argumentsList, setArgumentsList] = useState([])
-    const [paneOpen, setPaneOpen] = useState(false)
 
+    const [argumentHistory, setArgumentHistory] = useState({limit: 10, page: 1, last_page: 1, filterBy: 'all', sortBy:'best', entries: []})
+
+    const [paneOpen, setPaneOpen] = useState(false)
 
     useEffect(()=>{
         async function init(){
-            if (id) {
+            if (id && isAuthenticated) {
                 const res = await getJuryAssignmentDetails(Number(id))
                 const data = await res.json()
                 if (res.ok){
                     setAssignmentDetails(data)
                     setExpired(Date.now() > new Date(data.expires_at))
-                    console.log(Date.now() > new Date(data.expires_at))
                     console.log(data)
+                    const queryParams = {
+                        limit: argumentHistory.limit,
+                        page: argumentHistory.page,
+                        filterBy: argumentHistory.filterBy,
+                        sortBy: argumentHistory.sortBy,
+                    }
 
                     if (data.case_id) {
-                        const argsRes = await fetchCaseArguments(data.case_id, {limit: 50, page: 1})
-                        if (argsRes.ok) setArgumentsList((await argsRes.json()).entries)
+                        const argsRes = await fetchCaseArguments(data.case_id, queryParams)
+                        if (argsRes.ok) {
+                            const data2 = await argsRes.json()
+                            setArgumentHistory(prev => ({
+                                ...prev,
+                                ...data2
+                            }))
+                        }
                     }
                 }
                 else{
@@ -48,7 +68,40 @@ function JuryDuty(){
             setLoading(false)
         }
         init()
-    },[id])
+    },[])
+
+    useEffect(() => {
+        (async () => {
+            if (loading) return
+            setLoadingData(true);
+            const queryParams = {
+                limit: argumentHistory.limit,
+                page: argumentHistory.page,
+                filterBy: argumentHistory.filterBy,
+                sortBy: argumentHistory.sortBy,
+            }
+
+            setArgumentHistory((prev)=>({ // hide pagination
+                ...prev,
+                last_page: 1,
+            }))
+            
+            console.log(assignmentDetails.case_id, queryParams)
+            const res = await fetchCaseArguments(assignmentDetails.case_id, queryParams)
+            const data = await res.json()
+            if (res.ok){
+                setArgumentHistory((prev)=>({
+                    ...prev,
+                    last_page: data.last_page,
+                    entries: data.entries
+                }))
+            }
+            else{
+                console.log(data.error)
+            }
+            setLoadingData(false);
+        })();
+    }, [loading, assignmentDetails.case_id, argumentHistory.filterBy, argumentHistory.sortBy, argumentHistory.limit, argumentHistory.page, setArgumentHistory]);
 
     function toggleArg(argId) {
         setAssignmentDetails((prev) => ({
@@ -68,6 +121,8 @@ function JuryDuty(){
 
     async function handleSubmit (e) {
         e.preventDefault();
+        setSubmitting(true)
+
         const req_body = {...assignmentDetails}
         delete req_body.case_id
 
@@ -75,11 +130,12 @@ function JuryDuty(){
         const data = await res.json()
         if (res.ok){
             setAlertMsg('Ballot received successfully.')
-            setTimeout(() => nav("/dashboard/jury-assignments"), 1000)
+            setTimeout(() => nav("/dashboard/jury-assignments"), 1500)
         }
         else{
             setAlertMsg(data.error)
         }
+        setSubmitting(false)
     }
 
     function handleChange(e){
@@ -96,11 +152,21 @@ function JuryDuty(){
         nav("/dashboard/jury-assignments")
     }
 
-    if (loading){
+    if (loading || isAuthLoading){
         return (
             <div className="main-content">
                 <div className='minimal'>
                     <h1>Loading ballot...</h1>
+                </div>
+            </div>
+        )
+    }
+
+    if (!isAuthenticated){
+        return (
+            <div className="main-content">
+                <div className='minimal'>
+                    <h1><Link to="/sign-in">Sign in</Link> to participate in a jury.</h1>
                 </div>
             </div>
         )
@@ -147,7 +213,7 @@ function JuryDuty(){
                     {assignmentDetails.fav_args.length > 0 && (
                         <div className="cited-args">
                             {assignmentDetails.fav_args.map((argId) => {
-                                const arg = argumentsList.find((a) => a.arg_id === argId)
+                                const arg = argumentHistory.entries.find((a) => a.arg_id === argId)
                                 if (!arg) return null
                                 return (
                                     <div className="citation-row" key={argId}>
@@ -165,8 +231,8 @@ function JuryDuty(){
                     )}
 
                     <div className="form-actions">
-                        <button type="submit" disabled={isExpired}>
-                            Save
+                        <button type="submit" disabled={isExpired || submitting}>
+                            {submitting ? "Submitting..." : "Save"}
                         </button>
                         <button type="button" onClick={handleCancel}>
                             Cancel
@@ -190,7 +256,11 @@ function JuryDuty(){
                     </div>
                 </div>
                 <div className="pullout-list">
-                    {argumentsList.map((arg) => (
+                    {loadingData ? (<div className="minimal"><div>Loading arguments...</div></div>) :
+                    
+                    
+                    
+                    argumentHistory.entries.map((arg) => (
                         <label className="pullout-item" key={arg.arg_id}>
                             <input
                                 type="checkbox"
@@ -208,6 +278,9 @@ function JuryDuty(){
                         </label>
                     ))}
                 </div>
+
+                <Pagination history={argumentHistory} setHistory={setArgumentHistory} />
+
                 <button type="button" onClick={() => setPaneOpen(false)}>
                     close pane
                 </button>

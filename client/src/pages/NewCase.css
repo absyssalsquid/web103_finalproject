@@ -37,40 +37,6 @@
     opacity: 0.85;
 }
 
-.NewCase .form-block {
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.6rem;
-
-    padding: 1rem;
-    background-color: rgba(233, 233, 0, 0.384);
-
-    /* top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0; */
-}
-
-.NewCase .form-block .alert {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: rgb(255, 217, 0);
-    color: black;
-    width: 2rem;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-    font-size: 1.5rem;
-}
-.NewCase .form-block .alert * {
-    position: relative;
-    top:-0.1rem;
-    left: 0.03rem;
-}
-
 .NewCase form {
     display: flex;
     flex-direction: column;
@@ -85,7 +51,6 @@
 }
 
 .NewCase form > * {
-    display: block;
     width: 100%;
     box-sizing: border-box;
 }
