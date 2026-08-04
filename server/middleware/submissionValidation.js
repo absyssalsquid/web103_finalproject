@@ -503,6 +503,78 @@ export async function validateJurorAssignment(req, res, next) {
     return res.status(500).json({ error: 'Could not validate usage limits.' })
   if (!canSubmit)
       return res.status(401).json({error: `You have used all of your jury summons for today.`});
-  
+
   next();
 }
+
+export function createJudgeVerdictValidator(query = pool.query.bind(pool)) {
+  return async function validateJudgeVerdict(req, res, next) {
+    if (!isDict(req.body))
+      return res.status(400).json({error: 'Request body must be a JSON object.'});
+
+    const case_id = Number(req.params.id)
+    if (!Number.isSafeInteger(case_id) || case_id < 1)
+      return res.status(400).json({error: 'Invalid case ID.'});
+
+    const { verdict } = req.body
+    let { judge_ruling } = req.body
+
+    // validate verdict
+    if (verdict === undefined || verdict === null || verdict === '')
+      return res.status(400).json({error: 'Verdict is required.'});
+
+    if (!['GUILTY', 'NOT_GUILTY', 'TB_PECKED_AT'].includes(verdict))
+      return res.status(400).json({error: 'Verdict must be GUILTY, NOT_GUILTY, or TB_PECKED_AT.'});
+
+    // validate judge_ruling (optional)
+    if (judge_ruling === undefined || judge_ruling === null) {
+      judge_ruling = null
+    } else {
+      if (typeof judge_ruling !== 'string')
+        return res.status(400).json({error: 'judge_ruling must be a string.'});
+
+      judge_ruling = compressWhitespace(judge_ruling, true) // retain multiple spaces
+      if (judge_ruling.length === 0) {
+        judge_ruling = null
+      } else if (judge_ruling.length > 300) {
+        return res.status(400).json({error: 'judge_ruling must be at most 300 characters.'});
+      }
+    }
+
+    const { user_id } = req.token_payload.user
+
+    try {
+      const response = await query(`
+        SELECT judge_id, phase, verdict
+        FROM cases
+        WHERE case_id = $1`,
+        [case_id])
+
+      if (response.rows.length === 0)
+        return res.status(404).json({error: 'Case not found.'});
+
+      const caseRow = response.rows[0]
+
+      // never trust judge_id/user_id from the request body — only the
+      // authenticated token identity is compared against the case's judge
+      if (Number(caseRow.judge_id) !== Number(user_id))
+        return res.status(403).json({error: 'You are not the assigned judge for this case.'});
+
+      if (caseRow.phase !== 'RULING')
+        return res.status(400).json({error: 'Verdicts can only be submitted during the ruling phase.'});
+
+      if (caseRow.verdict !== null)
+        return res.status(409).json({error: 'This case has already been decided.'});
+
+    } catch (error) {
+      console.log('validateJudgeVerdict', error.message)
+      return res.status(500).json({error: 'Internal server error.'});
+    }
+
+    req.body = { case_id, verdict, judge_ruling }
+
+    next();
+  }
+}
+
+export const validateJudgeVerdict = createJudgeVerdictValidator()
