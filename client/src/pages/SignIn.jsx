@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 
 import ToastMessage from '../components/ToastMessage'
 import { useAuthContext } from '/src/contexts/auth'
+import {getLengthLimits} from '/src/api/rules.js'
 
 import './SignIn.css'
 
@@ -16,7 +17,14 @@ const SignIn = () =>{
     const [submitting, setSubmitting] = useState(false)
 
     useEffect(()=>{
-        // check if user is signed in
+        async function fetchData(){
+            const res = await getLengthLimits()
+            if (res.ok) {
+                const data = await res.json()
+                setLengthLimits(data)
+            }
+        }
+        fetchData()
     },[])
 
     const handleChange = (e) => {

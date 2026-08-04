@@ -104,8 +104,6 @@ const Case = () => {
     else {
         return (
             <div className="Case main-content">
-                <div className='loader'></div>
-
                 <div className='overview'>
                     <img className='case-img' src={caseData.image_url}/>
                     <div className='case-details'>

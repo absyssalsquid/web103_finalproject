@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 import './config/dotenv.js'
 
@@ -13,11 +15,15 @@ import argumentsRouter from './routes/arguments.js'
 import juryRouter from './routes/jury.js'
 import rulesRouter from './routes/rules.js'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 const corsOptions = {
-    origin: 'http://localhost:5173',                      // Restrict to this origin
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],   // Allowed HTTP verbs
+    origin: process.env.NODE_ENV === 'production'
+      ? process.env.FRONTEND_URL || 'https://bird-court.onrender.com'
+      : 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true                                     // Allow cookies/auth headers
+    credentials: true
 };
 
 const app = express()
@@ -25,20 +31,22 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
+app.use('/api/auth', authRouter)
+app.use('/api/me', meRouter)
+app.use('/api/users', userRouter)
+app.use('/api/cases', caseRouter)
+app.use('/api/evidence', evidenceRouter)
+app.use('/api/arguments', argumentsRouter)
+app.use('/api/jury', juryRouter)
+app.use('/api/rules', rulesRouter)
 
-app.get('/', (req, res) => {
-  res.status(200).send('<h1 style="text-align: center; margin-top: 50px;">Bird Court API</h1>')
+// Serve static files from the built React app
+app.use(express.static(path.join(__dirname, '../client/dist')))
+
+// Fallback: serve index.html for client-side routing
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'))
 })
-
-app.use('/auth', authRouter)
-app.use('/me', meRouter)
-app.use('/users', userRouter)
-app.use('/cases', caseRouter)
-app.use('/evidence', evidenceRouter)
-app.use('/arguments', argumentsRouter)
-app.use('/jury', juryRouter)
-app.use('/rules', rulesRouter)
-
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {

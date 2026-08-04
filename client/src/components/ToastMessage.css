@@ -40,7 +40,7 @@
     flex-grow: 0;
 
     background-color: transparent;
-    color: var(black);
+    color: black;
     font-size: 1rem;
     /* border: 1px solid black; */
 }

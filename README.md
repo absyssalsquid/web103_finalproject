@@ -68,8 +68,9 @@ Lets users vote on provisional cases, evidence, and arguments.
 ![case directory gif](/walkthrough/voting.gif)
 
 ### ✅ User Profiles                               
-Public profile displaying bio, profile image, XP, contribution statistics, highlighted achievements, and all achievements. Also allow image uploads.                             
-![case directory gif](/walkthrough/profiles.gif)
+Public profile displaying bio, profile image, XP, contribution statistics, highlighted achievements, and all achievements. Also allow image uploads.  
+
+![case directory gif](/walkthrough/profiles.gif)  
 ------
 
 ### Contribution History                        

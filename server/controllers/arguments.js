@@ -160,9 +160,9 @@ const deleteArgument = async (req, res) => {
     if (del_response.rows.length === 0)
       return res.status(404).json({error: "You cannot delete this argument."})
 
-    const del_response = await pool.query(`
-      DELETE 
-      FROM reactions 
+    await pool.query(`
+      DELETE
+      FROM reactions
       WHERE submission_type = $1
         AND submission_id = $2
     `, ['ARGUMENT', id])
