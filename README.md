@@ -8,7 +8,7 @@ Sri Narendrula
 Dien Tran  
 Ying Wang  
 
-🔗 Link to deployed app:
+🔗 Link to deployed app: https://birdcourt.onrender.com/
 
 ## About
 
@@ -97,7 +97,3 @@ Displays rankings based on XP and participation metrics to encourage community i
 Allows administrators to remove inappropriate content, resolve disputes, and manage user accounts without affecting the fictional courtroom mechanics. 
 [gif here]
 
-
-## Installation Instructions
-
-[instructions go here]

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 
 import Pagination from '../components/Pagination'
 import ToastMessage from "../components/ToastMessage"
+import CardHeader from '/src/components/card_fragments/CardHeader'
 import { useAuthContext } from '/src/contexts/auth'
 
 import { getJuryAssignmentDetails, voteJury } from "/src/api/jury.js"
@@ -24,17 +25,15 @@ function JuryDuty(){
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-
     const [isExpired, setExpired] = useState(true)
 
     const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
 
     const [assignmentDetails, setAssignmentDetails] = useState({ case_id: null, expires_at: null, vote: null, fav_args: [] })
-
-    const [argumentHistory, setArgumentHistory] = useState({limit: 10, page: 1, last_page: 1, filterBy: 'all', sortBy:'best', entries: []})
     const [citedArgumentData, setCitedArgumentData] = useState({})
 
     const [paneOpen, setPaneOpen] = useState(false)
+    const [argumentHistory, setArgumentHistory] = useState({limit: 10, page: 1, last_page: 1, filterBy: 'all', sortBy:'best', entries: []})
 
     useEffect(()=>{
         async function init(){
@@ -106,12 +105,7 @@ function JuryDuty(){
     }, [loading, assignmentDetails.case_id, argumentHistory.filterBy, argumentHistory.sortBy, argumentHistory.limit, argumentHistory.page, setArgumentHistory]);
 
     function toggleArg(argId) {
-        setAssignmentDetails((prev) => ({
-            ...prev,
-            fav_args: prev.fav_args.includes(argId)
-                ? prev.fav_args.filter((a) => a !== argId)
-                : [...prev.fav_args, argId]
-        }))
+        console.log(Object.keys(citedArgumentData), argId)
 
         const cache = {...citedArgumentData}
         if (argId in citedArgumentData){
@@ -124,10 +118,6 @@ function JuryDuty(){
     }
 
     function removeArg(argId) {
-        setAssignmentDetails((prev) => ({
-            ...prev,
-            fav_args: prev.fav_args.filter((a) => a !== argId)
-        }))
         const cache = {...citedArgumentData}
         delete cache[argId]
         setCitedArgumentData(cache)
@@ -137,7 +127,10 @@ function JuryDuty(){
         e.preventDefault();
         setSubmitting(true)
 
-        const req_body = {...assignmentDetails}
+        const req_body = {
+            ...assignmentDetails,
+            fav_args: Object.keys(citedArgumentData)
+        }
         delete req_body.case_id
 
         const res = await voteJury(id, req_body)
@@ -197,15 +190,18 @@ function JuryDuty(){
     }
 
     return (
-        <div className="JuryDuty main-content">
+        <div className="JuryBallot main-content">
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
-            <div className="card">
-                <p>You have been assigned to</p>
-                <div className="case-num"><Link to={`/cases/${assignmentDetails.case_id}`}>Case #{assignmentDetails.case_id}</Link></div>
-                <p>Please review the case before making your decision.</p>
+            <div className='card-container'>
+                <CardHeader title="Cast Your Vote" />
 
-                <form onSubmit={handleSubmit}>
+                <div className="card">
+                    <p>You have been assigned to</p>
+                    <div className="case-num"><Link to={`/cases/${assignmentDetails.case_id}`}>Case #{assignmentDetails.case_id}</Link></div>
+                    <p>Please review the case before making your decision.</p>
+
+                    <form onSubmit={handleSubmit}>
                     <div className="options-container">
                         {VOTE_OPTIONS.map((opt) => (
                             <label key={opt.value} className={`option ${opt.className}`}>
@@ -226,7 +222,7 @@ function JuryDuty(){
                         + cite convincing arguments
                     </button>
 
-                    {assignmentDetails.fav_args.length > 0 && (
+                    {Object.entries(citedArgumentData).length > 0 && (
                         <div className="cited-args">
                             {Object.entries(citedArgumentData).map(([arg_id, arg])=>(
                                 <div className="citation-row" key={`arg-${arg_id}`}>
@@ -242,21 +238,25 @@ function JuryDuty(){
                         </div>
                     )}
 
-                    <div className="form-actions">
-                        <button type="submit" disabled={isExpired || submitting}>
-                            {submitting ? "Submitting..." : "Save"}
-                        </button>
-                        <button type="button" onClick={handleCancel}>
-                            Cancel
-                        </button>
-                    </div>
-                </form>
+                        <div className="form-actions">
+                            <button type="submit" disabled={isExpired || submitting}>
+                                {submitting ? "Submitting..." : "Save"}
+                            </button>
+                            <button type="button" onClick={handleCancel}>
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
 
-                <p className="dim">You do not have to complete your ballot at this time. You can return to this page at any time to cast or change your vote, as long as the jury is still in session.</p>
+                    <p className="dim">You do not have to complete your ballot at this time. You can return to this page at any time to cast or change your vote, as long as the jury is still in session.</p>
+                </div>
             </div>
 
             <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
             </div>
+
+
+            {/* ----------------------------- side pane ----------------------------- */}
 
             <aside className={`pullout-pane ${paneOpen ? 'open':''}`} onClick={(e) => e.stopPropagation()} >
                 <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane" className="close-pane">✖</button>
@@ -267,30 +267,28 @@ function JuryDuty(){
                     </div>
                 </div>
                 <div className="pullout-list">
-                    {loadingData ? (<div className="minimal">
-                        <div>Loading arguments...</div>
-                        <div className='loader'></div>
-                    </div>) :
-                    
-                    
-                    
-                    argumentHistory.entries.map((arg) => (
-                        <label className="pullout-item" key={arg.arg_id}>
-                            <input
-                                type="checkbox"
-                                checked={assignmentDetails.fav_args.includes(arg.arg_id)}
-                                onChange={() => toggleArg(arg.arg_id)}
-                            />
-                            <div>
-                                <div>"{arg.text}"</div>
-                                <div className="citation-sub">
-                                    <div>{arg.argument_tag?.toLowerCase()}</div> — 
-                                    <div>by {arg.username}</div> — 
-                                    <div>+{arg.up_votes} / -{arg.down_votes}</div>
-                                </div>
-                            </div>
-                        </label>
-                    ))}
+                    {loadingData 
+                        ? (<div className="minimal">
+                            <div>Loading arguments...</div>
+                            <div className='loader'></div>
+                        </div>)
+                        : argumentHistory.entries.map((arg) => (
+                                <label className="pullout-item" key={arg.arg_id}>
+                                    <input
+                                        type="checkbox"
+                                        checked={arg.arg_id in citedArgumentData}
+                                        onChange={() => toggleArg(arg.arg_id)}
+                                    />
+                                    <div>
+                                        <div>"{arg.text}"</div>
+                                        <div className="citation-sub">
+                                            <div>{arg.argument_tag?.toLowerCase()}</div> — 
+                                            <div>by {arg.username}</div> — 
+                                            <div>+{arg.up_votes} / -{arg.down_votes}</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            ))}
                 </div>
 
                 <Pagination history={argumentHistory} setHistory={setArgumentHistory} />

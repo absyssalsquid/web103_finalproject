@@ -2,6 +2,7 @@ import {useState} from 'react'
 import { useNavigate, Link} from 'react-router-dom'
 
 import ToastMessage from '../components/ToastMessage'
+import CardHeader from '/src/components/card_fragments/CardHeader'
 import { useAuthContext } from '/src/contexts/auth'
 
 import './SignIn.css'
@@ -33,7 +34,7 @@ const SignIn = () =>{
     }
 
     if (isAuthenticated) {
-        return(<div className='sign-in'>
+        return(<div className='SignIn main-content'>
             <div className='minimal'>
                 You are already signed in!
             </div>
@@ -41,15 +42,14 @@ const SignIn = () =>{
     }
 
     return (
-        <div className='sign-in '>
+        <div className='SignIn main-content'>
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
-            <div className='header'>
-                <h2>Register </h2>
-                <p>or <Link to={"/register"}>sign in</Link></p>
-            </div>
+            <div className='card-container'>
+                <CardHeader title="Register" subtitle={<>or <Link to={"/sign-in"}>sign in</Link></>} />
 
-            <form onSubmit={handleRegister} className='form'>
+                <div className='card'>
+                    <form onSubmit={handleRegister}>
                 <input
                     name='email'
                     placeholder='email'
@@ -74,10 +74,12 @@ const SignIn = () =>{
                     placeholder='re-enter password'
                     onChange={handleChange}
                 />
-                <div className='form-actions'>
-                    <button className='primary'>Register</button>
+                        <div className='form-actions'>
+                            <button className='primary'>Register</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     )
 

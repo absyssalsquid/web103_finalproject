@@ -1,60 +1,38 @@
-.ArgumentForm {
+.ArgumentForm.main-content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 0;
 }
 
-.ArgumentForm .main-content {
-    width: 100%;
+.ArgumentForm .card-container {
     box-sizing: border-box;
+    width: 100%;
     max-width: 500px;
-}
-
-.ArgumentForm .header {
-    filter: drop-shadow(var(--shadow-drop));
     position: relative;
-    bottom: -0.5rem;
-    left: -1.5rem;
-}
-
-.ArgumentForm .header-row {
-    width: fit-content;
-    transform: rotate(-1deg);
-
-    perspective: 100px;
-    clip-path: polygon(0 10%, 100% 0, 100% 96%, 4% 100%);
-
-    background-color: var(--accent);
-
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 1.5rem 2rem 1.2rem 2rem;
-}
-
-.ArgumentForm .header-row h2 {
-    margin: 0;
-    color: var(--text-on-accent);
-}
-
-.ArgumentForm .header-row p {
-    margin: 0;
-    margin-left: 0.5rem;
-    color: var(--text-on-accent);
-    opacity: 0.85;
+    margin-top: 0.8rem;
+    
+    @media screen and (min-width:576px) {
+        margin-top: 2rem;
+    }
 }
 
 .ArgumentForm .card {
-    gap: 0.35rem;
-    padding: 1.5rem;
+    box-sizing: border-box;
+    width: 100%;
     border: 1px solid var(--card-border);
     border-radius: 12px;
     background: var(--card-bg);
     box-shadow: var(--shadow);
+    padding: 1.5rem;
     position: relative;
     z-index: 1;
+}
+
+.ArgumentForm .card form {
     display: flex;
     flex-direction: column;
+    gap: 0.35rem;
 }
 
 /* ----------------------- radio button tags ----------------------- */
@@ -243,28 +221,6 @@
 }
 
 /* --------------------------- alerts -------------------------------- */
-
-.ArgumentForm .alert {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.55rem 0.8rem;
-    border-radius: 8px;
-    font-size: 0.82rem;
-    line-height: 1.3;
-}
-
-.ArgumentForm .alert-icon {
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.3rem;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    font-size: 0.78rem;
-    font-weight: 700;
-}
 
 .ArgumentForm .alert-error {
     background: rgba(229, 72, 77, 0.1);

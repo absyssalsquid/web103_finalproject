@@ -1,4 +1,5 @@
 .TopAlert {
+    width: 120%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -6,6 +7,7 @@
 
     padding: 1rem;
     background-color: rgba(233, 233, 0, 0.384);
+    color: rgba(29, 31, 10, 0.836);
 
     /* top: 0;
     bottom: 0;

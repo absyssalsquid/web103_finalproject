@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Countdown from 'react-countdown';
 
 import ToastMessage from '../components/ToastMessage'
+import CardHeader from '/src/components/card_fragments/CardHeader'
 import { useAuthContext } from '/src/contexts/auth'
 
 import { getUserLimits, getRefreshTime } from '/src/api/rules'
@@ -87,14 +88,18 @@ function JuryDuty(){
         <div className="JuryDuty main-content">
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
-            <div className="card">
-                <form onSubmit={handleNew}>
-                    <h2>Do you want to serve on a jury?</h2>
-                    <p>You have {userLimits.jury_assignments - usage.jury_assignments} jury summons remaining. Today's jury summons expire in <Countdown date={new Date(refreshTime)}/></p>
-                    <button type="submit" className="primary" disabled={atLimit || submitting}>
-                        {submitting ? "Submitting..." : "Respond to jury summons"}
-                    </button>
-                </form>
+            <div className='card-container'>
+                <CardHeader title="Jury Assignment" />
+
+                <div className="card">
+                    <form onSubmit={handleNew}>
+                        <h2>Do you want to serve on a jury?</h2>
+                        <p>You have {userLimits.jury_assignments - usage.jury_assignments} jury summons remaining. Today's jury summons expire in <Countdown date={new Date(refreshTime)}/></p>
+                        <button type="submit" className="primary" disabled={atLimit || submitting}>
+                            {submitting ? "Submitting..." : "Respond to jury summons"}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     )

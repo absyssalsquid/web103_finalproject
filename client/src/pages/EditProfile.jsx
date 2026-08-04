@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 
 import ToastMessage from '../components/ToastMessage'
+import CardHeader from '/src/components/card_fragments/CardHeader'
 import { useAuthContext } from '/src/contexts/auth'
 
 import { fetchUserData, fetchUserAchievements } from '/src/api/users'
@@ -147,13 +148,11 @@ function EditProfile(){
         <div className="EditProfile main-content">
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
-            <div className='header-container'>
-                <div className='header'>
-                    <h2>Edit profile</h2>
-                </div>
-            </div>
-            
-            <form onSubmit={submitHandler}>
+            <div className='card-container'>
+                <CardHeader title="Edit profile" />
+
+                <div className='card'>
+                    <form onSubmit={submitHandler}>
 
                 {/* profile image with pencil overlay */}
                 <div className='avatar-field'>
@@ -225,11 +224,13 @@ function EditProfile(){
                 />
                 <small className="char-limit">{edited.bio.length}/{lengthLimits.bio_max}</small>
 
-                <div className="form-actions">
-                    <button type="submit" disabled={submitting}>Save</button>
-                    <button type="button" onClick={cancelHandler}>Cancel</button>
+                        <div className="form-actions">
+                            <button type="submit" disabled={submitting}>Save</button>
+                            <button type="button" onClick={cancelHandler}>Cancel</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     )
 }

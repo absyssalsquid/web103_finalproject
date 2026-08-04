@@ -1,0 +1,30 @@
+.header-container {
+    filter: drop-shadow(var(--shadow-drop));
+    position: relative;
+    bottom: -0.5rem;
+    left: -1.5rem;
+}
+
+.header {
+    width: fit-content;
+    transform: rotate(-1deg);
+    perspective: 100px;
+    clip-path: polygon(0 10%, 100% 0, 100% 96%, 4% 100%);
+    background-color: var(--accent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.5rem 2rem 1.2rem 2rem;
+}
+
+.header h2 {
+    margin: 0;
+    color: var(--text-on-accent);
+}
+
+.header p {
+    margin: 0;
+    margin-left: 0.5rem;
+    color: var(--text-on-accent);
+    opacity: 0.85;
+}

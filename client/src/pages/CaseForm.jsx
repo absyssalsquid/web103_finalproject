@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import ProgressBar from "/src/components/ProgressBar"
 import TopAlert from "/src/components/TopAlert"
 import ToastMessage from "/src/components/ToastMessage"
+import CardHeader from "/src/components/card_fragments/CardHeader"
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -133,16 +134,12 @@ const CaseForm = () => {
                 <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit a case</>)} />
             }
 
-            <div className='card-outer-container'>
+            <div className='card-container'>
 
-                <div className='header-container'>
-                <div className='header'>
-                    <h2>Submit a case</h2>
-                    <p>This object has offended birdkind!</p>
-                </div>
-                </div>
+                <CardHeader title="Submit a case" subtitle="This object has offended birdkind!" />
 
-                <form onSubmit={submitHandler}>
+                <div className='card'>
+                    <form onSubmit={submitHandler}>
                     
                     <div><label htmlFor="objectName">Object name</label></div>
                     <textarea
@@ -198,15 +195,16 @@ const CaseForm = () => {
                         limit_message={"You've reached your daily submission limit."}
                     />
 
-                    <div className="form-actions">
-                        <button type="submit" disabled={!isAuthenticated || limitReached || submitting }>
-                            {submitting ? "Submitting..." : "Submit case"}
-                        </button>
-                        <button type="button" onClick={cancelHandler}>
-                            Cancel
-                        </button>
-                    </div>
-                </form>
+                        <div className="form-actions">
+                            <button type="submit" disabled={!isAuthenticated || limitReached || submitting }>
+                                {submitting ? "Submitting..." : "Submit case"}
+                            </button>
+                            <button type="button" onClick={cancelHandler}>
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>

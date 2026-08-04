@@ -1,58 +1,37 @@
 .EditProfile.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.EditProfile .card-container {
+    box-sizing: border-box;
+    width: 100%;
     max-width: 500px;
     position: relative;
 }
 
-/* TODO: normalize structure of pages with cards 
-edit profile, argument submission, case submission, ballot submission
-sign in, register, jury assignment 
+.EditProfile .card {
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
 
-main-content        provides marign padding from edges
-container
-    header
-    card            border-box, max-width 500px
-        form        no styling!!
 
-*/
 
 .EditProfile .minimal {
     padding: 2rem 0;
 }
 
-/* header banner, matching CaseForm */
-.EditProfile .header-container {
-    filter: drop-shadow(var(--shadow-drop));
-    position: relative;
-    bottom: -0.5rem;
-    left: -1.5rem;
-}
-
-.EditProfile .header {
-    width: fit-content;
-    transform: rotate(-1deg);
-    perspective: 100px;
-    clip-path: polygon(0 10%, 100% 0, 100% 96%, 4% 100%);
-    background-color: var(--accent);
-    padding: 1.5rem 2rem 1.2rem 2rem;
-}
-
-.EditProfile .header h2 {
-    margin: 0;
-    color: var(--text-on-accent);
-}
-
 /* form shell */
-.EditProfile form {
+.EditProfile .card form {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    padding: 1.5rem;
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    background: var(--card-bg);
-    box-shadow: var(--shadow);
-    position: relative;
-    z-index: 1;
 }
 
 .EditProfile .field-label {

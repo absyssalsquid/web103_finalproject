@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 
 import ToastMessage from '../components/ToastMessage'
+import CardHeader from '/src/components/card_fragments/CardHeader'
 import { useAuthContext } from '/src/contexts/auth'
 import {getLengthLimits} from '/src/api/rules.js'
 
@@ -50,7 +51,7 @@ const SignIn = () =>{
     }
 
     if (isAuthenticated) {
-        return(<div className='sign-in main-content'>
+        return(<div className='SignIn main-content'>
             <div className='minimal'>
                 <h2>You are already signed in!</h2>
             </div>
@@ -58,15 +59,14 @@ const SignIn = () =>{
     }
 
     return (
-        <div className='sign-in main-content'>
+        <div className='SignIn main-content'>
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
-            <div className='header'>
-                <h2>Sign in </h2>
-                <p>or <Link to={"/register"}>register</Link> for an account</p>
-            </div>
+            <div className='card-container'>
+                <CardHeader title="Sign in" subtitle={<>or <Link to={"/register"}>register</Link> for an account</>} />
 
-            <form onSubmit={handleSignIn}>
+                <div className='card'>
+                    <form onSubmit={handleSignIn}>
                 <input
                     name='username'
                     placeholder='username'
@@ -82,10 +82,12 @@ const SignIn = () =>{
                     onChange={handleChange}
                     minLength={lengthLimits.password_min}
                 />
-                <div className='form-actions'>
-                    <button className='primary' type="submit" disabled={submitting}>Sign in</button>
+                        <div className='form-actions'>
+                            <button className='primary' type="submit" disabled={submitting}>Sign in</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     )
 

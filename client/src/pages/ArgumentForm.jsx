@@ -5,6 +5,7 @@ import ProgressBar from '/src/components/ProgressBar'
 import TopAlert from "/src/components/TopAlert"
 import Pagination from '/src/components/Pagination'
 import ToastMessage from "/src/components/ToastMessage"
+import CardHeader from '/src/components/card_fragments/CardHeader'
 
 import { useAuthContext } from '/src/contexts/auth'
 import { getUsage } from '/src/api/me'
@@ -257,189 +258,181 @@ function ArgumentForm(){
     }
     
     return (
-        <div className='ArgumentForm'>
+        <div className='ArgumentForm main-content'>
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
-            
+
             {(!isAuthenticated) &&
                 <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit an argument</>)} />
             }
 
-            <div className='main-content'>
+            <div className='card-container'>
+                <CardHeader title="Present Your Argument" subtitle="Make your case!" />
 
-                <div className="header">
-                    <div className="header-row">
-                        <h2>Present Your Argument</h2>
-                        <p>Make your case!</p>
-                    </div>
-                </div>
-
-                <div className="card">
-                        <form onSubmit={submitHandler} className="form">
-                            <div className="tag-toggle">
-                                {TAGS.map((t) => (
-                                    <label key={t.value} className="tag-label">
-                                        <input
-                                            type="radio"
-                                            name="argument-tag"
-                                            value={t.value}
-                                            checked={tag === t.value}
-                                            onChange={() => setTag(t.value)}
-                                            required
-                                        />
-                                        <span className={`tag-btn ${t.tag}`}>{t.label}</span>
-                                    </label>
-                                ))}
-                            </div>
-
-                            <label htmlFor="argument" className="label">Argument</label>
-                            <textarea
-                                id="argument"
-                                className={`textarea${charStateClass}`}
-                                value={argument}
-                                minLength={lengthLimits.argument_min}
-                                maxLength={lengthLimits.argument_max}
-                                onChange={(e) => setArgument(e.target.value)}
-                                placeholder="Argue the case…"
-                                rows={5}
-                                required
-                            />
-                            <small className="char-limit">{charCount}/{lengthLimits.argument_max}</small>
-
-                            <button type="button" className="cite-toggle" onClick={() => setPaneOpen(true)}>
-                                + cite evidence
-                            </button>
-
-                            {/* ----------------------------------------- CASE CITATION ROW --------------------------------------- */}
-                            <div className="case-cite-row">
-                                <input
-                                    type="text"
-                                    value={caseInput}
-                                    onChange={(e) => {setCaseInput(e.target.value); setCiteError('')}}
-                                    placeholder="case #"
-                                />
-                                <button type="button" onClick={handleCiteCase} disabled={citingCase}>+ case citation</button>
-                            </div>
-
-                            {citeError && (
-                                <div className="alert alert-error">
-                                    <span className="alert-icon">!</span>
-                                    <span>{citeError}</span>
-                                </div>
-                            )}
-
-                            {/* ----------------------------------------- EVIDENCE CITATIONS --------------------------------------- */}
-
-                            {(Object.keys(citedEvidenceData).length > 0) && (
-                                <>
-                                    <label htmlFor="ev-citations" className="label">Evidence citations</label>
-
-                                    <div className="citations-container">
-                                        { Object.entries(citedEvidenceData).map(([ev_id, ev])=>(
-                                            <div className="citation-row" key={`ev-${ev_id}`}>
-                                                <div>
-                                                    <div>"{ev.text}"</div>
-                                                    <div className="citation-sub">
-                                                        {ev.username} — #{ev_id} — +{ev.up_votes} / -{ev.down_votes} 
-                                                    </div>
-                                                </div>
-                                                <button type="button" onClick={() => removeEvidence(ev_id)} className="remove-citation">✖</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                            {/* ----------------------------------------- CASE CITATIONS --------------------------------------- */}
-                            {(Object.keys(citedCaseData).length > 0) && (
-                                <>
-                                    <label htmlFor="case-citations" className="label">Precedent</label>
-                                    <div className="citations-container">
-                                        { Object.entries(citedCaseData).map(([c_id, c])=>(
-                                            <div className="citation-row" key={`case-${c_id}`}>
-                                                <div>
-                                                    <div>"{c.judge_ruling}"</div>
-                                                    <div className="citation-sub">
-                                                        case #{c_id} — {c.judge_name}
-                                                    </div>
-                                                </div>
-                                                <button type="button" onClick={() => removeCase(c_id)} className="remove-citation">✖</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-
-                            {!forEdit &&(
-                                <ProgressBar
-                                    label="Daily argument submissions"
-                                    value={usage.arguments}
-                                    limit={userLimits.arguments}
-                                    limit_message={"You've reached your daily argument limit."}
-                                />
-                            )}
-
-                            <button
-                                className="submit"
-                                type="submit"
-                                disabled={(submitDisabled || submitting) && !forEdit}
-                                aria-busy={submitting}
-                            >
-                                {submitting ? 'Submitting…' : (forEdit ? 'Save changes' : 'Submit argument')}
-                            </button>
-
-                        </form>
-                    </div>
-
-
-
-                <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
-                </div>
-
-                <aside className={`pullout-pane ${paneOpen ? 'open':''}`} onClick={(e) => e.stopPropagation()} >
-                    <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane" className="close-pane">✖</button>
-                    <div className="pullout-header">
-                        <div>
-                            <h2>case evidence</h2>
-                            <small className="char-limit">select to cite</small>
-                        </div>
-                    </div>
-                    <div className="pullout-list">
-                        {loadingEvidence ? (
-                            <div className="minimal">
-                                <div>Loading evidence...</div>
-                                <div className='loader'></div>
-                            </div>
-                        ) :
-
-                        evidenceHistory.entries.length === 0 ? (
-                            <div className="minimal">No evidence submitted yet.</div>
-                        ) : (
-                            evidenceHistory.entries.map((ev) => (
-                                <label className="pullout-item" key={ev.evidence_id}>
+                <div className='card'>
+                    <form onSubmit={submitHandler} className='form'>
+                        <div className="tag-toggle">
+                            {TAGS.map((t) => (
+                                <label key={t.value} className="tag-label">
                                     <input
-                                        type="checkbox"
-                                        checked={ev.evidence_id in citedEvidenceData }
-                                        onChange={() => toggleEvidence(ev.evidence_id)}
+                                        type="radio"
+                                        name="argument-tag"
+                                        value={t.value}
+                                        checked={tag === t.value}
+                                        onChange={() => setTag(t.value)}
+                                        required
                                     />
-                                    <div>
-                                        <div>"{ev.text}"</div>
-                                        <div className="citation-sub">
-                                            <div>{ev.username}</div> —
-                                            <div>#{ev.evidence_id}</div> —
-                                            <div>+{ev.up_votes} / -{ev.down_votes}</div>
-                                        </div>
-                                    </div>
+                                    <span className={`tag-btn ${t.tag}`}>{t.label}</span>
                                 </label>
-                            ))
-                        )}
-                    </div>
-                    
-                    {!loadingEvidence && (<Pagination history={evidenceHistory} setHistory={setEvidenceHistory} />)}
+                            ))}
+                        </div>
 
-                    <button type="button" onClick={() => setPaneOpen(false)}>
-                        close pane
-                    </button>
-                </aside>
+                        <label htmlFor="argument" className="label">Argument</label>
+                        <textarea
+                            id="argument"
+                            className={`textarea${charStateClass}`}
+                            value={argument}
+                            minLength={lengthLimits.argument_min}
+                            maxLength={lengthLimits.argument_max}
+                            onChange={(e) => setArgument(e.target.value)}
+                            placeholder="Argue the case…"
+                            rows={5}
+                            required
+                        />
+                        <small className="char-limit">{charCount}/{lengthLimits.argument_max}</small>
+
+                        <button type="button" className="cite-toggle" onClick={() => setPaneOpen(true)}>
+                            + cite evidence
+                        </button>
+
+                        {/* ----------------------------------------- CASE CITATION ROW --------------------------------------- */}
+                        <div className="case-cite-row">
+                            <input
+                                type="text"
+                                value={caseInput}
+                                onChange={(e) => {setCaseInput(e.target.value); setCiteError('')}}
+                                placeholder="case #"
+                            />
+                            <button type="button" onClick={handleCiteCase} disabled={citingCase}>+ case citation</button>
+                        </div>
+
+                        {citeError && (
+                            <div className="alert alert-error">
+                                <span className="alert-icon">!</span>
+                                <span>{citeError}</span>
+                            </div>
+                        )}
+
+                        {/* ----------------------------------------- EVIDENCE CITATIONS --------------------------------------- */}
+
+                        {(Object.keys(citedEvidenceData).length > 0) && (
+                            <>
+                                <label htmlFor="ev-citations" className="label">Evidence citations</label>
+
+                                <div className="citations-container">
+                                    { Object.entries(citedEvidenceData).map(([ev_id, ev])=>(
+                                        <div className="citation-row" key={`ev-${ev_id}`}>
+                                            <div>
+                                                <div>"{ev.text}"</div>
+                                                <div className="citation-sub">
+                                                    {ev.username} — #{ev_id} — +{ev.up_votes} / -{ev.down_votes} 
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={() => removeEvidence(ev_id)} className="remove-citation">✖</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                        {/* ----------------------------------------- CASE CITATIONS --------------------------------------- */}
+                        {(Object.keys(citedCaseData).length > 0) && (
+                            <>
+                                <label htmlFor="case-citations" className="label">Precedent</label>
+                                <div className="citations-container">
+                                    { Object.entries(citedCaseData).map(([c_id, c])=>(
+                                        <div className="citation-row" key={`case-${c_id}`}>
+                                            <div>
+                                                <div>"{c.judge_ruling}"</div>
+                                                <div className="citation-sub">
+                                                    case #{c_id} — {c.judge_name}
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={() => removeCase(c_id)} className="remove-citation">✖</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {!forEdit &&(
+                            <ProgressBar
+                                label="Daily argument submissions"
+                                value={usage.arguments}
+                                limit={userLimits.arguments}
+                                limit_message={"You've reached your daily argument limit."}
+                            />
+                        )}
+
+                        <button
+                            className="submit"
+                            type="submit"
+                            disabled={(submitDisabled || submitting) && !forEdit}
+                            aria-busy={submitting}
+                        >
+                            {submitting ? 'Submitting…' : (forEdit ? 'Save changes' : 'Submit argument')}
+                        </button>
+
+                    </form>
+                </div>
             </div>
+
+            <div className={`pullout-overlay ${paneOpen ? 'open':''}`} onClick={() => setPaneOpen(false)} >
+            </div>
+
+            <aside className={`pullout-pane ${paneOpen ? 'open':''}`} onClick={(e) => e.stopPropagation()} >
+                <button type="button" onClick={() => setPaneOpen(false)} aria-label="close pane" className="close-pane">✖</button>
+                <div className="pullout-header">
+                    <div>
+                        <h2>case evidence</h2>
+                        <small className="char-limit">select to cite</small>
+                    </div>
+                </div>
+                <div className="pullout-list">
+                    {loadingEvidence ? (
+                        <div className="minimal">
+                            <div>Loading evidence...</div>
+                            <div className='loader'></div>
+                        </div>
+                    ) :
+
+                    evidenceHistory.entries.length === 0 ? (
+                        <div className="minimal">No evidence submitted yet.</div>
+                    ) : (
+                        evidenceHistory.entries.map((ev) => (
+                            <label className="pullout-item" key={ev.evidence_id}>
+                                <input
+                                    type="checkbox"
+                                    checked={ev.evidence_id in citedEvidenceData }
+                                    onChange={() => toggleEvidence(ev.evidence_id)}
+                                />
+                                <div>
+                                    <div>"{ev.text}"</div>
+                                    <div className="citation-sub">
+                                        <div>{ev.username}</div> —
+                                        <div>#{ev.evidence_id}</div> —
+                                        <div>+{ev.up_votes} / -{ev.down_votes}</div>
+                                    </div>
+                                </div>
+                            </label>
+                        ))
+                    )}
+                </div>
+                
+                {!loadingEvidence && (<Pagination history={evidenceHistory} setHistory={setEvidenceHistory} />)}
+
+                <button type="button" onClick={() => setPaneOpen(false)}>
+                    close pane
+                </button>
+            </aside>
         </div>
 
     )

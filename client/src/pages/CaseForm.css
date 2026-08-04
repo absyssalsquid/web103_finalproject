@@ -1,61 +1,36 @@
-.CaseForm {
+.CaseForm.main-content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 0;
 }
 
-.CaseForm .card-outer-container {
+.CaseForm .card-container {
     box-sizing: border-box;
     width: 100%;
     max-width: 500px;
     position: relative;
-}
-
-.CaseForm .header-container {
-    filter: drop-shadow(var(--shadow-drop));
-    position: relative;
-    bottom: -0.5rem;
-    left: -1.5rem;
-}
-
-.CaseForm .header {
-    width: fit-content;
-    transform: rotate(-1deg);
-
-    perspective: 100px;
-    clip-path: polygon(0 10%, 100% 0, 100% 96%, 4% 100%);
+    margin-top: 0.8rem;
     
-    background-color: var(--accent);
-
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 1.5rem 2rem 1.2rem 2rem;
+    @media screen and (min-width:576px) {
+        margin-top: 2rem;
+    }
 }
 
-.CaseForm .header h2 {
-    margin: 0;
-    color: var(--text-on-accent);
-}
-
-.CaseForm .header p {
-    margin: 0;
-    margin-left: 0.5rem;
-    color: var(--text-on-accent);
-    opacity: 0.85;
-}
-
-.CaseForm form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    padding: 1.5rem;
+.CaseForm .card {
     border: 1px solid var(--card-border);
     border-radius: 12px;
     background: var(--card-bg);
     box-shadow: var(--shadow);
+    padding: 1.5rem;
     position: relative;
     z-index: 1;
+}
+
+.CaseForm .card form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
 .CaseForm form > * {
