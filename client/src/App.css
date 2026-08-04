@@ -201,12 +201,12 @@ button.action.hidden {bottom: -5rem;}
 /* ------- primary = only form button --------- */
 form button.primary {
   color: var(--text-on-accent);
-  background-color: var(--accent);
   border-color: var(--accent);
 }
 
 form button.primary:hover {
-  filter: brightness(110%);
+  filter: brightness(105%);
+  background-color: var(--accent);
 }
 
 /* -------------------------- forms -------------------------- */

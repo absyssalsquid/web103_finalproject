@@ -2,6 +2,8 @@ import './CaseProvisional.css'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { reactProvisional } from '/src/api/reactions.js'
+import { useAuthContext } from '/src/contexts/auth.jsx'
+import ToastMessage from '/src/components/ToastMessage.jsx'
 
 const VOTE_OPTIONS = [
     {   value: 'UP', 
@@ -20,9 +22,11 @@ const VOTE_OPTIONS = [
 function Provisional({phaseDelta, caseData, setCaseData}){
     const {id} = useParams()
     const isActivePhase = phaseDelta == 0;
+    const { isAuthenticated } = useAuthContext()
 
     const [voteState, setVoteState] = useState(caseData.reaction)
     const [animatingVote, setAnimatingVote] = useState(null)
+    const [toastMessage, setToastMessage] = useState({message: '', type: '', key: null})
 
     const totalVotes = (caseData.up_votes || 0) + (caseData.down_votes || 0)
     const countsVisible = !isActivePhase || voteState!==null
@@ -34,6 +38,10 @@ function Provisional({phaseDelta, caseData, setCaseData}){
 
     async function handleClick(val) {
         if (!isActivePhase) return;
+        if (!isAuthenticated) {
+            setToastMessage({message: 'You need to log in to vote', type: 'error', key: Date.now()})
+            return
+        }
         if (val === voteState) return
 
         setAnimatingVote(val)
@@ -73,7 +81,8 @@ function Provisional({phaseDelta, caseData, setCaseData}){
 
     return (
         <div className="Provisional sub-content">
-            <div className='heading-block subheading'>Public Interest Assessment</div>
+            <ToastMessage message={toastMessage.message} type={toastMessage.type} key={toastMessage.key} />
+            <h3 className='heading-block subheading'>Public Interest Assessment</h3>
             <div className={`vote-stats`}>
                 <div className='gauge-bar'>
                         <div className='gauge-prosecute' style={{width: `${countsVisible ? prosecutePercent : 0}%`}}></div>

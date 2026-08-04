@@ -1,11 +1,11 @@
-.header-container {
+.CardHeader {
     filter: drop-shadow(var(--shadow-drop));
     position: relative;
     bottom: -0.5rem;
     left: -1.5rem;
 }
 
-.header {
+.CardHeader .header {
     width: fit-content;
     transform: rotate(-1deg);
     perspective: 100px;
@@ -17,14 +17,22 @@
     padding: 1.5rem 2rem 1.2rem 2rem;
 }
 
-.header h2 {
+.CardHeader .header h2 {
     margin: 0;
     color: var(--text-on-accent);
 }
 
-.header p {
+.CardHeader .header p {
     margin: 0;
     margin-left: 0.5rem;
     color: var(--text-on-accent);
     opacity: 0.85;
+}
+
+.CardHeader .header a {
+    color: var(--text-on-accent);
+    text-decoration: underline;
+}
+.CardHeader .header a:hover {
+    text-decoration: underline wavy var(--text-on-accent);
 }
