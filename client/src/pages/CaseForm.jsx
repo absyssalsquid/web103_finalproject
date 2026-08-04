@@ -11,9 +11,9 @@ import { getUsage } from '/src/api/me'
 import { getUserLimits, getLengthLimits } from '/src/api/rules'
 
 
-import './NewCase.css'
+import './CaseForm.css'
 
-const NewCase = () => {
+const CaseForm = () => {
     const navigate = useNavigate();
     const { isAuthenticated, isAuthLoading } = useAuthContext();
     const fileInputRef = useRef(null);
@@ -118,21 +118,22 @@ const NewCase = () => {
         return (
             <div className="main-content">
                 <div className='minimal'>
-                    <h1>Loading form...</h1>
+                    <h1>Loading case form...</h1>
+                    <div className='loader'></div>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="NewCase">
+        <div className="CaseForm main-content">
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
 
             {(!isAuthenticated) &&
                 <TopAlert message={(<><Link to={"/sign-in"}>Sign in</Link> to submit a case</>)} />
             }
 
-            <div className='main-content'>
+            <div className='card-outer-container'>
 
                 <div className='header-container'>
                 <div className='header'>
@@ -212,4 +213,4 @@ const NewCase = () => {
     )
 }
 
-export default NewCase;
+export default CaseForm;

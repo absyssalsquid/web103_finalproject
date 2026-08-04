@@ -149,18 +149,24 @@ const deleteArgument = async (req, res) => {
     const del_response = await pool.query(`
       DELETE 
       FROM arguments AS a
-      JOIN cases as c
-        ON c.case_id = a.case_id
-      WHERE a.arg_id = $1
-        AND user_id = $2
+      USING cases as c
+      WHERE c.case_id = a.case_id
+        AND a.arg_id = $1
+        AND a.user_id = $2
         AND c.phase = $3
-      RETURNING user_id
+      RETURNING a.user_id
     `, [id, user_id, 'ARGUMENT'])
     
     if (del_response.rows.length === 0)
       return res.status(404).json({error: "You cannot delete this argument."})
 
-    console.log("deleted arg")
+    const del_response = await pool.query(`
+      DELETE 
+      FROM reactions 
+      WHERE submission_type = $1
+        AND submission_id = $2
+    `, ['ARGUMENT', id])
+
     res.status(204).json()
 
   } catch (error) {
@@ -226,41 +232,57 @@ const updateArgument = async (req, res) => {
       [text, argument_tag, id])
 
     // Update evidence citations
+    let ev_c = []
     await client.query(`DELETE FROM argument_evidence_refs WHERE arg_id = $1`, [id])
     if (evidence_citations.length > 0) {
-      await client.query(`
-        INSERT INTO argument_evidence_refs (arg_id, evidence_id)
-        SELECT $1, unnest($2::int[])`,
-        [id, evidence_citations])
+      const response = await client.query(`
+        WITH ins AS (
+          INSERT INTO argument_evidence_refs (arg_id, evidence_id)
+          SELECT $1, unnest($2::int[])
+          RETURNING evidence_id
+        )
+        SELECT COALESCE(array_agg(evidence_id), ARRAY[]::int[]) AS evidence_ids
+        FROM ins
+      `, [id, evidence_citations]);
+      ev_c = response.rows[0]
     }
 
     // Update case citations
+    let cc = []
     await client.query(`DELETE FROM argument_case_refs WHERE arg_id = $1`, [id])
-    if (case_citations.length > 0) {
-      await client.query(`
-        INSERT INTO argument_case_refs (arg_id, refd_case_id)
-        SELECT $1, unnest($2::int[])`,
-        [id, case_citations])
+    if (case_citations.length > 0){
+      const response = await client.query(`
+        WITH ins AS (
+          INSERT INTO argument_case_refs (arg_id, refd_case_id)
+          SELECT $1, unnest($2::int[])
+          RETURNING refd_case_id
+        )
+        SELECT COALESCE(array_agg(refd_case_id), ARRAY[]::int[]) AS refd_case_ids
+        FROM ins
+      `, [id, case_citations]);
+      cc = response.rows[0]
     }
 
     await client.query('COMMIT')
+    console.log("finished")
 
     res.json({
       arg_id: id,
       case_id,
       text,
       argument_tag,
-      case_citations,
-      evidence_citations,
+      case_citations: cc,
+      evidence_citations: ev_c,
     })
   } catch (error) {
+    console.log('updateArgument', error.message)
+
     await client.query('ROLLBACK')
     const CITATION_UNIQUE_CONSTRAINTS = new Set(['argument_case_refs_pkey', 'argument_evidence_refs_pkey'])
     if (error.code === '23505' && CITATION_UNIQUE_CONSTRAINTS.has(error.constraint)) {
       console.log('updateArgument duplicate citation', error.message)
       return res.status(400).json({ error: 'Duplicate citation.' })
     }
-    console.log('updateArgument', error.message)
     res.status(500).json({ error: "Internal server error." })
   } finally {
     client.release()

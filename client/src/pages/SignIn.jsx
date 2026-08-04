@@ -13,6 +13,7 @@ const SignIn = () =>{
     const [signInParams, setSignInParams] = useState({username: '', password: ''})
     const [lengthLimits, setLengthLimits] = useState({})
     const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null})
+    const [submitting, setSubmitting] = useState(false)
 
     useEffect(()=>{
         // check if user is signed in
@@ -28,13 +29,15 @@ const SignIn = () =>{
 
     const handleSignIn = async (e) => {
         e.preventDefault()
+        setSubmitting(true)
         const data = await login(signInParams);
         if (!data.error) {
             setToastMsg({message: 'Signed in. You will be redirected shortly.', type: 'success', key: Date.now()});
-            nav('/');
+            setTimeout(() => nav('/'), 1700);
         }
         else{
             setToastMsg({message: data.error, type: 'error', key: Date.now()});
+            setSubmitting(false)
         }
     }
 
@@ -72,7 +75,7 @@ const SignIn = () =>{
                     minLength={lengthLimits.password_min}
                 />
                 <div className='form-actions'>
-                    <button className='primary' type="submit">Sign in</button>
+                    <button className='primary' type="submit" disabled={submitting}>Sign in</button>
                 </div>
             </form>
         </div>

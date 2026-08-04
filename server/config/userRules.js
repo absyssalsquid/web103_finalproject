@@ -36,5 +36,4 @@ export const REFRESH_TIME = {
     time_zone: "America/Los_Angeles"
 }
 
-export const DILATION_FACTOR = 1; // multiply the days to extend each phase window
 export const EDIT_LIMIT_MINUTES = 10; // minutes after which you cant edit submissions

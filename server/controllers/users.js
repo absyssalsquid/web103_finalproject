@@ -47,9 +47,10 @@ const getUserStats = async (req, res) => {
           )
         ) AS cases_contributed
     `, [user_id])
+    if (response.rows.length === 0)
+      return res.status(404).json({error: "User not found."})
 
     let stats = response.rows[0]
-    console.log(stats)
     for (const [key, val] of Object.entries(stats) ){
       stats[key] = Number(val)
     }

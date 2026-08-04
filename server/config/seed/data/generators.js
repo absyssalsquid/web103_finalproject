@@ -1,10 +1,30 @@
 import { DateTime} from 'luxon'
 
-import { getRandomInt } from '../utils/time.js'
-import { LENGTH_LIMITS } from '../config/userRules.js';
-import { PHASES } from '../utils/phaseMath.js'
-
+import { getRandomInt } from '../../../utils/time.js'
+import { LENGTH_LIMITS } from '../../../config/userRules.js';
+import { MIN_CASE_INTEREST } from '../../../config/serverRules.js';
+import { PHASES, phaseDelta } from '../../../utils/phaseMath.js'
 import achievements from './achievements.js'
+
+export const APP_INCEPTION_DATE = DateTime.now().plus({years:-2})
+const END_PHASES = ['CLOSED', 'WITHDRAWN', 'DISMISSED']
+const DELTA_DAYS = { // phase start in days after created_at
+    PROVISIONAL: 0,
+    DISMISSED: 1,
+    DISCOVERY: 1,
+    ARGUMENT: 2,
+    JURY_DELIBERATION: 3,
+    RULING: 4,
+    CLOSED: 5
+}
+const NORMAL_PHASE_PROGRESSION = [
+    'PROVISIONAL',
+    'DISCOVERY',
+    'ARGUMENT',
+    'JURY_DELIBERATION',
+    'RULING',
+    'CLOSED',
+]
 
 // ----------------------------------------- utils ----------------------------------------- 
 
@@ -50,12 +70,13 @@ function getRandomElements(arr, n) {
 
 // ----------------------------------------- utils ----------------------------------------- 
 
-export function generateUsers(usernames){
+export function generateUsers(usernames, startDate=APP_INCEPTION_DATE){
     return usernames.map((username, i) => ({
         username,
         email: `samplebird${i}6@gmail.com`,
         pw: 'seedeater',
         image_url: 'https://images.unsplash.com/photo-1606567595334-d39972c85dbe',
+        created_at: getRandomDate(startDate)
     }))
 }
 
@@ -127,9 +148,16 @@ export function generateJuryBallots(caseData, users){
     const guilty_threshold = Math.random() // case bias; if below, not guilty
     const response_rate = Math.random() // fraction of users that participate
     const ballot_completion_probability = 0.8
+    
+    if (phaseDelta(caseData.phase, 'JURY_DELIBERATION') > 0)
+        console.log("ERROR: generateJuryBallots phase", caseData.phase)
 
-    const jury_start_dt = caseData.created_at.plus({days:3})
-    const jury_end_dt = jury_start_dt.plus({days:1})
+    const jury_start_dt = caseData.created_at.plus({days: DELTA_DAYS.JURY_DELIBERATION})
+    const jury_end_dt = jury_start_dt.plus({days: 1})
+
+    // TODO: figure out why ballots are being generated with created_at in the future, even thought this never triggers
+    if (jury_start_dt > DateTime.now())
+        console.log("ERROR: generateJuryBallots start > now", caseData.created_at.toJSDate(), jury_start_dt.toJSDate())
 
     let filtered_users = users.filter(user => user.created_at < jury_start_dt)
     const n_responses = Math.floor(response_rate * filtered_users.length)
@@ -156,39 +184,32 @@ export function generateJuryBallots(caseData, users){
     })
 }
 
-
-const END_PHASES = ['CLOSED', 'WITHDRAWN', 'DISMISSED']
-const DELTA_DAYS = { // phase start in days after created_at
-    PROVISIONAL: 0,
-    DISMISSED: 1,
-    DISCOVERY: 1,
-    ARGUMENT: 2,
-    JURY_DELIBERATION: 3,
-    RULING: 4,
-    CLOSED: 5
-}
-const NORMAL_PHASE_PROGRESSION = [
-    'PROVISIONAL',
-    'DISCOVERY',
-    'ARGUMENT',
-    'JURY_DELIBERATION',
-    'RULING',
-    'CLOSED',
-]
-
 export function generateCases(count, users, startDate){
+    // requred users params: user_id, created_at
     const reversed_progression = NORMAL_PHASE_PROGRESSION.toReversed()
 
     return [...Array(count).keys()].map((i) => {
         const user_idx =  getRandomInt(0, users.length - 1)
         const user_id = users[user_idx].user_id
         const created_at = getRandomDate(startDate)
+
+        // calculate votes
+        const N = users.filter((u) => u.created_at < created_at).length
+        const interest_fraction = getRandomInt(20, 800)/1000
+        const N_interested = Math.floor(N * interest_fraction)
+        const N_prosecute  = Math.floor(N_interested * Math.random())
+        const N_defend = N_interested - N_prosecute
+        // console.log(N, '*', interest_fraction, '=', N_interested, N_prosecute, N_defend)
+
+        let phase = null
+        // check vote threshold for dismissal
+        if (N_interested < MIN_CASE_INTEREST)
+            phase = 'DISMISSED'
         
         // calcualte phase based on created_at date. 
-        let phase = null
         const rand = Math.random()
-        if      (rand < 0.10 ) { phase = 'DISMISSED' } // small probability of abnormal exit
-        else if (rand < 0.15) { phase = 'WITHDRAWN' } 
+        if (rand < 0.05) { phase = 'WITHDRAWN' } // small probability of abnormal exit
+        else if (phase === 'DISMISSED') {}
         else {
             // normal case progression
             for (const ph of reversed_progression){
@@ -216,10 +237,18 @@ export function generateCases(count, users, startDate){
             image_url: null, 
             phase,
             phase_start,
-            phase_end: END_PHASES.includes(phase) ? null : phase_start.plus({days:1})
+            phase_end: END_PHASES.includes(phase) ? null : phase_start.plus({days:1}),
+            up_votes: N_prosecute,
+            down_votes: N_defend
         }
     })
 }
 
-const users = [{user_id: 1}]
-const cases = generateCases(20, users, DateTime.now().plus({days:-6}))
+
+// const usernames = [...Array(100).keys()].map((i) => String(i))
+// const users = generateUsers(usernames)
+// const cases = generateCases(20, users, DateTime.now().plus({days:-6}))
+// for (const c of cases){
+//     console.log(c.phase)
+//     generateJuryBallots(c, users)
+// }

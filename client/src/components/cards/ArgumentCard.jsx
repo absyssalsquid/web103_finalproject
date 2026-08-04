@@ -31,8 +31,8 @@ function ArgumentCard({idx, data, isActivePhase, patchVoteCounts, isOwned=false}
             const res_data = await res.json()
             console.log(res_data)
             setToastMsg({message: res_data.error, type: 'error', key: Date.now()})
+            setSubmitting(false)
         }
-        setSubmitting(false)
     }
 
     return (

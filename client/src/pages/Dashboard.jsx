@@ -73,6 +73,7 @@ const Dashboard = () => {
         return (
             <div className='main-content minimal'>
                 <h1>Loading dashboard...</h1>
+                <div className='loader'></div>
             </div>
         )
     }

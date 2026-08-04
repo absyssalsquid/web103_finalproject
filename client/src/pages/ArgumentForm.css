@@ -1,16 +1,23 @@
-.NewArgument .main-content {
-    max-width: 500px;
-    position: relative;
+.ArgumentForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.NewArgument .header {
+.ArgumentForm .main-content {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 500px;
+}
+
+.ArgumentForm .header {
     filter: drop-shadow(var(--shadow-drop));
     position: relative;
     bottom: -0.5rem;
     left: -1.5rem;
 }
 
-.NewArgument .header-row {
+.ArgumentForm .header-row {
     width: fit-content;
     transform: rotate(-1deg);
 
@@ -25,19 +32,19 @@
     padding: 1.5rem 2rem 1.2rem 2rem;
 }
 
-.NewArgument .header-row h2 {
+.ArgumentForm .header-row h2 {
     margin: 0;
     color: var(--text-on-accent);
 }
 
-.NewArgument .header-row p {
+.ArgumentForm .header-row p {
     margin: 0;
     margin-left: 0.5rem;
     color: var(--text-on-accent);
     opacity: 0.85;
 }
 
-.NewArgument .card {
+.ArgumentForm .card {
     gap: 0.35rem;
     padding: 1.5rem;
     border: 1px solid var(--card-border);
@@ -52,7 +59,7 @@
 
 /* ----------------------- radio button tags ----------------------- */
 
-.NewArgument .tag-toggle {
+.ArgumentForm .tag-toggle {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -64,7 +71,7 @@
     --defense: #9cbe14c7;
 }
 
-.NewArgument .tag-label {
+.ArgumentForm .tag-label {
     display: flex;
     align-items: center;
     width: fit-content;
@@ -73,7 +80,7 @@
     position: relative;
 }
 
-.NewArgument .tag-label input[type="radio"] {
+.ArgumentForm .tag-label input[type="radio"] {
     cursor: pointer;
     
     position: absolute;
@@ -84,7 +91,7 @@
     pointer-events: none;
 }
 
-.NewArgument .tag-btn {
+.ArgumentForm .tag-btn {
     padding: 0.3rem 0.7rem;
     font-size: 0.9rem;
     font-weight: 600;
@@ -96,42 +103,42 @@
     transition: all 0.15s ease;
 }
 
-.NewArgument .tag-btn:hover {
+.ArgumentForm .tag-btn:hover {
     background-color: var(--dim-bg);
 }
 
-.NewArgument input[type="radio"]:checked + .tag-btn {
+.ArgumentForm input[type="radio"]:checked + .tag-btn {
     color: var(--text-on-accent);
 }
 
-.NewArgument input[type="radio"]:checked + .tag-btn.prosecution {
+.ArgumentForm input[type="radio"]:checked + .tag-btn.prosecution {
     background-color: var(--prosecution);
     border-color: var(--prosecution);
 }
 
-.NewArgument input[type="radio"]:checked + .tag-btn.defense {
+.ArgumentForm input[type="radio"]:checked + .tag-btn.defense {
     background-color: var(--defense);
     border-color: var(--defense);
 }
 
 /* ----------------------------- form ------------------------------ */
 
-.NewArgument .form {
+.ArgumentForm .form {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
 }
 
-.NewArgument .form > * {
+.ArgumentForm .form > * {
     box-sizing: border-box;
 }
 
-.NewArgument .label {
+.ArgumentForm .label {
     font-weight: 600;
     color: var(--text-h);
 }
 
-.NewArgument .textarea {
+.ArgumentForm .textarea {
     width: 100%;
     box-sizing: border-box;
     min-height: 170px;
@@ -147,54 +154,54 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.NewArgument .textarea::placeholder {
+.ArgumentForm .textarea::placeholder {
     color: var(--text-dim);
 }
 
-.NewArgument .textarea:focus {
+.ArgumentForm .textarea:focus {
     border-color: var(--accent-border);
     box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-.NewArgument .textarea.is-warning {
+.ArgumentForm .textarea.is-warning {
     border-color: #d99a1a;
 }
 
-.NewArgument .textarea.is-warning:focus {
+.ArgumentForm .textarea.is-warning:focus {
     box-shadow: 0 0 0 3px rgba(217, 154, 26, 0.18);
 }
 
-.NewArgument .textarea.is-error {
+.ArgumentForm .textarea.is-error {
     border-color: #e5484d;
 }
 
-.NewArgument .textarea.is-error:focus {
+.ArgumentForm .textarea.is-error:focus {
     box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.18);
 }
 
-.NewArgument .footer-row {
+.ArgumentForm .footer-row {
     display: flex;
     justify-content: flex-end;
 }
 
-.NewArgument .char-count {
+.ArgumentForm .char-count {
     font-size: 0.78rem;
     color: var(--text-dim);
 }
 
-.NewArgument .char-count.is-warning {
+.ArgumentForm .char-count.is-warning {
     color: #d99a1a;
     font-weight: 600;
 }
 
-.NewArgument .char-count.is-error {
+.ArgumentForm .char-count.is-error {
     color: #e5484d;
     font-weight: 600;
 }
 
 /* ------------------------- limit section -------------------------- */
 
-.NewArgument .limit-section {
+.ArgumentForm .limit-section {
     border-radius: 10px;
     padding: 0.75rem 0.9rem;
     display: flex;
@@ -202,18 +209,18 @@
     gap: 0.3rem;
 }
 
-.NewArgument .limit-section .ProgressBar {
+.ArgumentForm .limit-section .ProgressBar {
     margin-top: 0;
 }
 
-.NewArgument .remaining {
+.ArgumentForm .remaining {
     font-size: 0.78rem;
     color: var(--text-dim);
 }
 
 /* ------------------------------ submit ------------------------------ */
 
-.NewArgument .submit {
+.ArgumentForm .submit {
     margin-top: 0.75rem;
     font-weight: 600;
     color: var(--text-h);
@@ -224,20 +231,20 @@
     transition: all 0.15s ease;
 }
 
-.NewArgument .submit:not(:disabled):hover {
+.ArgumentForm .submit:not(:disabled):hover {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--text-on-accent);
 }
 
-.NewArgument .submit:disabled {
+.ArgumentForm .submit:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 /* --------------------------- alerts -------------------------------- */
 
-.NewArgument .alert {
+.ArgumentForm .alert {
     display: flex;
     align-items: center;
     gap: 0.55rem;
@@ -247,7 +254,7 @@
     line-height: 1.3;
 }
 
-.NewArgument .alert-icon {
+.ArgumentForm .alert-icon {
     flex: none;
     display: flex;
     align-items: center;
@@ -259,46 +266,46 @@
     font-weight: 700;
 }
 
-.NewArgument .alert-error {
+.ArgumentForm .alert-error {
     background: rgba(229, 72, 77, 0.1);
     border: 1px solid rgba(229, 72, 77, 0.3);
     color: #e5484d;
 }
 
-.NewArgument .alert-error .alert-icon {
+.ArgumentForm .alert-error .alert-icon {
     background: rgba(229, 72, 77, 0.18);
     color: #e5484d;
 }
 
-.NewArgument .alert-info {
+.ArgumentForm .alert-info {
     background: var(--accent-bg);
     border: 1px solid var(--accent-border);
     color: var(--text-accent);
 }
 
-.NewArgument .alert-info .alert-icon {
+.ArgumentForm .alert-info .alert-icon {
     background: var(--accent-bg);
     color: var(--text-accent);
 }
 
 /* ----------------------- cite toggle and buttons  ---------------------- */
 
-.NewArgument .cite-toggle {
+.ArgumentForm .cite-toggle {
     margin-top: 0.75rem;
 }
 
 /* case citations */
-.NewArgument .case-cite-row {
+.ArgumentForm .case-cite-row {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
 }
 
-.NewArgument .case-cite-row > *{
+.ArgumentForm .case-cite-row > *{
     box-sizing: border-box;
 }
 
-.NewArgument .case-cite-row input {
+.ArgumentForm .case-cite-row input {
     flex: 8;
     flex-shrink: none;
     padding: 0.5rem 0.8rem;
@@ -309,13 +316,13 @@
     font-size: 0.9rem;
 }
 
-.NewArgument .case-cite-row input:focus {
+.ArgumentForm .case-cite-row input:focus {
     outline: none;
     border-color: var(--accent-border);
     box-shadow: 0 0 0 2px var(--accent-bg);
 }
 
-.NewArgument .case-cite-row button {
+.ArgumentForm .case-cite-row button {
     flex: 1;
     flex-basis: 150px;
     padding: 0.5rem 1rem;
@@ -328,7 +335,7 @@
     transition: all 0.15s ease;
 }
 
-.NewArgument .case-cite-row button:hover {
+.ArgumentForm .case-cite-row button:hover {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--text-on-accent);
@@ -336,11 +343,11 @@
 
 /* -----------------------  citations ---------------------- */
 
-.NewArgument .citations-container {
+.ArgumentForm .citations-container {
     text-align: left;
 }
 
-.NewArgument .citation-row {
+.ArgumentForm .citation-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -354,7 +361,7 @@
     position: relative;
 }
 
-.NewArgument .citation-row button {
+.ArgumentForm .citation-row button {
     position: absolute;
     top: 0;
     right: 0;
@@ -368,11 +375,11 @@
     transition: all 0.15s ease;
 }
 
-.NewArgument .citation-row button:hover {
+.ArgumentForm .citation-row button:hover {
     color: var(--text-h);
 }
 
-.NewArgument .citation-sub {
+.ArgumentForm .citation-sub {
     color: var(--text-dim);
     font-size: 0.85em;
     margin-top: 0.2em;

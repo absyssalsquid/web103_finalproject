@@ -16,21 +16,31 @@
     }
 }
 
+/* .JuryAssignments img.eye {
+    aspect-ratio: 1/1;
+    width: 10px;
+    background-color: var(--accent);
+    padding: 0.2rem;
+    margin: 0 auto;
+} */
+
 .JuryAssignments .table-container table{
     width: 100%;
 }
 
 .JuryAssignments tbody tr:hover {
     background-color: var(--dim-bg);
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
-.JuryAssignments .view-ballot-link {
+.JuryAssignments .ballot-link {
     display: block;
     text-decoration: none;
-    transform: scaleX(-1);
+    /* transform: scaleX(-1); */
+    font-size: 1.3rem;
+    line-height: 0;
 }
 
-.JuryAssignments .view-ballot-link:hover {
+.JuryAssignments .ballot-link:hover {
     text-decoration: underline;
 }

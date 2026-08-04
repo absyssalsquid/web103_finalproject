@@ -44,8 +44,8 @@ List each issue you completed this unit and the main file or folder where that w
   - Frontend: Build profile stats section (XP, contribution count) - client/src/pages/UserProfile.jsx
   - Frontend: Display earned and in-progress achievements on profile - client/src/components/user/Achievements.jsx
 - Case Submission
-  - Frontend: Build case submission form component with character counters - client/src/pages/NewCase.jsx
-  - Frontend: Show submission limit status to user - client/src/pages/NewCase.jsx
+  - Frontend: Build case submission form component with character counters - client/src/pages/CaseForm.jsx
+  - Frontend: Show submission limit status to user - client/src/pages/CaseForm.jsx
 - Case Lifecycle Management (Auto-progression)
   - Frontend: Show countdown timer to next phase transition - client/src/pages/Case.jsx
 - Case Directory / Search & Filter

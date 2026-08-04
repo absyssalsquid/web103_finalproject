@@ -1,36 +1,42 @@
 .ToastMessage {
     position: fixed;
-    top: 0;
-    margin: 1rem auto;
+    top: 3rem;
+    right: 0;
     border-radius: 10px;
+    margin: 0.7rem;
     
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
 
     box-sizing: border-box;
-    width: 100%;
+    /* width: 100%; */
     max-width: 600px;
     z-index: 100000;
-    padding: 1rem;
     box-shadow: var(--shadow);
     
     transition: all 0.2s ease;
+    background-color: white;
 }
 .ToastMessage.success {background-color: rgb(157, 190, 81); color: rgba(0, 0, 0, 0.685);}
 .ToastMessage.warning {background-color: rgb(248, 248, 81); color: rgba(0, 0, 0, 0.685);}
 .ToastMessage.error {background-color: rgb(190, 81, 81); color: rgba(0, 0, 0, 0.685);}
 
 .ToastMessage.hidden{
-    top: -10rem;
+    top: -100%;
+    /* right: -100%; */
 }
 .ToastMessage .message {
+    flex-grow: 1;
+    text-align: center;
+    padding-left: 2rem;
+    padding-right: 1rem;
     text-align: center;
 }
 
 .ToastMessage button.dismiss {
-    position: absolute;
-    right: 0;
+    /* position: absolute;
+    right: 0; */
     flex-grow: 0;
 
     background-color: transparent;

@@ -32,43 +32,44 @@ Node/Express
 
 ### ✅ User Accounts                               
 Register, log in, and maintain a persistent account with XP, achievements, and participation history.                                                  
-![user account gif](/walkthrough/user_accounts.gif)
+![user account gif](/walkthrough/user_accounts2.gif)
 
 ### ✅ Case Submission                             
 Allows users to submit an object and accusation within the character limit while enforcing daily submission limits.                                    
-![case submission gif](/walkthrough/case_submission.gif)
+![case submission gif](/walkthrough/case_submission2.gif)
 
 ### ✅ Case Directory                     
 Stores cases with every phase: submissions, votes, verdict, and final outcome are preserved. For completed cases, it also displays what future cases reference it. Can filter by case status and sort by countdown to next phase.
 ![case directory gif](/walkthrough/docket.gif)
 
-### Case Lifecycle Management                   
+### ✅ Case Lifecycle Management                   
 Automatically progresses cases every 24 hours: Provisional → Discovery → Arguments → Jury Deliberation → Verdict → Outcome on a daily schedule. Once a phase is closed, submissions in that phase cannot be voted on.
-[gif here]
+![case directory gif](/walkthrough/lifecycle.gif)
 
-### ✅Evidence Submission                         
+### ✅ Evidence Submission                         
 During the Discovery phase, allows users to submit evidence with character limits and an optional image.                                                
-[gif here]
+![case directory gif](/walkthrough/evidence_submission.gif)
 
-### Argument Submission                         
+### ✅ Argument Submission                         
 During Argument phase, allows users to submit arguments with character limits and up to five citations referencing evidence from current case or judgements from previous cases.                                
-[gif here]
+<!-- ![case directory gif](/walkthrough/arg_submission.gif) -->
+![case directory gif](/walkthrough/form_validation.gif)
 
 ### ✅ Jury System
-Each day, a user is issued N jury summons (e.g. 3). When they click "Serve Jury Duty," they consume one summons and are assigned a random eligible case in which they can vote Guilty, Not Guilty, or Insufficient Evidence.
-[gif here]
+Each day, a user is issued N jury summons (e.g. 3). When they click "Serve Jury Duty", they consume one summons and are assigned a random eligible case in which they can vote Guilty or Not Guilty
+![case directory gif](/walkthrough/jury_system.gif)
 
 ### ✅ Participation Limits                        
 Enforces daily limits on submissions and jury participation while allowing unlimited eligible community voting.                                        
-[gif here]
+![case directory gif](/walkthrough/daily_limits.gif)
 
 ### ✅ Voting                                      
 Lets users vote on provisional cases, evidence, and arguments.                                                                                         
-[gif here]
+![case directory gif](/walkthrough/voting.gif)
 
 ### ✅ User Profiles                               
-Public profile displaying bio, profile image, XP, contribution statistics, highlighted achievements, and all achievements.                             
-[gif here]
+Public profile displaying bio, profile image, XP, contribution statistics, highlighted achievements, and all achievements. Also allow image uploads.                             
+![case directory gif](/walkthrough/profiles.gif)
 ------
 
 ### Contribution History                        

@@ -148,8 +148,8 @@ function JuryDuty(){
         }
         else{
             setToastMsg({message: data.error, type: 'error', key: Date.now()})
+            setSubmitting(false)
         }
-        setSubmitting(false)
     }
 
     function handleChange(e){
@@ -170,6 +170,7 @@ function JuryDuty(){
             <div className="main-content">
                 <div className='minimal'>
                     <h1>Loading ballot...</h1>
+                    <div className='loader'></div>
                 </div>
             </div>
         )
@@ -266,7 +267,10 @@ function JuryDuty(){
                     </div>
                 </div>
                 <div className="pullout-list">
-                    {loadingData ? (<div className="minimal"><div>Loading arguments...</div></div>) :
+                    {loadingData ? (<div className="minimal">
+                        <div>Loading arguments...</div>
+                        <div className='loader'></div>
+                    </div>) :
                     
                     
                     

@@ -1,0 +1,166 @@
+.loader {
+  margin-top: 2rem;
+}
+
+
+/* zig zag */
+/* .loader {
+  height: 27px;
+  aspect-ratio: 5;
+  --c: #000 90deg,#0000 0;
+  background:
+   conic-gradient(from 135deg at top   ,var(--c)),
+   conic-gradient(from -45deg at bottom,var(--c)) 12.5% 100%;
+  background-size: 20% 50%;
+  background-repeat: repeat-x;
+  clip-path: inset(0 100% 0 0);
+  animation: 
+    l13-0 2.5s infinite steps(11,jump-none) alternate,
+    l13-1 5s infinite steps(1);
+}
+@keyframes l13-0{
+  to {clip-path: inset(0)}
+}
+@keyframes l13-1{
+  50% {scale: -1 1}
+} */
+
+/* bird steps */
+/* .loader {
+  width: calc(6*30px);
+  height: 50px;
+  display: flex;
+  color: var(--text);
+  filter: drop-shadow(30px 25px 0 currentColor) drop-shadow(60px 0 0 currentColor) drop-shadow(120px 0 0 currentColor);
+  clip-path: inset(0 100% 0 0);
+  animation: l11 2s infinite steps(7);
+}
+.loader:before {
+  content: "";
+  width: 30px;
+  height: 25px;
+  background: currentColor;
+  clip-path: polygon(0 50%,30% 40%,100% 0,60% 40%,100% 50%,60% 60%,100% 100%,30% 60%);
+}
+@keyframes l11 {
+  100% {clip-path: inset(0 -30px 0 0)}
+} */
+
+
+/* eye */
+.loader {
+  height: 50px;
+  aspect-ratio: 1;
+  display: grid;
+  background:
+    radial-gradient(farthest-side,#000 15%,#0000 18%),
+    radial-gradient(50% 100% at 50% 160%,#fff 95%,#0000) top/100% 50%,
+    radial-gradient(50% 100% at 50% -60%,#fff 95%,#0000) bottom/100% 50%;
+  background-repeat: no-repeat;
+}
+.loader:before {
+  content: "";
+  background: inherit;
+  opacity: 0.6;
+  animation: l1 1s infinite;
+}
+@keyframes l1 {
+  to {transform:scale(3);opacity:0}
+}
+
+/* pulsating dot */
+/* .loader {
+  width: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 0 0 0 #0004;
+  animation: l2 1.5s infinite linear;
+  position: relative;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 #0004;
+  animation: inherit;
+  animation-delay: -0.5s;
+}
+.loader:after {
+  animation-delay: -1s;
+}
+@keyframes l2 {
+    100% {box-shadow: 0 0 0 40px #0000}
+} */
+
+/* circles ans squares */
+/* .loader {
+  width: 64px;
+  aspect-ratio: 1;
+  display: grid;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  grid-area: 1/1;
+  border: 8px solid #BD1550;
+  box-sizing: content-box;
+  margin: auto;
+  aspect-ratio: 1;
+  animation: l8 infinite 1s steps(4,jump-none);
+}
+.loader:after {
+  animation-delay: -.5s;
+  border-radius: 50%;
+}
+@keyframes l8 {
+  0% {width: 0% }
+  to {width: 75%}
+} */
+
+/* unstacking post its */
+/* .loader {
+  width: 50px;
+  aspect-ratio: 1;
+  transform: translate(-100%,100%);
+  animation: l14 2s infinite; 
+}
+@keyframes l14 {
+  0%{
+   box-shadow: 
+    50px -50px #B5AC01,
+    50px -50px #ECBA09,
+    50px -50px #0000,
+    50px -50px #0000,
+    50px -50px #0000}
+  25%{
+   box-shadow: 
+    100px -50px #0000,
+    50px  -50px #ECBA09,
+    50px  -50px #E86E1C,
+    50px  -50px #0000,
+    50px  -50px #0000}
+  50%{
+   box-shadow: 
+    100px -50px  #0000,
+    50px  -100px #0000,
+    50px  -50px  #E86E1C,
+    50px  -50px  #D41E45,
+    50px  -50px  #0000}
+  75%{
+   box-shadow: 
+    100px -50px  #0000,
+    50px  -100px #0000,
+     0px  -50px  #0000,
+    50px  -50px  #D41E45,
+    50px  -50px  #B5AC01}
+  100%{
+   box-shadow: 
+    100px -50px  #0000,
+    50px  -100px #0000,
+     0px  -50px  #0000,
+    50px    0px  #0000,
+    50px  -50px  #B5AC01}
+} */

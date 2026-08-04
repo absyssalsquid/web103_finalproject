@@ -30,6 +30,7 @@ function EditProfile(){
 
     const [toastMsg, setToastMsg] = useState({message: '', type:'', key: null});
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         console.log("enter useEffect")
@@ -98,6 +99,7 @@ function EditProfile(){
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        setSubmitting(true);
 
         const res = await updateProfile({ bio: edited.bio, flair: edited.flair, image: edited.image_url })
         const data = await res.json()
@@ -108,6 +110,7 @@ function EditProfile(){
             setTimeout(() => navigate('/profile'), 800);
         } else {
             setToastMsg({message: data.error || 'Something went wrong.', type: 'error', key: Date.now()})
+            setSubmitting(false);
         }
     }
 
@@ -124,6 +127,7 @@ function EditProfile(){
             <div className="main-content">
                 <div className='minimal'>
                     <h1>Loading...</h1>
+                    <div className='loader'></div>
                 </div>
             </div>
         )
@@ -148,7 +152,7 @@ function EditProfile(){
                     <h2>Edit profile</h2>
                 </div>
             </div>
-
+            
             <form onSubmit={submitHandler}>
 
                 {/* profile image with pencil overlay */}
@@ -222,7 +226,7 @@ function EditProfile(){
                 <small className="char-limit">{edited.bio.length}/{lengthLimits.bio_max}</small>
 
                 <div className="form-actions">
-                    <button type="submit">Save</button>
+                    <button type="submit" disabled={submitting}>Save</button>
                     <button type="button" onClick={cancelHandler}>Cancel</button>
                 </div>
             </form>

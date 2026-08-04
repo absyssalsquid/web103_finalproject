@@ -2,7 +2,7 @@ import { Link, useNavigate, useRoutes } from 'react-router-dom'
 
 import Docket from './pages/Docket'
 import Dashboard from './pages/Dashboard'
-import NewCase from './pages/NewCase'
+import CaseForm from './pages/CaseForm'
 import Case from './pages/Case'
 import UserProfile from './pages/UserProfile'
 import SignIn from './pages/SignIn'
@@ -11,7 +11,7 @@ import JuryDuty from './pages/JuryDuty'
 import JuryBallot from './pages/JuryBallot'
 import Guidelines from './pages/Guidelines'
 import EditProfile from './pages/EditProfile'
-import NewArgument from './pages/NewArgument'
+import ArgumentForm from './pages/ArgumentForm'
 
 import { useAuthContext } from '/src/contexts/auth'
 
@@ -30,11 +30,11 @@ function App() {
     {'path': '/register'      , 'element': <Register />},
     
     {'path': '/dashboard/*'   , 'element': <Dashboard />},
-    {'path': '/new-case'      , 'element': <NewCase/>},
+    {'path': '/new-case'      , 'element': <CaseForm/>},
     {'path': '/cases/:id/*'   , 'element': <Case />},
     
-    {'path': '/new-argument/:case_id'   , 'element': <NewArgument/>},
-    {'path': '/edit-argument/:arg_id'   , 'element': <NewArgument/>},
+    {'path': '/new-argument/:case_id'   , 'element': <ArgumentForm/>},
+    {'path': '/edit-argument/:arg_id'   , 'element': <ArgumentForm/>},
     
     {'path': '/users/:id/*'   , 'element': <UserProfile />},
     {'path': '/profile/edit'  , 'element': <EditProfile />},

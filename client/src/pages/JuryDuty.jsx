@@ -70,6 +70,7 @@ function JuryDuty(){
         return (
             <div className='main-content minimal'>
                 <h1>Loading jury portal...</h1>
+                <div className='loader'></div>
             </div>
         )
     }

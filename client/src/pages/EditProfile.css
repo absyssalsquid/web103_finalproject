@@ -3,11 +3,23 @@
     position: relative;
 }
 
+/* TODO: normalize structure of pages with cards 
+edit profile, argument submission, case submission, ballot submission
+sign in, register, jury assignment 
+
+main-content        provides marign padding from edges
+container
+    header
+    card            border-box, max-width 500px
+        form        no styling!!
+
+*/
+
 .EditProfile .minimal {
     padding: 2rem 0;
 }
 
-/* header banner, matching NewCase */
+/* header banner, matching CaseForm */
 .EditProfile .header-container {
     filter: drop-shadow(var(--shadow-drop));
     position: relative;
@@ -175,7 +187,7 @@
     box-sizing: border-box;
 }
 
-/* actions, matching NewCase */
+/* actions, matching CaseForm */
 .EditProfile .form-actions {
     display: flex;
     gap: 0.75rem;

@@ -35,7 +35,8 @@ function JuryAssignments({history, setHistory}){
     return (
         <div className="JuryAssignments sub-content">
             <div className='minimal'>
-                Loading jury assignments...
+                <div>Loading jury assignments...</div>
+                <div className='loader'></div>
             </div>
         </div>
     )
@@ -50,17 +51,18 @@ function JuryAssignments({history, setHistory}){
                             <th className='text-left'>Case#</th>
                             <th className='text-left'>Vote</th>
                             <th className='text-left'>Status</th>
-                            {/* <th className='text-left'></th> */}
+                            <th className='text-left'></th>
                         </tr>
                     </thead>
                     <tbody>
                         {history.entries.map((item)=>(
-                            <tr key={item.id} onClick={()=>nav(`/jury/ballot/${item.id}`)}>
+                            <tr key={item.id}>
                                 <td>{new Date(item.created_at).toLocaleDateString()}</td>
-                                <td><Link to={`/cases/${item.case_id}`}>{item.case_id}</Link></td>
+                                <td><Link to={`/cases/${item.case_id}`} className='case-link'>{item.case_id}</Link></td>
                                 <td>{toTitleCase(item.vote)}</td>
                                 <td>{(now < new Date(item.expires_at)) ? 'open' : 'closed'}</td>
-                                {/* <td><Link to={`/jury/ballot/${item.id}`} className='view-ballot-link'>👁</Link></td> */}
+                                <td><Link to={`/jury/ballot/${item.id}`} className='ballot-link'>👁</Link></td>
+                                {/* <td><Link to={`/jury/ballot/${item.id}`}><img className="eye" src='/public/eye.png'/></Link></td> */}
                             </tr>
                         ))}
                     </tbody>

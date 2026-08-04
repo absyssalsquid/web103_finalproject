@@ -73,15 +73,13 @@ const Docket = () => {
         })();
     }, [caseHistory.filterBy, caseHistory.sortBy, caseHistory.limit, caseHistory.page, setCaseHistory]);
 
-    var inner_content=null
     if (loading){
-        inner_content = (<div className='minimal'><h1>Loading docket...</h1></div>)
-    } else if (caseHistory.entries.length === 0){
-        inner_content =(<div className='minimal'><h2>No cases match your search.</h2></div>)
-    } else {
-        inner_content = caseHistory.entries.map((el) => (
-            <CaseCard key={el.case_id} data={el} />
-        ))
+        return (
+            <div className='main-content minimal'>
+                <h1>Loading docket...</h1>
+                <div className='loader'></div>
+            </div>
+        )
     }
 
     return (
@@ -95,7 +93,15 @@ const Docket = () => {
             />
 
             <div className='case-container'>
-                { inner_content}
+                { caseHistory.entries.length > 0 
+                    ? caseHistory.entries.map((el) => (
+                        <CaseCard key={el.case_id} data={el} />
+                      ))
+                    : (<div className='minimal'>
+                            <h2>No cases match your search.</h2>
+                        </div>
+                      )
+                }
             </div>
             <Pagination history={caseHistory} setHistory={setCaseHistory} />
 

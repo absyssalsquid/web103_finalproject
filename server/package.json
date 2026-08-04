@@ -5,9 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon --require dotenv/config server.js",
-    "wipe": "node --require dotenv/config config/reset.js",
-    "seed": "node --require dotenv/config config/seed.js",
-    "reset": "npm run wipe && npm run seed"
+
+    "reset": "node --require dotenv/config config/reset.js",
+    "wipe": "node --require dotenv/config config/seed/wipe.js",
+    
+    "seedUsers": "node --require dotenv/config config/seed/seedUsers.js",
+    "seedCases": "node --require dotenv/config config/seed/seedCases.js",
+    "seed": "npm run seedUsers && npm run seedCases",
+
+    "progress": "node --require dotenv/config cron/progressCases.js"
   },
   "keywords": [],
   "author": "",

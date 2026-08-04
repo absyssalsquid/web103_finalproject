@@ -69,7 +69,8 @@ const UserProfile = () => {
         return (
             <div className="main-content">
                 <div className='minimal'>
-                    <h1>Loading...</h1>
+                    <h1>Loading user...</h1>
+                    <div className='loader'></div>
                 </div>
             </div>
         )

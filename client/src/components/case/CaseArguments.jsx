@@ -86,7 +86,10 @@ const CaseArguments = ({phaseDelta, history, setHistory}) => {
     if (loading || isAuthLoading)
     return (
         <div className="sub-content">
-            <div className='minimal'>Loading arguments...</div>
+            <div className='minimal'>
+                <div>Loading arguments...</div>
+                <div className='loader'></div>
+            </div>
         </div>
     )
 

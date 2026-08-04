@@ -5,6 +5,7 @@
     grid-template-columns:  auto auto auto auto;
     overflow-x: auto;
     gap: 0.2rem;
+    border-bottom: 1px solid var(--text-dim);
 }
 
 .SubNav .nav-item {

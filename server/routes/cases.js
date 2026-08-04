@@ -47,16 +47,16 @@ router.get('/', checkJWT, validateQueryPageLimit, validateCaseQuery, controller.
 
 router.post('/', requireJWT, uploadCaseImage, validateCaseSubmission, controller.createCase)
 router.patch('/:id/withdraw', requireJWT, controller.withdrawCase) // users CANNOT delete, only withdraw
-router.get('/:id', controller.getCase) // get basic data for card
+router.get('/:id', checkJWT, controller.getCase) // get basic data for card
 
 router.put('/:id/vote', requireJWT, controller.voteCase)
-router.get('/:id/votes', controller.voteCountCase)
+router.get('/:id/votes', checkJWT, controller.voteCountCase)
 
 router.get('/:id/evidence', checkJWT, validateQueryPageLimit, validateEvidenceQuery, controller.getCaseEvidence) // query params ?limit=20&page=1&sort=oldest|newest|most-voted
 router.get('/:id/arguments', checkJWT, validateQueryPageLimit, validateArgumentQuery, controller.getCaseArguments) // query params ?limit=20&page=1&sort=oldest|newest|most-voted
 router.post('/:id/arguments', requireJWT, normalizeArgumentSubmission, validateArgumentSubmission, argumentsController.createArgument) // canonical endpoint (#78); body: { text, argument_tag, case_citations, evidence_citations }
 
-router.get('/:id/jury-summary', controller.getJurySummary)
+router.get('/:id/jury-summary', checkJWT, controller.getJurySummary)
 
 router.put('/:id/ruling', requireJWT, controller.submitRuling)
 

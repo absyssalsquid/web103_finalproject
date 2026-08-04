@@ -29,6 +29,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
+    const [loadingEvidence, setLoadingEvidence] = useState(true);
     const [isFirstRender, setFirstRender] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
@@ -58,23 +59,27 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
             setLoading(false)
         }
         fetchData();
-    }, [case_id, isAuthenticated]);
+    }, []);
 
     useEffect(() => {
+        if (!isAuthenticated) return
         async function fetchData(){
-            if (isAuthenticated){
-                const res2 = await getUsage()
-                if (res2.ok){
-                    const data2 = await res2.json()
-                    setUsage(data2)
-                }
+            const res = await getUsage()
+            if (res.ok){
+                const data = await res.json()
+                setUsage(data)
             }
         }
         fetchData();
     }, [isAuthenticated]);
 
-     const queryDB = useCallback(async (case_id, qParams) => {
-        setLoading(true)
+    const queryDB = useCallback(async (case_id, qParams) => {
+        if (phaseDelta > 0){
+            setLoadingEvidence(false)
+            return
+        } 
+        console.log("querying db")
+        setLoadingEvidence(true)
         const res = await fetchCaseEvidence(case_id, qParams )
         const data = await res.json()
         if (res.ok){
@@ -88,7 +93,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         else {
             console.log(data.error)
         }
-        setLoading(false)
+        setLoadingEvidence(false)
         
     }, [setHistory]);
 
@@ -96,7 +101,7 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         (() => {
             if (history.hasFetched && isFirstRender){
                 setFirstRender(false)
-                setLoading(false)
+                setLoadingEvidence(false)
                 return
             }
             queryDB(case_id, {
@@ -138,8 +143,8 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
         }
         else {
             setToastMsg({message: data.error, type: 'error', key: Date.now()})
+            setSubmitting(false)
         }
-        setSubmitting(false)
     }
 
     async function handleCancel(e){
@@ -148,10 +153,13 @@ const CaseEvidence = ({phaseDelta, history, setHistory}) => {
     }
 
     
-    if (loading || isAuthLoading)
+    if (loading || isAuthLoading || loadingEvidence)
         return (
             <div className="sub-content">
-                <div className='minimal'>Loading evidence...</div>
+                <div className='minimal'>
+                    <div>Loading evidence...</div>
+                    <div className='loader'></div>
+                </div>
             </div>
         )
 

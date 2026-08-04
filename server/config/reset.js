@@ -13,6 +13,7 @@ const ENUMS = {
     
     xp_event_reason:   `xp_event_reason AS ENUM ('SUBMISSION', 'JURY_VOTE', 'CASE_ADVANCED_TO_TRIAL', 'SUBMISSION_RXN', 'SUBMISSION_CITED')`,
     xp_event_ref_type: `xp_event_ref_type AS ENUM ('CASE', 'EVIDENCE', 'ARGUMENT', 'VOTE')`,
+    user_roles:        `user_roles AS ENUM ('DEV', 'JUDGE')`,
 }
 
 const SINGLE_INDEXES = {
@@ -78,10 +79,18 @@ const TABLES = {
 
     credentials: `
         CREATE TABLE IF NOT EXISTS credentials (
-            user_id         INT REFERENCES users(user_id),
+            user_id         INT REFERENCES users(user_id) NOT NULL,
             pw_hash         VARCHAR(255) NOT NULL,
             email           VARCHAR(500),
             UNIQUE(email)
+        )
+    `,
+
+    user_roles: `
+        CREATE TABLE IF NOT EXISTS user_roles (
+            user_id         INT REFERENCES users(user_id),
+            role            user_role,
+            PRIMARY_KEY(user_id, role)
         )
     `,
 

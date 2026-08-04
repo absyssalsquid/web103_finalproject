@@ -65,8 +65,6 @@ const createCase = async (req, res) => {
     const now = DateTime.now();
     const tomorrow = now.plus({days: 1})
 
-    // TODO: limit verification
-
     let imageUrl = null
     if (req.file) {
       try {
@@ -128,27 +126,33 @@ const withdrawCase = async (req, res) => {
 const getCase = async (req, res) => {
   // Get case card data
   try {
+    let user_id = req.token_payload?.user.user_id
     const { id } = req.params
     const response = await pool.query(`
       SELECT
-        cases.*,
+        c.*,
         users.username,
         users.image_url AS user_image_url,
-        ach.name AS flair_name
-      FROM cases
+        ach.name AS flair_name,
+        rxns.reaction
+      FROM cases AS c
       JOIN users
-        ON cases.user_id = users.user_id
+        ON c.user_id = users.user_id
       LEFT JOIN achievements AS ach
         ON users.flair = ach.achievement_id
-      WHERE case_id = $1`,
-      [id]
+      LEFT JOIN reactions AS rxns
+        ON rxns.submission_type = 'CASE'
+        AND rxns.submission_id = c.case_id
+        AND rxns.user_id = $2
+      WHERE c.case_id = $1`,
+      [id, user_id ?? null]
     )
     if (response.rows.length === 0){
       res.status(404).json(null)
     }
     res.json(response.rows[0])
   } catch (error) {
-    console.log(error.message)
+    console.log("getCase", error.message)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }

@@ -8,11 +8,10 @@ import ToastMessage from "/src/components/ToastMessage"
 
 import { useAuthContext } from '/src/contexts/auth'
 import { getUsage } from '/src/api/me'
-import { getUserLimits } from '/src/api/rules'
+import { getUserLimits, getLengthLimits } from '/src/api/rules'
 import { submitArgument, fetchCaseEvidence, fetchCase, getArgument } from '/src/api/cases'
-import { LIMITS } from '/src/api/limits'
 
-import './NewArgument.css'
+import './ArgumentForm.css'
 import { editArgument } from '../api/cases'
 
 const TAGS = [
@@ -20,7 +19,7 @@ const TAGS = [
     { value: 'DEFENSE', label: 'Defense', tag:'defense' },
 ]
 
-function NewArgument({ onSubmitted }){
+function ArgumentForm(){
     const routeParams = useParams()
 
     const [case_id, setCaseID] = useState(routeParams.case_id)
@@ -46,11 +45,12 @@ function NewArgument({ onSubmitted }){
     const [argument, setArgument] = useState('');
     const [citedEvidenceData, setCitedEvidenceData] = useState({}) // full params of citation for rendering, indexed by evidence_id
     const [citedCaseData, setCitedCaseData] = useState({}) // full params of citation for rendering, indexed by case_id
-    const [citedEvidenceIds, setCitedEvidenceIds] = useState([])
     const [caseInput, setCaseInput] = useState('')
 
     const [userLimits, setUserLimits] = useState({arguments: 0})
+    const [lengthLimits, setLengthLimits] = useState({})
     const [usage, setUsage] = useState({ jury_assignments: null, cases: null, evidence: null, arguments: null })
+
     const [evidenceHistory, setEvidenceHistory] = useState({limit: 20, page: 1, last_page: 1, entries: []})
     const [paneOpen, setPaneOpen] = useState(false)
     
@@ -67,9 +67,11 @@ function NewArgument({ onSubmitted }){
             const res = await Promise.all([
                 getUserLimits(),
                 getUsage(),
+                getLengthLimits(),
             ])
             if (res[0].ok) setUserLimits(await res[0].json())
             if (res[1].ok) setUsage(await res[1].json())
+            if (res[2].ok) setLengthLimits(await res[2].json())
 
             // populate form from fetch for edit
             if (arg_id) {
@@ -80,7 +82,6 @@ function NewArgument({ onSubmitted }){
                     console.log(arg_data)
                     setTag(arg_data.argument_tag)
                     setArgument(arg_data.text)
-                    setCitedEvidenceIds(arg_data.evidence_citations)
                     setCaseID(arg_data.case_id)
                     setEdit(true)
                     setFetchedArg(arg_data)
@@ -125,10 +126,6 @@ function NewArgument({ onSubmitted }){
     }, [loading, case_id, arg_id, evidenceHistory.limit, evidenceHistory.page]);
 
     const toggleEvidence = (evidenceId) => {
-        setCitedEvidenceIds((prev) =>
-            prev.includes(evidenceId) ? prev.filter((e) => e !== evidenceId) : [...prev, evidenceId]
-        )
-
         // cache or uncache from citedEvidenceData
         const cache = {...citedEvidenceData}
         if (evidenceId in citedEvidenceData){
@@ -141,7 +138,6 @@ function NewArgument({ onSubmitted }){
     }
 
     const removeEvidence = (evidenceId) => {
-        setCitedEvidenceIds((prev) => prev.filter((e) => e !== evidenceId))
         const cache = {...citedEvidenceData}
         delete cache[evidenceId]
         setCitedEvidenceData(cache)
@@ -197,7 +193,7 @@ function NewArgument({ onSubmitted }){
             setToastMsg({message: 'Select prosecution or defense before submitting.', type: 'error', key: Date.now()})
             return
         }
-        if (citedEvidenceIds.length + Object.keys(citedCaseData).length > 5) {
+        if (Object.keys(citedEvidenceData).length + Object.keys(citedCaseData).length > 5) {
             setToastMsg({message: 'Arguments can cite at most 5 items total.', type: 'error', key: Date.now()})
             return
         }
@@ -210,7 +206,7 @@ function NewArgument({ onSubmitted }){
             arg_id,
             text: argument,
             argument_tag: tag,
-            evidence_citations: citedEvidenceIds,
+            evidence_citations: Object.keys(citedEvidenceData),
             case_citations: Object.keys(citedCaseData),
             for_edit: forEdit
         })
@@ -219,24 +215,18 @@ function NewArgument({ onSubmitted }){
         if (res.ok){
             setToastMsg({message: forEdit ? "Argument saved." : "Argument received.", type: 'success', key: Date.now()})
             setTimeout(() => navigate(`/cases/${case_id}/arguments`), 1700);
-            // setArgument('')
-            // setTag(null)
-            // setCitedEvidenceIds([])
-            // setCitedCases([])
-            // await refreshUsage()
-            // if (onSubmitted) onSubmitted()
         }
         else {
             setToastMsg({message: data.error, type: 'error', key: Date.now()})
+            setSubmitting(false)
         }
-        setSubmitting(false)
     }
 
     const limitReached = usage.arguments >= userLimits.arguments;
     const submitDisabled = loading || limitReached || !isAuthenticated || submitting;
 
     const charCount = argument.length;
-    const charLimit = LIMITS.ARGUMENT_MAX_LEN;
+    const charLimit = lengthLimits.argument_max;
     const isOverWarning = charCount >= charLimit * 0.9 && charCount < charLimit;
     const isAtLimit = charCount >= charLimit;
     const charStateClass = isAtLimit ? ' is-error' : isOverWarning ? ' is-warning' : '';
@@ -245,6 +235,7 @@ function NewArgument({ onSubmitted }){
         return (
             <div className='main-content minimal'>
                 <h1>Loading argument form...</h1>
+                <div className='loader'></div>
             </div>
         )
     }
@@ -266,7 +257,7 @@ function NewArgument({ onSubmitted }){
     }
     
     return (
-        <div className='NewArgument'>
+        <div className='ArgumentForm'>
             <ToastMessage message={toastMsg.message} type={toastMsg.type} key={toastMsg.key}/>
             
             {(!isAuthenticated) &&
@@ -305,13 +296,14 @@ function NewArgument({ onSubmitted }){
                                 id="argument"
                                 className={`textarea${charStateClass}`}
                                 value={argument}
-                                maxLength={charLimit}
+                                minLength={lengthLimits.argument_min}
+                                maxLength={lengthLimits.argument_max}
                                 onChange={(e) => setArgument(e.target.value)}
                                 placeholder="Argue the case…"
                                 rows={5}
                                 required
                             />
-                            <small className="char-limit">{charCount}/{charLimit}</small>
+                            <small className="char-limit">{charCount}/{lengthLimits.argument_max}</small>
 
                             <button type="button" className="cite-toggle" onClick={() => setPaneOpen(true)}>
                                 + cite evidence
@@ -337,7 +329,7 @@ function NewArgument({ onSubmitted }){
 
                             {/* ----------------------------------------- EVIDENCE CITATIONS --------------------------------------- */}
 
-                            {(citedEvidenceIds.length > 0) && (
+                            {(Object.keys(citedEvidenceData).length > 0) && (
                                 <>
                                     <label htmlFor="ev-citations" className="label">Evidence citations</label>
 
@@ -376,20 +368,22 @@ function NewArgument({ onSubmitted }){
                                 </>
                             )}
 
-                            <ProgressBar
-                                label="Daily argument submissions"
-                                value={usage.arguments}
-                                limit={userLimits.arguments}
-                                limit_message={"You've reached your daily argument limit."}
-                            />
+                            {!forEdit &&(
+                                <ProgressBar
+                                    label="Daily argument submissions"
+                                    value={usage.arguments}
+                                    limit={userLimits.arguments}
+                                    limit_message={"You've reached your daily argument limit."}
+                                />
+                            )}
 
                             <button
                                 className="submit"
                                 type="submit"
-                                disabled={submitDisabled || submitting}
+                                disabled={(submitDisabled || submitting) && !forEdit}
                                 aria-busy={submitting}
                             >
-                                {submitting ? 'Submitting…' : (forEdit ? 'Save argument' : 'Submit argument')}
+                                {submitting ? 'Submitting…' : (forEdit ? 'Save changes' : 'Submit argument')}
                             </button>
 
                         </form>
@@ -409,7 +403,12 @@ function NewArgument({ onSubmitted }){
                         </div>
                     </div>
                     <div className="pullout-list">
-                        {loadingEvidence ? (<div className="minimal"><div>Loading evidence...</div></div>) :
+                        {loadingEvidence ? (
+                            <div className="minimal">
+                                <div>Loading evidence...</div>
+                                <div className='loader'></div>
+                            </div>
+                        ) :
 
                         evidenceHistory.entries.length === 0 ? (
                             <div className="minimal">No evidence submitted yet.</div>
@@ -418,7 +417,7 @@ function NewArgument({ onSubmitted }){
                                 <label className="pullout-item" key={ev.evidence_id}>
                                     <input
                                         type="checkbox"
-                                        checked={citedEvidenceIds.includes(ev.evidence_id)}
+                                        checked={ev.evidence_id in citedEvidenceData }
                                         onChange={() => toggleEvidence(ev.evidence_id)}
                                     />
                                     <div>
@@ -446,4 +445,4 @@ function NewArgument({ onSubmitted }){
     )
 }
 
-export default NewArgument;
+export default ArgumentForm;

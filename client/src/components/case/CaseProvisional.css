@@ -1,25 +1,184 @@
-.Provisional{
+.Provisional {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    gap: 1rem;
+
+    --prosecute: rgb(207, 48, 48);
+    --prosecute-hover: rgba(121, 25, 25, 0.61);
+    --proscute-gauge: rgb(206, 63, 63);
+    
+    --defend: rgb(61, 199, 153);
+    --defend-hover: rgba(139, 230, 147, 0.418);
+    --defend-gauge: rgb(108, 204, 172);
+
+    --gauge: var(--dim-bg)
+}
+
+.Provisional .subheading {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.Provisional .heading-block{
+    margin-top: 1rem;
+}
+.Provisional .heading-block:not(:first-of-type) {
+    margin-top: 1.5rem;
+}
+
+.Provisional .vote-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+    background: var(--card-bg);
+    border-radius: 5px;
+
+    @media screen and (min-width: 576px) {
+        padding: 1rem 1.5rem 0.5rem 1.5rem;
+        gap: .8rem;
+    }
+}
+
+.Provisional .interest-gauge {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.Provisional .gauge-bar {
+    width: 100%;
+    height: 1.5rem;
+    background: var(--border);
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    background-color: var(--gauge);
+    border-radius: 99999px;
+    display: flex;
+}
+
+.Provisional .gauge-prosecute {
+    height: 100%;
+    background: var(--proscute-gauge);
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.Provisional .gauge-defend {
+    height: 100%;
+    background: var(--defend-gauge);
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.Provisional .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.Provisional .gauge-label.prosecute { color: var(--prosecute); }
+.Provisional .gauge-label.defend { color: var(--defend); }
+.Provisional .total-votes {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+}
+
+.Provisional .option-container {
+    margin-top: 2rem;
     display: flex;
     flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.Provisional .option{
+.Provisional .option {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 10rem;
-    color: var(--text-h);
-    font-size: 2rem;
-    font-weight: 800;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
     text-align: center;
     box-sizing: border-box;
-    flex: 1 1 250px; /* grow, shrink, basis */
-    min-width: 250px;
-    transition: font-size 0.2s ease;
+    flex: 1 1 200px;
+    min-width: 180px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
 }
 
-.Provisional .option:hover{font-size: 2.2rem;}
-.Provisional .option:active{font-size: 2.1rem; transform: none;}
+.Provisional .option:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
-.Provisional .option.prosecute{background-color: rgb(206, 63, 63);}
-.Provisional .option.defend{background-color: rgb(108, 204, 172);}
+.Provisional .option-emoji {
+    font-size: 2.5rem;
+    display: block;
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+
+.Provisional .option-text {
+    display: block;
+    font-size: 1rem;
+}
+
+.Provisional .vote-count {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-top: 0.25rem;
+    line-height: 1;
+}
+
+
+.Provisional .option {border-radius: 20px;}
+
+.Provisional .option:active{transform: none;} 
+/* remove click defautlt doen */
+
+.Provisional .option.prosecute { background: var(--prosecute); }
+.Provisional .option.prosecute:not(.selected):hover { box-shadow: inset 0 0 20rem  var(--prosecute-hover);}
+.Provisional .option.prosecute:not(.selected):hover .option-emoji { transform: translateY(-3rem) scale(1.5) translateX(-1rem) rotate(30deg);}
+.Provisional .option.prosecute:not(.selected):active .option-emoji { transform: translateY(2rem) scale(1.5) translateX(-0.2rem) rotate(30deg); }
+
+.Provisional .option.defend {background: var(--defend); transition: transform 0.2s ease-in-out;}
+.Provisional .option.defend:not(.selected):hover { box-shadow: inset 0 0 20rem var(--defend-hover);}
+.Provisional .option.defend:not(.selected):hover .option-emoji { transform: translateY(-3rem) scale(1.5);}
+.Provisional .option.defend:not(.selected):active .option-emoji { transform: translateY(2rem) scale(1.5); }
+
+/* after being selected, icon grows slightly */
+.Provisional .option.selected       .option-emoji { transform: translateY(-1.7rem) scale(2.3); }
+.Provisional .option.selected:hover .option-emoji { transform: translateY(-2.5rem) scale(2.5); }
+.Provisional .option.selected:active .option-emoji { transform: translateY(-2.5rem) scale(2.4); }
+
+@keyframes vote-count-pop {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes spin-horizontal {
+  0% { transform: rotateY(0deg) translateY(-2.5rem) scale(2.5);}
+  100% {transform: rotateY(360deg) translateY(-2.5rem) scale(2.5);}
+}
+
+.Provisional .option.animating .vote-count {
+    animation: vote-count-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
