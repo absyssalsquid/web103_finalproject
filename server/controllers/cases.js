@@ -420,6 +420,60 @@ const submitRuling = async (req, res) => {
   }
 }
 
+// Dependency-injectable so tests can supply a fake pool, mirroring
+// createArgumentController's pattern.
+export function createSubmitJudgeVerdictController(deps = {}) {
+  const dbPool = deps.pool ?? pool
+
+  return async function submitJudgeVerdict(req, res) {
+    const { case_id, verdict, judge_ruling } = req.body
+    const { user_id } = req.token_payload.user
+
+    try {
+      // guarded UPDATE: case_id + judge_id + phase + verdict IS NULL must all
+      // still hold at write time, so two concurrent submissions can't both
+      // succeed — only the first one matches this WHERE clause
+      const response = await dbPool.query(`
+        UPDATE cases
+        SET
+          verdict = $1,
+          judge_ruling = $2,
+          phase = 'CLOSED',
+          phase_start = NOW(),
+          phase_end = NULL
+        WHERE
+          case_id = $3
+          AND judge_id = $4
+          AND phase = 'RULING'
+          AND verdict IS NULL
+        RETURNING
+          case_id,
+          user_id,
+          object_name,
+          accusation,
+          image_url,
+          verdict,
+          judge_id,
+          judge_ruling,
+          phase,
+          phase_start,
+          phase_end,
+          created_at`,
+        [verdict, judge_ruling, case_id, user_id])
+
+      if (response.rows.length === 0)
+        return res.status(409).json({ error: 'This case has already been decided.' })
+
+      res.status(200).json(response.rows[0])
+    } catch (error) {
+      console.log('submitJudgeVerdict', error.message)
+      res.status(500).json({ error: 'Internal server error.' })
+    }
+  }
+}
+
+const submitJudgeVerdict = createSubmitJudgeVerdictController()
+
 const changePhase = async (req, res) => {
   try {
     const { id } = req.params
@@ -442,4 +496,4 @@ const changePhase = async (req, res) => {
   }
 }
 
-export default { getCases, createCase, withdrawCase, getCase, voteCase, voteCountCase, getCaseEvidence, getCaseArguments, getJurySummary, submitRuling, changePhase }
+export default { getCases, createCase, withdrawCase, getCase, voteCase, voteCountCase, getCaseEvidence, getCaseArguments, getJurySummary, submitRuling, submitJudgeVerdict, changePhase }

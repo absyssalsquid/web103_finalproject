@@ -4,7 +4,7 @@ import argumentsController from '../controllers/arguments.js'
 import multer from "multer";
 
 import { requireJWT, checkJWT } from '../middleware/jwt.js'
-import { validateCaseSubmission, validateArgumentSubmission, normalizeArgumentSubmission } from '../middleware/submissionValidation.js'
+import { validateCaseSubmission, validateArgumentSubmission, normalizeArgumentSubmission, validateJudgeVerdict } from '../middleware/submissionValidation.js'
 import { validateQueryPageLimit, validateCaseQuery, validateEvidenceQuery, validateArgumentQuery } from '../middleware/queryValidation.js'
 
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
@@ -59,6 +59,8 @@ router.post('/:id/arguments', requireJWT, normalizeArgumentSubmission, validateA
 router.get('/:id/jury-summary', controller.getJurySummary)
 
 router.put('/:id/ruling', requireJWT, controller.submitRuling)
+
+router.post('/:id/judge-verdict', requireJWT, validateJudgeVerdict, controller.submitJudgeVerdict) // #98: judge submits final verdict, transitions RULING -> CLOSED
 
 router.put('/:id/change-phase', requireJWT, controller.changePhase)  // for rollback or manual advance, only presiding judge can trigger
 
