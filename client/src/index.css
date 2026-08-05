@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url('https://fonts.googleapis.com/css2?family=Ranchers&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
@@ -7,14 +8,16 @@
 
 html {
   min-width: 320px;
-  font-size: 13px;
 }
 
-@media screen and (min-width: 576px ) {html {font-size: 13px;}}
-@media screen and (min-width: 768px ) {html {font-size: 14px;}}
-@media screen and (min-width: 992px ) {html {font-size: 15px;}}
-@media screen and (min-width: 1200px) {html {font-size: 16px;}}
+@media screen and (min-width: 576px ) {html {font-size: 16px;}}
+@media screen and (min-width: 768px ) {html {font-size: 16px;}}
+@media screen and (min-width: 992px ) {html {font-size: 18px;}}
+@media screen and (min-width: 1200px) {html {font-size: 18px;}}
 @media screen and (min-width: 1400px) {html {font-size: 18px;}}
+
+@media screen                         and (pointer: coarse) and (hover:none) {html {font-size: 16px;}}
+@media screen and (min-width: 576px ) and (pointer: coarse) and (hover:none) {html {font-size: 18px;}}
 
 body{
   margin: 0; 
