@@ -105,7 +105,7 @@ const Case = () => {
         return (
             <div className="Case main-content">
                 <div className='overview'>
-                    <img className='case-img' src={caseData.image_url}/>
+                    {caseData.image_url && (<img className='case-img' src={caseData.image_url}/>)}
                     <div className='case-details'>
                         <UserTag 
                             user_id={caseData.user_id} 
