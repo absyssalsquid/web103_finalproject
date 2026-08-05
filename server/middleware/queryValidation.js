@@ -4,6 +4,8 @@ import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_
 
 export function validateQueryPageLimit(req, res, next){
   let { limit, page } = req.query
+  if (!limit) limit = 20
+  if (!page) page = 1
 
   limit = Number(limit)
   if (!Number.isSafeInteger(limit) || limit < 5 || limit > 50)
@@ -13,9 +15,13 @@ export function validateQueryPageLimit(req, res, next){
   if (!Number.isSafeInteger(page) || page < 1 )
     return res.status(422).json({error: "Invalid page num"})
 
+  if (req.validatedQuery === undefined)
+    req.validatedQuery = {}
+  req.validatedQuery.limit = limit
+  req.validatedQuery.page = page
+
   next()
 }
-
 
 export function validateCaseQuery(req, res, next) {
   let { filterBy, sortBy } = req.query
@@ -30,7 +36,8 @@ export function validateCaseQuery(req, res, next) {
   if (!(sortBy in CASE_SORT_MODES))
     return res.status(422).json({error: "Invalid sort method"})
 
-  req.validatedQuery = { filterBy, sortBy }
+  req.validatedQuery.filterBy = filterBy
+  req.validatedQuery.sortBy = sortBy
   next()
 }
 

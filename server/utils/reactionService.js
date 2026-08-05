@@ -1,5 +1,6 @@
 import { pool } from '../config/database.js'
-import {isPositiveInt} from './validation.js'
+import { DateTime } from 'luxon'
+import { isPositiveInt } from './validation.js'
 import { NotFoundError, PhaseError, IDError } from './errors.js'
 
 const UP = 'UP';
@@ -49,13 +50,18 @@ async function validateParams(params){
   params.submission_id = parsed_case_id
 
   // validate phase
-  const submission = await pool.query(`
-    SELECT phase FROM cases WHERE case_id = $1`,
+  const case_res = await pool.query(`
+    SELECT phase, phase_end FROM cases WHERE case_id = $1`,
     [case_id]
   );
-  if (submission.rows[0].phase != phase_window)
-    throw new PhaseError(phase_window, submission.rows[0].phase)
+   
+  let case_data = case_res.rows
+  if (case_data.length === 0)
+    throw new NotFoundError('Case not found')
+  case_data = case_data[0]
 
+  if (case_data.phase != phase_window || case_data.phase_end < DateTime.now())
+    throw new PhaseError(phase_window, case_data.phase)
 }
 
 export async function updateReaction(params) {
@@ -77,7 +83,6 @@ export async function updateReaction(params) {
     if (submission.rowCount === 0) 
       throw new NotFoundError('Submission')
     
-
     // Lock existing reaction row if it exists. FOR UPDATE redundant, but still need to make query for reaction
     const existing = await client.query(
       `SELECT reaction

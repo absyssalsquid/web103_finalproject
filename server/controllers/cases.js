@@ -9,8 +9,7 @@ import { CASE_FILTER_MODES, CASE_SORT_MODES, EV_ARG_SORT_MODES, ARGUMENT_FILTER_
 
 const getCases = async (req, res) => {
   let user_id = req.token_payload?.user.user_id
-  let { limit, page } = req.query
-  let { filterBy, sortBy } = req.validatedQuery
+  let { limit, page, filterBy, sortBy } = req.validatedQuery
   const offset = (page-1) * limit;
 
   try {

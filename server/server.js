@@ -41,12 +41,12 @@ app.use('/api/jury', juryRouter)
 app.use('/api/rules', rulesRouter)
 
 // Serve static files from the built React app
-app.use(express.static(path.join(__dirname, '../client/dist')))
+// app.use(express.static(path.join(__dirname, '../client/dist')))
 
-// Fallback: serve index.html for client-side routing
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'))
-})
+// // Fallback: serve index.html for client-side routing
+// app.use((req, res) => {
+//   res.sendFile(path.join(__dirname, '../client/dist/index.html'))
+// })
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
